@@ -33,7 +33,6 @@ $options{'splitChr'}    = undef;
 $options{'help'}        = undef;
 $options{'qcOFF'}       = undef;
 $options{'root'}        = "$RealBin/../PIPELINE";
-$options{'species'}     = 'hg19';
 $options{'readpool'}    = 'SRP';
 $options{'gf'}          = "png";                 #the format used in html report
 $options{'bzip'}        = undef;                 #to allow bzip compressed fastq files
