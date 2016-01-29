@@ -199,6 +199,7 @@ if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'
   }
 
   my @fastqFile1 = split(/\,/, $options{'FASTQ1'});
+  $options{'fastqFiles1'} =~ s/^SRP//;
   foreach my $fastqFile1 (@fastqFile1) {
     if ($fastqFile1 !~ /\.[bg]z2?$/){
       die "\[error\]: $fastqFile1 must be gzip or bzipped!\n";
@@ -210,6 +211,7 @@ if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'
 
   if ($options{'FASTQ2'} ne 'SRP') {
     my @fastqFile2 = split(/\,/, $options{'FASTQ2'});
+    $options{'fastqFiles2'} =~ s/^SRP//;
     foreach my $fastqFile2 (@fastqFile2) {
       $fastqFile2 = $options{'readpool'}.'/'.$fastqFile2;
       $options{'fastqFiles2'} .= $fastqFile2." ";
