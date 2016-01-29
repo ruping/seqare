@@ -322,7 +322,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "rm $rawBam -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    } elsif ((-s "$sortedBam" and !(-s "$irBam")) or exists($runTask{'indelRealignment'})) { #indel realignment
+    }
+    if ((-s "$sortedBam" and !(-s "$irBam")) or exists($runTask{'indelRealignment'})) { #indel realignment
       my $indelTargetList = $sortedBam."\.irList";
       my $CHR = 'ALL';
       if ($options{'splitChr'}) {     #if split chr, folk it up
@@ -355,7 +356,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         $cmd = bwaMapping->bamIndex($irBam);     #index it
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
-    } elsif ((-s "$irBam" and !(-s "$finalBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
+    }
+    if ((-s "$irBam" and !(-s "$finalBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
       my $rmDupMetric = $irBam.".rmDupMetric";
       my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $irBam, $finalBam, $rmDupMetric);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
