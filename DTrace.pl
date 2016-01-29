@@ -26,7 +26,7 @@ $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
-$options{'bamID'}       = 'SRP';
+$options{'bamID'}       = 1;
 $options{'lanepath'}    = 'SRP';
 $options{'threads'}     = 1;
 $options{'splitChr'}    = undef;
@@ -227,14 +227,16 @@ if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'
 
 foreach my $fastqFile1 (split(" ", $options{'fastqFiles1'})){
   my $cmd = "ln -s $fastqFile1 $options{'lanepath'}/01_READS/";
-  RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile1");
+  my $fastFile1Basename = basename($fastqFile1);
+  RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile1Basename");
 }
 
 
 if ($options{'fastqFiles2'} ne 'SRP'){
   foreach my $fastqFile2 (split(" ", $options{'fastqFiles2'})){
     my $cmd = "ln -s $fastqFile2 $options{'lanepath'}/01_READS/";
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile2");
+    my $fastFile2Basename = basename($fastqFile2);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile2Basename");
   }
 }
 
