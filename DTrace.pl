@@ -178,7 +178,7 @@ if ($options{'root'} eq "$RealBin/../PIPELINE") {
 ###preparation the lane and read path enviroment
 ###
 
-if ($options{'lanepath'} ne 'SRP') {
+if ($options{'lanepath'} eq 'SRP') {
   printtime();
   $options{'lanepath'} = "$options{'root'}/$options{'sampleName'}";   #define lane path
   print STDERR "####### lane name is set to $options{'sampleName'} #######\n\n";
