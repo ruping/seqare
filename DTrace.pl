@@ -94,6 +94,21 @@ while ( <IN> ) {
   $confs{$cols[0]} = $cols[1];
 }
 close IN;
+
+#translate environment variable
+foreach my $confele (keys %confs){
+  while ($confs{$confele} =~ /\$([A-Za-z0-9]+)/g) {
+    my $eleName = $1;
+    my $eleTranslate;
+    if (exists ($confs{$eleName})) {
+      $eleTranslate = $confs{$eleName};
+      $confs{$confele} =~ s/\$$eleName/$eleTranslate/;
+    } else {
+      die("can't translate eleName: $eleName\n");
+    }
+  }
+}
+print STDERR Dumper (\%confs);
 #-------------------------------------------------------------------------
 
 ### Frequently used names-------------------------------------------------
