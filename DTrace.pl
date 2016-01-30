@@ -320,11 +320,14 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->bamIndex($sortedBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = "rm $rawBam -f";
+    }
+    if (-s "$rawBam" and -s "$sortedBam") {
+      my $cmd = "rm $rawBam -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+
     if ((-s "$sortedBam" and !(-s "$irBam")) or exists($runTask{'indelRealignment'})) { #indel realignment
-      my $indelTargetList = $sortedBam."\.irList";
+      my $indelTargetList = $sortedBam."\.target_intervals.list";
       my $CHR = 'ALL';
       if ($options{'splitChr'}) {     #if split chr, folk it up
         my $chrBatches = partitionArray(\@chrs, $options{'threads'});
@@ -334,7 +337,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
           foreach my $chrom (@{$chrBatch}) {
             $manager->start and next;
             $CHR = $chrom;
-            $indelTargetList =~ s/\.irList/\.$CHR\.irList/;
+            $indelTargetList =~ s/\.target_intervals.list/\.$CHR\.target_intervals.list/;
             $irBam =~ s/\.bam/\.$CHR\.bam/;
             my $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -357,11 +360,20 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
+    if (-s "$sortedBam" and -s "$irBam") {
+      my $cmd = "rm $sortedBam $sortedBam\.bai -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
     if ((-s "$irBam" and !(-s "$finalBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
       my $rmDupMetric = $irBam.".rmDupMetric";
       my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $irBam, $finalBam, $rmDupMetric);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->bamIndex($finalBam);     #index it
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$irBam" and -s "$finalBam") {
+      my $cmd = "rm $irBam $irBam\.bai -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
@@ -432,7 +444,7 @@ sub helpm {
   print STDERR "\t--fastqFiles1\tcomma separated zipped fastq file names for mate 1 (with dir name).\n";
   print STDERR "\t--fastqFiles2\tcomma separated zipped fastq file names for mate 2 (with dir name).\n";
   print STDERR "\t--readlen\tthe sequenced read length (default the length of the first read in the fastq file)\n";
-  print STDERR "\t--bamID\tthe ID for read group record in bam file, default is 1. set to the id needed to differentiate seq-experiments\n";
+  print STDERR "\t--bamID\t\tthe ID for read group record in bam file, default is 1. set to the id needed to differentiate seq-experiments\n";
   print STDERR "\t--splitChr\tsplit Chromosomes. (default not set)\n";
 
   print STDERR "\nrunlevel 2: mapping and report of mapping statistics\n";
@@ -446,7 +458,7 @@ sub helpm {
   print STDERR "\t--help\t\tprint this help message\n";
   print STDERR "\t--tmpDir\ttmp dir for generating large tmp files\n";
   print STDERR "\t--bzip\t\tthe read fastq files are bziped, rather than gziped (default).\n";
-  print STDERR "\t--bin\t\tbinary directories (default is where this script is executed.').\n";
+  print STDERR "\t--bin\t\tbinary directories (default is where this script is executed.').\n\n";
 
   #print STDERR "\nSynopsis: RTrace.pl --runlevel 1 --sampleName <sample1> --runID <ID> --root <dir_root> --anno <dir_anno> 2>>run.log\n";
   #print STDERR "Synopsis: RTrace.pl --runlevel 2 --sampleName <sample1> --runID <ID> --root <dir_root> --anno <dir_anno> --patient <ID> --tissue <type> --threads <N> 2>>run.log\n";
