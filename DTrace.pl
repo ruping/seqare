@@ -410,14 +410,14 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 
 
 ###
-###runlevel3: SNV calling
+###runlevel3: STATS
 ###
 
 $runlevels = 3;
 if (exists $runlevel{$runlevels}) {
 
-  unless (-e "$options{'lanepath'}/03_QC") {
-    my $cmd = "mkdir -p $options{'lanepath'}/03_QC";
+  unless (-e "$options{'lanepath'}/03_STATS") {
+    my $cmd = "mkdir -p $options{'lanepath'}/03_STATS";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -568,7 +568,7 @@ sub helpm {
   print STDERR "\t--mapper\tthe mapper for read-alignment, now support \'bwa\' (default).\n";
   print STDERR "\t--gf\t\tthe graphical format in mapping report, \'png\' (default) or \'pdf\' (when a x11 window is not available)\n";
 
-  print STDERR "\nrunlevel 3: QC\n";
+  print STDERR "\nrunlevel 3: STATS\n";
 
   print STDERR "\nrunlevel 4: SNV calling (muTect)\n";
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
