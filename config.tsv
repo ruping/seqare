@@ -11,3 +11,8 @@ chromosomeSize	$anno/trupanno/$species/$species.chromosome_size.txt
 repeatMasker	$anno/trupanno/$species/$species.repeats_UCSC.gff
 selfChain	$anno/trupanno/$species/$species.SelfChain_UCSC.txt
 blatDatabase	$anno/trupanno/$species/$species.genome_UCSC.2bit
+muTectBin	/srv/gsfs0/projects/curtis/pipeline/scripts/muTect-1.1.4.jar
+muTectCOSMIC	$anno/hg19.other/hg19_cosmic_v54_120711.nochr.vcf
+muTectDBSNP	$anno/hg19.other/dbsnp_132_b37.leftAligned.nochr.vcf
+ANNOVARDIR	/srv/gsfs0/projects/curtis/ruping/tools/annovar.new/annovar/
+ANNOVARDB	$anno/annovardb/humandb.new/

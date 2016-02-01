@@ -9,7 +9,7 @@ use FindBin qw($RealBin);
 use Parallel::ForkManager;
 use lib "$RealBin/lib";
 use bwaMapping;
-
+use snvCalling;
 
 my %options;
 my %runlevel;
@@ -41,6 +41,8 @@ $options{'seqType'}     = 'WXS,paired-end';      #experimental types
 $options{'tmpDir'}      = '';
 $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
+
+$options{'somaticInfo'} = "SRP";
 
 
 if (@ARGV == 0) {
@@ -76,6 +78,7 @@ GetOptions(
            "Rbinary=s"    => \$options{'Rbinary'},
            "help|h"       => \$options{'help'},
            "configure=s"  => \$options{'configure'},
+           "somaticInfo=s"=> $options{'somaticInfo'},
            "tmpDir=s"     => \$options{'tmpDir'},
           );
 
@@ -172,6 +175,29 @@ if ($options{'root'} eq "$RealBin/../PIPELINE") {
 } else {
   $options{'readpool'} = $options{'root'} if $options{'readpool'} eq 'SRP';
 }
+
+
+#store somatic information------------------------------------------------
+my %somatic;
+my %germline;                   #may have multiple tumors
+if (-s "$options{'somaticInfo'}") {
+
+  open IN, "$options{'somaticInfo'}";
+  while ( <IN> ) {
+    chomp;
+    s/[\s\n]$//;
+    my @columns = split /\t/;
+    my $tumor = $columns[0];
+    my $normal = $columns[1];
+
+    $somatic{$tumor} = $normal;
+    push(@{$germline{$normal}}, $tumor) if $normal ne 'undef';
+  }
+  close IN;
+  #print STDERR Dumper (\%somatic);
+  #print STDERR Dumper (\%germline);
+}
+#-------------------------------------------------------------------------
 
 
 ###
@@ -390,20 +416,111 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 $runlevels = 3;
 if (exists $runlevel{$runlevels}) {
 
-  #do the statistics
-  unless (-e "$options{'lanepath'}/03_STATS") {
-    my $cmd = "mkdir -p $options{'lanepath'}/03_STATS";
+  unless (-e "$options{'lanepath'}/03_QC") {
+    my $cmd = "mkdir -p $options{'lanepath'}/03_QC";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
+  printtime();
+  print STDERR "####### runlevel $runlevels done #######\n\n";
 
+}
+
+
+###
+###runlevel4: SNV calling
+###
+
+$runlevels = 4;
+if (exists $runlevel{$runlevels}) {
+
+  unless (-e "$options{'lanepath'}/03_SNV") {
+    my $cmd = "mkdir -p $options{'lanepath'}/03_SNV";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  printtime();
+  print STDERR "####### runlevel $runlevels now #######\n\n";
+
+  #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $normalBam;
+  if ($options{'somaticInfo'} eq "SRP"){
+    print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
+    exit 22;
+  } elsif ( !exists( $somatic{$options{'sampleName'}} ) ){
+    print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
+  } else { #get normal bam
+    my $normalSampleName = $somatic{$options{'sampleName'}};
+    $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.rmDup\.bam";
+    unless (-s "$normalBam"){
+      print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
+      exit 22;
+    }
+  }
+
+  my $muTectOut = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect";
+  my $vcfOutTmp = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.vcf";
+  my $vcfOut = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.vcf";
+  my $vcfOutSorted = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf";
+  my $vcfMultiAnno = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
+  my $vcfMultiAnnoVCF = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
+  my $vcfMultiAnnoMod = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+  unless (-s "$muTectOut") {
+    my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  #annoVar annotate---------------------------------------------------------------------
+  if (-s "$muTectOut" and !-s "$vcfMultiAnnoMod") {
+
+    my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut);                                                #convert mutect 2 vcf
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+    $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted);                                                                                    #sort vcf
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+    $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, );       #table annovar
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+    $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+  }
+
+  #rm temporary files
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfOutTmp") {
+    my $cmd = "rm -rf $vcfOutTmp $vcfOutTmp\.idx";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfOut") {
+    my $cmd = "rm -rf $vcfOut";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.avinput") {
+    my $cmd = "rm -rf $vcfOutSorted\.avinput";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.invalid_input") {
+    my $cmd = "rm -rf $vcfOutSorted\.invalid_input";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.refGene.invalid_input") {
+    my $cmd = "rm -rf $vcfOutSorted\.refGene.invalid_input";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$vcfMultiAnnoMod" and -s "$vcfMultiAnno") {
+    my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  #------------------------------------------------------------------------------------
 
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
+
 }
 
 
@@ -450,6 +567,11 @@ sub helpm {
   print STDERR "\nrunlevel 2: mapping and report of mapping statistics\n";
   print STDERR "\t--mapper\tthe mapper for read-alignment, now support \'bwa\' (default).\n";
   print STDERR "\t--gf\t\tthe graphical format in mapping report, \'png\' (default) or \'pdf\' (when a x11 window is not available)\n";
+
+  print STDERR "\nrunlevel 3: QC\n";
+
+  print STDERR "\nrunlevel 4: SNV calling (muTect)\n";
+  print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
 
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";
