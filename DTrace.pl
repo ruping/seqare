@@ -78,7 +78,7 @@ GetOptions(
            "Rbinary=s"    => \$options{'Rbinary'},
            "help|h"       => \$options{'help'},
            "configure=s"  => \$options{'configure'},
-           "somaticInfo=s"=> $options{'somaticInfo'},
+           "somaticInfo=s"=> \$options{'somaticInfo'},
            "tmpDir=s"     => \$options{'tmpDir'},
           );
 
@@ -437,8 +437,8 @@ if (exists $runlevel{$runlevels}) {
 $runlevels = 4;
 if (exists $runlevel{$runlevels}) {
 
-  unless (-e "$options{'lanepath'}/03_SNV") {
-    my $cmd = "mkdir -p $options{'lanepath'}/03_SNV";
+  unless (-e "$options{'lanepath'}/04_SNV") {
+    my $cmd = "mkdir -p $options{'lanepath'}/04_SNV";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -462,13 +462,13 @@ if (exists $runlevel{$runlevels}) {
     }
   }
 
-  my $muTectOut = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect";
-  my $vcfOutTmp = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.vcf";
-  my $vcfOut = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.vcf";
-  my $vcfOutSorted = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf";
-  my $vcfMultiAnno = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
-  my $vcfMultiAnnoVCF = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
-  my $vcfMultiAnnoMod = "$options{'lanepath'}/03_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+  my $muTectOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect";
+  my $vcfOutTmp = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.vcf";
+  my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.vcf";
+  my $vcfOutSorted = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf";
+  my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
+  my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
+  my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
   unless (-s "$muTectOut") {
     my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
