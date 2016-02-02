@@ -27,7 +27,7 @@ $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
-$options{'baminput'}    = 'SRP';
+$options{'bams'}        = 'SRP';
 $options{'bamID'}       = 1;
 $options{'lanepath'}    = 'SRP';
 $options{'threads'}     = 1;
@@ -61,6 +61,7 @@ GetOptions(
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
            "fastqFiles2=s"=> \$options{'fastqFiles2'},
+           "bams=s"       => \$options{'bams'},
            "bamID=s"      => \$options{'bamID'},
            "qcOFF"        => \$options{'qcOFF'},
            "runID=s"      => \$options{'runID'},
