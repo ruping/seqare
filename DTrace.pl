@@ -441,6 +441,10 @@ if (exists $runlevel{$runlevels}) {
     my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
+  if (-s "$bedCover" and -s "$lorenzCover") {
+    my $cmd = "rm $$bedCover -f";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
