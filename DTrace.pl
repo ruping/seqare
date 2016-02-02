@@ -10,6 +10,7 @@ use Parallel::ForkManager;
 use lib "$RealBin/lib";
 use bwaMapping;
 use snvCalling;
+use seqStats;
 
 my %options;
 my %runlevel;
@@ -418,6 +419,26 @@ if (exists $runlevel{$runlevels}) {
 
   unless (-e "$options{'lanepath'}/03_STATS") {
     my $cmd = "mkdir -p $options{'lanepath'}/03_STATS";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  #basic read counting stats:
+  my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  unless (-s "$mappingStats"){
+    my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $finalBam, $options{'readlen'}, $mappingStats);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  #loren curve
+  my $bedCover = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.bedcoverNoDup";
+  my $lorenzCover = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.lorenzNoDup";
+  unless (-s "$lorenzCover") {
+    unless (-s "$bedCover") {
+      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $finalBam, $bedCover);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
