@@ -27,6 +27,7 @@ $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
+$options{'baminput'}    = 'SRP';
 $options{'bamID'}       = 1;
 $options{'lanepath'}    = 'SRP';
 $options{'threads'}     = 1;
@@ -215,6 +216,23 @@ if ($options{'lanepath'} eq 'SRP') {
   }
 }
 
+if ($options{'bams'} ne 'SRP') {
+  unless (-e "$options{'lanepath'}/02_MAPPING") {
+    my $cmd = "mkdir -p $options{'lanepath'}/02_MAPPING";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  unless (-s "$finalBam") {
+    my $cmd = "ln -s $options{'bams'} $finalBam";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  unless (-s "$finalBam\.bai"){
+    my $cmd = "ln -s $options{'bams'}\.bai $finalBam\.bai";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  goto REALSTEPS;
+}
+
 if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'fastqFiles1'} eq 'SRP') {
 
   printtime();
@@ -275,6 +293,8 @@ if ( $options{'readlen'} == 0 ) { #read length not set
   print STDERR "read length is not set, will take the original read length ($options{'readlen'} bp)\n";
 }
 
+#######################################################################################################
+REALSTEPS:
 
 ###
 ###runlevel1: QC
