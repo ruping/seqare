@@ -442,7 +442,7 @@ if (exists $runlevel{$runlevels}) {
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
   if (-s "$bedCover" and -s "$lorenzCover") {
-    my $cmd = "rm $$bedCover -f";
+    my $cmd = "rm $bedCover -f";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
