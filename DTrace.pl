@@ -597,7 +597,7 @@ if (exists $runlevel{$runlevels}) {
     }
 
     #annoVar annotate---------------------------------------------------------------------
-    if (-s "$vcfOut" and !-s "$vcfMultiAnnoModsnv") {
+    if ((-s "$vcfOut" or -s "$vcfMultiAnnoMod") and !-s "$vcfMultiAnnoModsnv") {
 
       unless (-s "$vcfMultiAnnoMod") {
 
