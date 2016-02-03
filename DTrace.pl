@@ -591,7 +591,7 @@ if (exists $runlevel{$runlevels}) {
     my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
     my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
-    unless (-s "$vcfOut" or -s "$vcfOutSorted") {
+    unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
       my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
