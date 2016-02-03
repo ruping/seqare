@@ -45,6 +45,7 @@ $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
 
 $options{'somaticInfo'} = "SRP";
+$options{'germline'}    = "SRP";
 
 
 if (@ARGV == 0) {
@@ -82,6 +83,7 @@ GetOptions(
            "help|h"       => \$options{'help'},
            "configure=s"  => \$options{'configure'},
            "somaticInfo=s"=> \$options{'somaticInfo'},
+           "germline=s"   => \$options{'germline'},
            "tmpDir=s"     => \$options{'tmpDir'},
           );
 
@@ -564,11 +566,64 @@ if (exists $runlevel{$runlevels}) {
   }
   #------------------------------------------------------------------------------------
 
+  if ($options{'germline'} eq 'samtools') {
+
+    my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.vcf";
+    my $vcfOutSorted = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf";
+    my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.txt";
+    my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
+    my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+    my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+    unless (-s "$vcfOut" or -s "$vcfOutSorted") {
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+    #annoVar annotate---------------------------------------------------------------------
+    if (-s "$vcfOut" and !-s "$vcfMultiAnnoModsnv") {
+
+      my $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted); #sort vcf
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, ); #table annovar
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+    }
+
+    #rm temporary files
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOut") {
+      my $cmd = "rm -rf $vcfOut";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.avinput") {
+      my $cmd = "rm -rf $vcfOutSorted\.avinput";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.refGene.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.refGene.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfMultiAnno") {
+      my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    #------------------------------------------------------------------------------------
+  }
+
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
 
 }
-
 
 
 ###------------###################################################################################################
@@ -618,6 +673,7 @@ sub helpm {
 
   print STDERR "\nrunlevel 4: SNV calling (muTect)\n";
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
+  print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
 
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";

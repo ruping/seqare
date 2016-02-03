@@ -16,6 +16,15 @@ sub muTectCalling {
 
 }
 
+sub samtoolsCalling {
+
+  my ($class, $samtoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut) = @_;
+
+  my $cmd = "$samtoolsBin mpileup -Eugd 400 -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | bcftools call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+
+  return $cmd;
+
+}
 
 sub muTect2vcf {
 
@@ -59,6 +68,16 @@ sub convertVCFannovar {
 
 }
 
+
+sub grepSNVvcf {
+
+  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFsnv) = @_;
+
+  my $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \!\~ \/\^INDEL\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFsnv";
+
+  return $cmd;
+
+}
 
 
 1;
