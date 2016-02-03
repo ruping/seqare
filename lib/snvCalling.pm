@@ -79,6 +79,16 @@ sub grepSNVvcf {
 
 }
 
+sub grepINDELvcf {
+
+  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFindel) = @_;
+
+  my $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \~ \/\^INDEL\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFindel";
+
+  return $cmd;
+
+}
+
 
 1;
 

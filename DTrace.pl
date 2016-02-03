@@ -590,6 +590,7 @@ if (exists $runlevel{$runlevels}) {
     my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
     my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
     my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+    my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted") {
       my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -608,6 +609,9 @@ if (exists $runlevel{$runlevels}) {
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
       $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      $cmd = snvCalling->grepINDELvcf($vcfMultiAnnoMod, $vcfMultiAnnoModindel);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
     }
@@ -631,6 +635,10 @@ if (exists $runlevel{$runlevels}) {
     }
     if (-s "$vcfMultiAnnoModsnv" and -s "$vcfMultiAnno") {
       my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfMultiAnnoMod") {
+      my $cmd = "rm -rf $vcfMultiAnnoMod";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     #------------------------------------------------------------------------------------
