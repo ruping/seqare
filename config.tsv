@@ -17,3 +17,4 @@ muTectDBSNP	$anno/hg19.other/dbsnp_132_b37.leftAligned.nochr.vcf
 ANNOVARDIR	/srv/gsfs0/projects/curtis/ruping/tools/annovar.new/annovar/
 ANNOVARDB	$anno/annovardb/humandb.new/
 targetRegion	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed.w5
+samtoolsBin	samtools
