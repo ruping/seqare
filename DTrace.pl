@@ -599,16 +599,20 @@ if (exists $runlevel{$runlevels}) {
     #annoVar annotate---------------------------------------------------------------------
     if (-s "$vcfOut" and !-s "$vcfMultiAnnoModsnv") {
 
-      my $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted); #sort vcf
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      unless (-s "$vcfMultiAnnoMod") {
 
-      $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, ); #table annovar
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        my $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted);      #sort vcf
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-      $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, ); #table annovar
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-      $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv);
+        $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      }
+
+      my $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
       $cmd = snvCalling->grepINDELvcf($vcfMultiAnnoMod, $vcfMultiAnnoModindel);
