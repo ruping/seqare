@@ -469,6 +469,22 @@ if (exists $runlevel{$runlevels}) {
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
+  #for titanCNA
+  my $bedCount = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.w1k.count";
+  my $wigOut = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig";
+  unless (-s "$wigOut"){
+    unless (-s "$bedCount") {
+      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'w1kBed'}, $finalBam, $bedCount);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    my $cmd = seqStats->bed2wig("$options{'bin'}/bed2wig.pl", $bedCount, $wigOut);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  if (-s "$bedCount" and -s "$wigOut"){
+    my $cmd = "rm $bedCount -f";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
 

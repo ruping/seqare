@@ -37,6 +37,16 @@ sub getLorenz {
 
 }
 
+sub bed2wig {
+
+  my ($class, $bed2wigBin, $bedCount, $wigOut) = @_;
+
+  my $cmd = "perl $bed2wigBin $bedCount >$wigOut";
+
+  return $cmd;
+
+}
+
 
 1;
 
