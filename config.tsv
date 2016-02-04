@@ -21,4 +21,4 @@ samtoolsBin	samtools
 w1kBed	$anno/hg19.other/hg19.w1k.bed
 targetRegionTitan	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed
 gcWigTitan	$anno/hg19.other/hg19.gc.wig
-mapWigTian	$anno/hg19.other/hg19.map.wig
+mapWigTitan	$anno/hg19.other/hg19.map.wig
