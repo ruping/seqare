@@ -10,6 +10,7 @@ use Parallel::ForkManager;
 use lib "$RealBin/lib";
 use bwaMapping;
 use snvCalling;
+use cnaCalling;
 use seqStats;
 
 my %options;
@@ -660,6 +661,48 @@ if (exists $runlevel{$runlevels}) {
   print STDERR "####### runlevel $runlevels done #######\n\n";
 
 }
+
+
+###
+###runlevel5: CNA calling
+###
+
+$runlevels = 5;
+if (exists $runlevel{$runlevels}) {
+
+  unless (-e "$options{'lanepath'}/05_CNA") {
+    my $cmd = "mkdir -p $options{'lanepath'}/05_CNA";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  printtime();
+  print STDERR "####### runlevel $runlevels now #######\n\n";
+
+  my $tumorTitan = (-s "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan")? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan" : die("$options{'sampleName'}\_titan not found!!!\n");
+  my $tumorWig = (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig")? "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig" : die("$options{'sampleName'}\.wig not found!!!\n");
+  my $normalWig;
+  if ($options{'somaticInfo'} eq "SRP"){
+    print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
+    exit 22;
+  } elsif ( !exists( $somatic{$options{'sampleName'}} ) ){
+    print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
+  } else { #get normal bam
+    my $normalSampleName = $somatic{$options{'sampleName'}};
+    $normalWig = (-s "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig")? "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig" : die("$normalSampleName\.wig not found!!!\n");
+  }
+
+  my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
+  unless (-s "$segFile"){
+    my $cmd = cnaCalling->runTitan("$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'}, $confs{'targetRegionTitan'});
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  printtime();
+  print STDERR "####### runlevel $runlevels done #######\n\n";
+
+}
+
+
 
 
 ###------------###################################################################################################
