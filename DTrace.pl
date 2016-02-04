@@ -46,7 +46,7 @@ $options{'configure'}   = "SRP";
 
 $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
-
+$options{'recheck'}     = "SRP";
 
 if (@ARGV == 0) {
   helpm();
@@ -84,6 +84,7 @@ GetOptions(
            "configure=s"  => \$options{'configure'},
            "somaticInfo=s"=> \$options{'somaticInfo'},
            "germline=s"   => \$options{'germline'},
+           "recheck=s"    => \$options{'recheck'},
            "tmpDir=s"     => \$options{'tmpDir'},
           );
 
@@ -520,7 +521,7 @@ if (exists $runlevel{$runlevels}) {
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
     $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.rmDup\.bam";
-    unless (-s "$normalBam"){
+    unless (-s "$normalBam") {
       print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
       exit 22;
     }
@@ -533,13 +534,13 @@ if (exists $runlevel{$runlevels}) {
   my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
   my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
   my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
-  unless (-s "$muTectOut") {
+  unless (-s "$muTectOut" or !exists( $somatic{$options{'sampleName'}} ) ) {
     my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
   #annoVar annotate---------------------------------------------------------------------
-  if (-s "$muTectOut" and !-s "$vcfMultiAnnoMod") {
+  if (-s "$muTectOut" and !-s "$vcfMultiAnnoMod" and exists( $somatic{$options{'sampleName'}} ) ) {
 
     my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut);                                                #convert mutect 2 vcf
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -646,6 +647,13 @@ if (exists $runlevel{$runlevels}) {
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     #------------------------------------------------------------------------------------
+  } #germline calling with samtools
+
+  if ($options{'recheck'} ne 'SRP' and -s "$options{'recheck'}") { #do the recheck
+    my $recheckBasename = basename($options{'recheck'});
+    my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
+    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
   printtime();
@@ -702,6 +710,7 @@ sub helpm {
   print STDERR "\nrunlevel 4: SNV calling (muTect)\n";
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
   print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
+  print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
 
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";

@@ -89,6 +89,17 @@ sub grepINDELvcf {
 
 }
 
+sub rechecksnv {
+
+  my ($class, $rechecsnvBin, $recheckTable, $BAM, $recheckOut) = @_;
+
+  my $cmd = "$rechecsnvBin --var $recheckTable --mapping $BAM --skipPileup >$recheckOut";
+
+  return $cmd;
+
+}
+
+
 
 1;
 
