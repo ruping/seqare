@@ -17,7 +17,11 @@ tumorWig <- inputpar[4]
 normalWig <- inputpar[5]
 gcWig <- inputpar[6]
 mapWig <- inputpar[7]
-exons <- inputpar[8]
+plp <- inputpar[8]
+pile <- inputpar[9]
+normalc <- inputpar[10]
+normalcm <- inputpar[11]
+exons <- inputpar[12]
 
 library(TitanCNA)
 library(HMMcopy)
@@ -26,12 +30,12 @@ library(doMC)
 setwd(path)
 
 #run titan
-runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, exons) {
+runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, exons) {
 
     #prepare data
     snpData <- loadAlleleCounts(snpFile)
     cnData <- correctReadDepth(tumWig, normWig, gc, map)
-    if (length(inputpar) == 8){
+    if (length(inputpar) == 12){
       cnData <- correctReadDepth(tumWig, normWig, gc, map, targetedSequence = exons)
     }
     logR <- getPositionOverlap(snpData$chr, snpData$posn, cnData)
@@ -44,7 +48,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
     
     for (j in 1:2) {
         numClusters <- j
-        params <- loadDefaultParameters(copyNumber = 5, numberClonalClusters = numClusters)
+        params <- loadDefaultParameters(copyNumber = 6, numberClonalClusters = numClusters)
         K <- length(params$genotypeParams$alphaKHyper)
         params$genotypeParams$alphaKHyper <- rep(1000, K)
         params$normalParams$n_0 <- normalc
@@ -57,7 +61,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                                         maxiter = 10, maxiterUpdate = 500,
                                         useOutlierState = FALSE, txnExpLen = 1e9,
                                         txnZstrength = 1e9,
-                                        normalEstimateMethod = "map",
+                                        normalEstimateMethod = normalcm,
                                         estimateS = TRUE, estimatePloidy = plpe)
         
         optimalPath <- viterbiClonalCN(snpData, convergeParams)
@@ -78,7 +82,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                     quote = F, row.names = F, sep = "\t")
         
         #make plots
-        if (length(inputpar) == 7){
+        if (length(inputpar) == 11){
           for (chro in 1:22) {
             pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=11.5, height=8)
             if (is.null(titancnaresults[[j]])) next
@@ -104,7 +108,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
             dev.off()
           }
-        } else if (length(inputpar) == 8){
+        } else if (length(inputpar) == 12){
           
           pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=11.5, height=8)
           if (is.null(titancnaresults[[j]])) next
@@ -201,11 +205,16 @@ titancna2seg <- function(titanresult,titanparams) {
   return(cnv)
 }
 
-
+#process input par
+if (plpe == "FALSE"){
+    plpe = FALSE
+} else {
+    pipe = TRUE
+}
 
 targetRegion = read.delim(exons, header=F)
 targetRegion = data.frame(targetRegion[,1:3])
 #targetRegion[,1] = gsub("chr","",targetRegion[,1])
 
-runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,2,TRUE,0.5,targetRegion)
+runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,targetRegion)
 

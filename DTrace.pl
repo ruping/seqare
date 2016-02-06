@@ -48,6 +48,11 @@ $options{'configure'}   = "SRP";
 $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
 $options{'recheck'}     = "SRP";
+$options{'plpTitan'}    = 2.0;
+$options{'plpeTitan'}   = "TRUE";
+$options{'ncTitan'}     = 0.5;
+$options{'ncmTitan'}    = "map";
+
 
 if (@ARGV == 0) {
   helpm();
@@ -87,6 +92,10 @@ GetOptions(
            "germline=s"   => \$options{'germline'},
            "recheck=s"    => \$options{'recheck'},
            "tmpDir=s"     => \$options{'tmpDir'},
+           "plpTitan=f"   => \$options{'plpTitan'},
+           "plpeTitan=s"  => \$options{'plpeTitan'},
+           "ncTitan=f"    => \$options{'ncTitan'},
+           "ncmTitan=s"   => \$options{'ncmTitan'},
           );
 
 #print help
@@ -693,7 +702,8 @@ if (exists $runlevel{$runlevels}) {
 
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
-    my $cmd = cnaCalling->runTitan("$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'}, $confs{'targetRegionTitan'});
+    my $cmd = cnaCalling->runTitan("$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
+                                   $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -754,6 +764,12 @@ sub helpm {
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
   print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
   print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
+
+  print STDERR "\nrunlevel 5: CNA calling (TitanCNA)\n";
+  print STDERR "\t--plpTitan\tploidy starting value, default \'2.0\'\n";
+  print STDERR "\t--plpeTitan\twhether estimate ploidy by itself, default \'TRUE\'\n";
+  print STDERR "\t--ncTitan\tnormal contamination initial value, default \'0.5\'\n";
+  print STDERR "\t--ncmTitan\tmethod used for estimating normal contamination, default \'map\', use \'fixed\' to fix.\n";
 
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";
