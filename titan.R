@@ -3,7 +3,7 @@
 ## this is for WGS or WXS titan run
 
 inputpar <- commandArgs(TRUE)
-if (length(inputpar) < 7) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig'")
+if (length(inputpar) < 11) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig'")
 #for (i in 1:7) {
 #    if (!file.exists(inputpar[i]))
 #          stop("File ",inputpar[i]," doesn't exist")
@@ -22,6 +22,7 @@ plpe <- inputpar[9]
 normalc <- inputpar[10]
 normalcm <- inputpar[11]
 exons <- inputpar[12]
+
 
 library(TitanCNA)
 library(HMMcopy)
@@ -206,11 +207,18 @@ titancna2seg <- function(titanresult,titanparams) {
 }
 
 #process input par
-if (plpe == "FALSE"){
+if (plpe == "FALSE") {
     plpe = FALSE
 } else {
-    pipe = TRUE
+    plpe = TRUE
 }
+
+plp = as.numeric(plp)
+message(plp)
+message(plpe)
+normalc = as.numeric(normalc)
+message(normalc)
+message(normalcm)
 
 targetRegion = read.delim(exons, header=F)
 targetRegion = data.frame(targetRegion[,1:3])
