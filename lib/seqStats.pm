@@ -48,6 +48,17 @@ sub bed2wig {
 }
 
 
+sub insertSize {
+
+  my ($class, $BAM, $outINS) = @_;
+
+  my $cmd = "samtools view -f 0x2 -F 0x400 $BAM | cut -f 9 | awk \'\$1\>0 \&\& \$1\<1000\' >$outINS";
+
+  return $cmd;
+
+}
+
+
 1;
 
 

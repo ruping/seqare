@@ -496,6 +496,21 @@ if (exists $runlevel{$runlevels}) {
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
+  #for insert size
+  if ($options{'seqType'} =~ /paired/) {                       #do the insert size only if it is paired-end
+    unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins\.gz") {
+      unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
+         my $cmd = seqStats->insertSize($finalBam, "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins");
+         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      if (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
+         my $cmd = "gzip $options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins";
+         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
+  } #insert size
+
+
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
