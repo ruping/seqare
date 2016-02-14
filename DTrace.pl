@@ -508,6 +508,12 @@ if (exists $runlevel{$runlevels}) {
          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
+
+    unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.insertSize\.pdf") {
+      my $cmd = seqStats->plotInsertSize("$options{'bin'}/insertSize.R", "$options{'lanepath'}/03_STATS/", $options{'sampleName'},
+                                         "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins\.gz", "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.insertSize\.pdf");
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
   } #insert size
 
 
