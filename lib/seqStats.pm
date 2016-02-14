@@ -63,7 +63,7 @@ sub plotInsertSize {
 
   my ($class, $insertSizeRbin, $path, $sampleName, $insGZ, $outPDF) = @_;
 
-  my $cmd = "insertSizeRbin $path $sampleName $insGZ $outPDF";
+  my $cmd = "$insertSizeRbin $path $sampleName $insGZ $outPDF";
 
   return $cmd;
 
