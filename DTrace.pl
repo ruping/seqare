@@ -235,13 +235,20 @@ if ($options{'bams'} ne 'SRP') {
     my $cmd = "mkdir -p $options{'lanepath'}/02_MAPPING";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
-  unless (-s "$finalBam") {
-    my $cmd = "ln -s $options{'bams'} $finalBam";
+  my $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
+  if ( exists($runTask{'indelRealignment'}) ) {
+    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
+  } elsif ( exists($runTask{'MarkDuplicates'}) {
+    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
+  } elsif ( exists($runTask{'recalMD'} ) {
+    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  }
+  unless (-s "$linkBam") {
+    my $cmd = "ln -s $options{'bams'} $linkBam";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  unless (-s "$finalBam\.bai"){
-    my $cmd = "ln -s $options{'bams'}\.bai $finalBam\.bai";
+  unless (-s "$linkBam\.bai"){
+    my $cmd = "ln -s $options{'bams'}\.bai $linkBam\.bai";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
   goto REALSTEPS;
@@ -348,12 +355,13 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'QC'})) {
 
 
 $runlevels = 2;
-if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'})) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) {
 
   my $rawBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.bam";
   my $sortedBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
   my $irBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
-  my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $rmDupBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.md\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
@@ -375,7 +383,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
-  unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'})) ) {    #processing bam
+  unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) ) {    #processing bam
     if (-s "$rawBam" and !(-s "$sortedBam")) {     #must sort
       my $cmd = bwaMapping->bamSort($options{'threads'}, $rawBam."\.tmp", $sortedBam, $rawBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -426,15 +434,20 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
-    if ((-s "$irBam" and !(-s "$finalBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
+    if ((-s "$irBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
       my $rmDupMetric = $irBam.".rmDupMetric";
-      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $irBam, $finalBam, $rmDupMetric);
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bamIndex($finalBam);     #index it
+      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $irBam, $rmDupBam, $rmDupMetric);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    if (-s "$irBam" and -s "$finalBam") {
+    if (-s "$irBam" and -s "$rmDupBam") {
       my $cmd = "rm $irBam $irBam\.bai -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+    if (-s "$rmDupBam" and !(-s "$finalBam")) or exists($runTask{'recalMD'})) {
+      my $cmd = bwaMapping->recalMD($rmDupBam, $confs{'GFASTA'}, $finalBam);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->bamIndex($finalBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
@@ -458,7 +471,7 @@ if (exists $runlevel{$runlevels}) {
 
   #basic read counting stats:
   my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
-  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
   unless (-s "$mappingStats"){
     my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $finalBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -542,7 +555,7 @@ if (exists $runlevel{$runlevels}) {
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
   #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
-  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
   my $normalBam;
   if ($options{'somaticInfo'} eq "SRP"){
     print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";

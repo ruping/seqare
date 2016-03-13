@@ -45,6 +45,18 @@ sub bamIndex {
   return $cmd;
 }
 
+
+sub recalMD {
+
+  my ($class, $inBam, $GFASTA, $outBam) = @_;
+
+  my $cmd = "samtools calmd -brE $inBam $GFASTA >$outBam";
+
+  return $cmd;
+
+}
+
+
 sub indelRealignment1 {
 
   my ($class, $gatkBin, $inBam, $gfasta, $knownindel1, $knownindel2, $CHR, $outList) = @_;
