@@ -238,16 +238,16 @@ if ($options{'bams'} ne 'SRP') {
   my $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
   if ( exists($runTask{'indelRealignment'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
-  } elsif ( exists($runTask{'MarkDuplicates'}) {
+  } elsif ( exists($runTask{'MarkDuplicates'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
-  } elsif ( exists($runTask{'recalMD'} ) {
+  } elsif ( exists($runTask{'recalMD'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
   }
   unless (-s "$linkBam") {
     my $cmd = "ln -s $options{'bams'} $linkBam";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  unless (-s "$linkBam\.bai"){
+  unless (-s "$linkBam\.bai") {
     my $cmd = "ln -s $options{'bams'}\.bai $linkBam\.bai";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
@@ -444,7 +444,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
-    if (-s "$rmDupBam" and !(-s "$finalBam")) or exists($runTask{'recalMD'})) {
+    if ((-s "$rmDupBam" and !(-s "$finalBam")) or exists($runTask{'recalMD'})) {
       my $cmd = bwaMapping->recalMD($rmDupBam, $confs{'GFASTA'}, $finalBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->bamIndex($finalBam);     #index it
