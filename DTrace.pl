@@ -450,6 +450,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       $cmd = bwaMapping->bamIndex($finalBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+    if (-s "$rmDupBam" and -s "$finalBam") {
+      my $cmd = "rm $rmDupBam $rmDupBam\.bai -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
   }
 
   printtime();
