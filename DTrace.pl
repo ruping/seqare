@@ -170,11 +170,13 @@ if ($options{'runlevels'}) { #true runlevels
       $runlevel{$i}=1;
     }
   }
-} elsif ($options{'runTask'}) {
+}
+if ($options{'runTask'}) {
   foreach my $task (split(/\,/, $options{'runTask'})) {
     $runTask{$task} = '';
   }
-} else {
+}
+if (! $options{'runlevels'} and ! $options{'runTask'}) {
   print STDERR "no runlevel or runTask has been set, exit.\n";
   helpm();
 }
