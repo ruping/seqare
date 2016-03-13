@@ -361,7 +361,7 @@ int main (int argc, char *argv[]) {
         sregex_token_iterator rit ( MD.begin(), MD.end(), rgx, subs );
         sregex_token_iterator rend;
 
-        cerr << bam.Name << "\t";
+        //cerr << bam.Name << "\t";
 
         while ( rit != rend ) {
 
@@ -405,7 +405,7 @@ int main (int argc, char *argv[]) {
 
           } else if ((*rit).length() == 1) {                // single base nucleotide change
             //check whether it is "N" or not 
-            cerr << cuPosRead << "\t";
+            //cerr << cuPosRead << "\t";
             string baseInReadPre = (bam.QueryBases).substr( cuPosRead-1, 1 );
             if (baseInReadPre != "N") {
               ++num_mismatches;
@@ -419,7 +419,7 @@ int main (int argc, char *argv[]) {
 
           ++rit;                                           
         } //loop for all MD characters 
-        cerr << endl;
+        //cerr << endl;
 
         if (num_mismatches >= 2) {      //multi mismatches
           ++BAMSTATS.num_multiMis;
