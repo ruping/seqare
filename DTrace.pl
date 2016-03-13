@@ -62,7 +62,6 @@ if (@ARGV == 0) {
 
 
 GetOptions(
-           "task|t=s"     => \$options{'task'},
            "sampleName=s" => \$options{'sampleName'},
            "FASTQ1=s"     => \$options{'FASTQ1'},
            "FASTQ2=s"     => \$options{'FASTQ2'},
@@ -73,7 +72,7 @@ GetOptions(
            "qcOFF"        => \$options{'qcOFF'},
            "runID=s"      => \$options{'runID'},
            "runlevel=s"   => \$options{'runlevels'},
-           "runTask=s"    => \$options{'runMethod'},
+           "runTask=s"    => \$options{'runTask'},
            "seqType=s"    => \$options{'seqType'},
            "noexecute"    => \$options{'noexecute'},
            "quiet"        => \$options{'quiet'},
@@ -240,11 +239,14 @@ if ($options{'bams'} ne 'SRP') {
   my $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
   if ( exists($runTask{'indelRealignment'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
-  } elsif ( exists($runTask{'MarkDuplicates'}) ) {
+  }
+  if ( exists($runTask{'MarkDuplicates'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
-  } elsif ( exists($runTask{'recalMD'}) ) {
+  }
+  if ( exists($runTask{'recalMD'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
   }
+
   unless (-s "$linkBam") {
     my $cmd = "ln -s $options{'bams'} $linkBam";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -772,7 +774,7 @@ sub RunCommand {
 
 sub helpm {
   print STDERR "\nGENERAL OPTIONS:\n\t--runlevel\tthe steps of runlevel, from 1-3, either rl1-rl2 or rl. See below for options for each runlevel.\n\tor\n";
-  print STDERR "\t--runTask\tthe specific task. e.g., \'QC\', \'indelRealignment\', \'MarkDuplicates\', etc\n\n";
+  print STDERR "\t--runTask\tthe specific task. e.g., \'QC\', \'indelRealignment\', \'MarkDuplicates\', \'recalMD\' etc\n\n";
   print STDERR "\t--configure\tthe tab delimited file containing conf info for annotations\n";
   print STDERR "\t--sampleName\tthe name of the lane needed to be processed (must set for runlevel 1-5)\n";
   print STDERR "\t--seqType\tcomma separated, possible arguments \'paired-end\', \'single-end\', \'WXS\' and \'WGS\' (default).\n";
