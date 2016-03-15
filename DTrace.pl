@@ -552,7 +552,7 @@ if (exists $runlevel{$runlevels}) {
 ###
 
 $runlevels = 4;
-if (exists $runlevel{$runlevels}) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
   unless (-e "$options{'lanepath'}/04_SNV") {
     my $cmd = "mkdir -p $options{'lanepath'}/04_SNV";
@@ -565,6 +565,11 @@ if (exists $runlevel{$runlevels}) {
   #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
   my $normalBam;
+
+  if (!exists($runlevel{$runlevels}) and exists($runTask{'recheck'})){
+    goto RECHECK;
+  }
+
   if ($options{'somaticInfo'} eq "SRP"){
     print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
     exit 22;
@@ -700,6 +705,8 @@ if (exists $runlevel{$runlevels}) {
     }
     #------------------------------------------------------------------------------------
   } #germline calling with samtools
+
+ RECHECK:
 
   if ($options{'recheck'} ne 'SRP' and -s "$options{'recheck'}") { #do the recheck
     my $recheckBasename = basename($options{'recheck'});
