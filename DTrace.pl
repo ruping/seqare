@@ -584,6 +584,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
   }
 
+  if ($options{'germline'} =~ 'samtoolsOnly'){
+    goto GERMLINE;
+  }
+
   my $muTectOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect";
   my $vcfOutTmp = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.vcf";
   my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.vcf";
@@ -640,7 +644,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   }
   #------------------------------------------------------------------------------------
 
-  if ($options{'germline'} eq 'samtools') {
+ GERMLINE:
+
+  if ($options{'germline'} =~ /samtools/) {
 
     my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.vcf";
     my $vcfOutSorted = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf";
