@@ -584,7 +584,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
   }
 
-  if ($options{'germline'} =~ 'samtoolsOnly'){
+  if ($options{'germline'} =~ /samtoolsOnly/){
     goto GERMLINE;
   }
 
