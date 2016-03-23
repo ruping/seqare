@@ -577,7 +577,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
-    $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.rmDup\.bam";
+    $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.rmDup\.md\.bam";
     unless (-s "$normalBam") {
       print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
       exit 22;
