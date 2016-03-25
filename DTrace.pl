@@ -595,7 +595,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
   my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
   my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
-  unless (-s "$muTectOut" or !exists( $somatic{$options{'sampleName'}} ) ) {
+  unless ((-s "$muTectOut" or -s "$muTectOut\.gz") or !exists( $somatic{$options{'sampleName'}} ) ) {
     my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
