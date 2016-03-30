@@ -301,7 +301,7 @@ int main ( int argc, char *argv[] ) {
         if ( iter->end >= alignmentStart && iter->start <= alignmentEnd ) {  //overlapping, should take action
 
           if (bam.Length > iter->readlen) {                 // should we re-define the read length?
-            iter->readlen = bam.Length
+            iter->readlen = bam.Length;
           }
           
           unsigned int mismatches = 0;                      // how many mismatches does this read have? 
