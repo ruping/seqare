@@ -51,10 +51,12 @@ struct var {  // a bed file containing gene annotations
   unsigned int inends;
   unsigned int countJump;
   vector <unsigned int> surrounding;
+  map<unsigned int, unsigned int> conMis;
+  unsigned int readlen;
 };
 
 
-unsigned int read_length = 0;
+//unsigned int read_length = 0;
 
 inline void ParseCigar(const vector<CigarOp> &cigar, vector<int> &blockStarts, vector<int> &blockEnds, unsigned int &alignmentEnd, map<unsigned int, unsigned int> &insertions, unsigned int &softClip);
 inline void splitstring(const string &str, vector<string> &elements, const string &delimiter);
@@ -232,9 +234,9 @@ int main ( int argc, char *argv[] ) {
       }
 
 
-      if (read_length == 0) {
-        read_length = bam.Length;
-      }
+      //if (bam.Length > read_length) {              // get the read length
+      //  read_length = bam.Length;
+      //}
 
       string chrom = refs.at(bam.RefID).RefName;
       string strand = "+";
@@ -298,6 +300,10 @@ int main ( int argc, char *argv[] ) {
 
         if ( iter->end >= alignmentStart && iter->start <= alignmentEnd ) {  //overlapping, should take action
 
+          if (bam.Length > iter->readlen) {                 // should we re-define the read length?
+            iter->readlen = bam.Length
+          }
+          
           unsigned int mismatches = 0;                      // how many mismatches does this read have? 
           bool varInRead = false;                           // is the var in the read?
           bool posInRead = false;
@@ -335,11 +341,11 @@ int main ( int argc, char *argv[] ) {
           sregex_token_iterator rend;
 
           map<unsigned int, unsigned int>::iterator inserit_index = insertions.begin();
-          while ( inserit_index != insertions.end() ) {  // check insertions
-            mismatches += 1;     //should count as mismatches
+          while ( inserit_index != insertions.end() ) {    // check insertions
+            mismatches += 1;                               //should count as mismatches
             inserit_index++;
           }
-          inserit_index = insertions.begin();   //reset it for the begin of insertions
+          inserit_index = insertions.begin();              //reset it for the begin of insertions
 
 
           while ( rit != rend ) {
@@ -348,7 +354,7 @@ int main ( int argc, char *argv[] ) {
             cuPos += incre;                                                   //number 1
             cuPosRead += incre; 
 
-            if (blockStarts.size() > 1) {   //judge which block the mutation locate
+            if (blockStarts.size() > 1) {                 //judge which block the mutation locate
               vector <int>::iterator bliter2 = blockLengths.begin();
               vector <int>::iterator bSiter2 = blockStarts.begin();
               unsigned int culength = 0;
@@ -385,8 +391,14 @@ int main ( int argc, char *argv[] ) {
 
               //check whether it is "N" or not
               string baseInReadPre = (bam.QueryBases).substr( cuPosRead-1, 1 );
-              if (baseInReadPre != "N") {
+              if (baseInReadPre != "N") {                     
                  mismatches += 1;
+                 map<unsigned int, unsigned int>::iterator cmi = (iter->conMis).find(cuPos);
+                 if ( cmi == (iter->conMis).end() ) {                                            // not found need to record mismatch in a map
+                   (iter->conMis).insert( pair <unsigned int, unsigned int> (cuPos, 1) );        // not found need to record mismatch in a map
+                 } else {
+                   cmi->second += 1;                                                             // found increase it
+                 }
               }
 
               if ( cuPos == iter->start ) { // it is right here with some variant base!!!
@@ -556,7 +568,8 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
   tmp.countMappingBad = 0;
   tmp.inends = 0;
   tmp.countJump = 0;
- 
+  tmp.readlen = 0;
+  
   for(i = 1; iter != line_content.end(); iter++, i++) {
     switch (i) {
     case 1:  // chr
@@ -665,7 +678,18 @@ inline void var_processing(struct var &variant) {
     fracBadMappingQual = ((float)(variant.countMappingBad))/((float)(variant.countMappingGood + variant.countMappingBad));
   }
 
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << endl;
+  // get local error rate estimate
+  float totalBases = (float)variant.countAll * (float)variant.readlen;
+  map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
+  unsigned int numncMis = 0;
+  for (; cmi != (variant.conMis).end(); cmi++){
+    if (cmi->second == 1){
+      numncMis += 1;
+    }
+  }
+  float localEr = ((float)numncMis)/totalBases;
+
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << localEr << endl;
 
 }
 
