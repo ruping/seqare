@@ -1,7 +1,7 @@
 /*****************************************************************************
 
-  (c) 2013 - Sun Ruping
-  rs3412@columbia.edu
+  (c) 2016 - Sun Ruping
+  ruping@stanford.edu
 
 
 g++ novelSnvFilter_ACGT.cpp 
