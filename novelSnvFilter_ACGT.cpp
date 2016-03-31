@@ -418,7 +418,7 @@ int main ( int argc, char *argv[] ) {
 
                 //cout << cuPosRead << endl;             // deBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 string baseInRead = (bam.QueryBases).substr( cuPosRead-1, 1 );
-                iter->qualities .= (bam.Qualities).substr( cuPosRead-1, 1 );   //base quality
+                iter->qualities += (bam.Qualities).substr( cuPosRead-1, 1 );   //base quality
 
                 
                 iter->countAlt += 1;
