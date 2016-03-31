@@ -52,7 +52,7 @@ struct var {  // a bed file containing gene annotations
   unsigned int countJump;
   unsigned int readlen;
   vector <unsigned int> surrounding;
-  map <unsigned int, unsigned int> conMis;
+  //map <unsigned int, unsigned int> conMis;
 };
 
 
@@ -393,12 +393,12 @@ int main ( int argc, char *argv[] ) {
               string baseInReadPre = (bam.QueryBases).substr( cuPosRead-1, 1 );
               if (baseInReadPre != "N") {                     
                  mismatches += 1;
-                 map<unsigned int, unsigned int>::iterator cmi = (iter->conMis).find(cuPos);
-                 if ( cmi == (iter->conMis).end() ) {                                            // not found need to record mismatch in a map
-                   (iter->conMis).insert( pair <unsigned int, unsigned int> (cuPos, 1) );        // not found need to record mismatch in a map
-                 } else {
-                   cmi->second += 1;                                                             // found increase it
-                 }
+                 //map<unsigned int, unsigned int>::iterator cmi = (iter->conMis).find(cuPos);
+                 //if ( cmi == (iter->conMis).end() ) {                                            // not found need to record mismatch in a map
+                 //  (iter->conMis).insert( pair <unsigned int, unsigned int> (cuPos, 1) );        // not found need to record mismatch in a map
+                 //} else {
+                 //  cmi->second += 1;                                                             // found increase it
+                 //}
               }
 
               if ( cuPos == iter->start ) { // it is right here with some variant base!!!
@@ -680,13 +680,13 @@ inline void var_processing(struct var &variant) {
 
   // get local error rate estimate
   float totalBases = (float)variant.countAll * (float)variant.readlen;
-  map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
+  //map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
   unsigned int numncMis = 0;
-  for (; cmi != (variant.conMis).end(); cmi++) {
-    if (cmi->second == 1) {
-      numncMis += 1;
-    }
-  }
+  //for (; cmi != (variant.conMis).end(); cmi++) {
+  //  if (cmi->second == 1) {
+  //    numncMis += 1;
+  //  }
+  //}
   float localEr = ((float)numncMis)/totalBases;
 
   cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(3) << localEr << endl;
