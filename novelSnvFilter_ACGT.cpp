@@ -682,14 +682,15 @@ inline void var_processing(struct var &variant) {
   float totalBases = (float)variant.countAll * (float)variant.readlen;
   map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
   unsigned int numncMis = 0;
-  for (; cmi != (variant.conMis).end(); cmi++){
-    if (cmi->second == 1){
+  for (; cmi != (variant.conMis).end(); cmi++) {
+    if (cmi->second == 1) {
       numncMis += 1;
     }
   }
   float localEr = ((float)numncMis)/totalBases;
 
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(3) << localEr << endl;
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << endl;
+    //"\t" << setprecision(3) << localEr << endl;
 
 }
 
