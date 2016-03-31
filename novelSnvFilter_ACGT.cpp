@@ -56,7 +56,7 @@ struct var {  // a bed file containing gene annotations
 };
 
 
-//unsigned int read_length = 0;
+unsigned int read_length = 0;
 
 inline void ParseCigar(const vector<CigarOp> &cigar, vector<int> &blockStarts, vector<int> &blockEnds, unsigned int &alignmentEnd, map<unsigned int, unsigned int> &insertions, unsigned int &softClip);
 inline void splitstring(const string &str, vector<string> &elements, const string &delimiter);
@@ -234,9 +234,9 @@ int main ( int argc, char *argv[] ) {
       }
 
 
-      //if (bam.Length > read_length) {              // get the read length
-      //  read_length = bam.Length;
-      //}
+      if (bam.Length > read_length) {              // get the read length
+        read_length = bam.Length;
+      }
 
       string chrom = refs.at(bam.RefID).RefName;
       string strand = "+";
