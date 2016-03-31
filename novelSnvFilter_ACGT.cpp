@@ -679,7 +679,6 @@ inline void var_processing(struct var &variant) {
   }
 
   // get local error rate estimate
-  float totalBases = 1;
   float totalBases = (float)variant.countAll * (float)variant.readlen;
   map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
   unsigned int numncMis = 0;
