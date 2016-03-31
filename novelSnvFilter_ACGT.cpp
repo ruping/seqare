@@ -50,7 +50,7 @@ struct var {  // a bed file containing gene annotations
   unsigned int countMappingBad;
   unsigned int inends;
   unsigned int countJump;
-  unsigned int readlen;
+  //unsigned int readlen;
   vector <unsigned int> surrounding;
   //map <unsigned int, unsigned int> conMis;
 };
@@ -300,9 +300,9 @@ int main ( int argc, char *argv[] ) {
 
         if ( iter->end >= alignmentStart && iter->start <= alignmentEnd ) {  //overlapping, should take action
 
-          if (bam.Length > iter->readlen) {                 // should we re-define the read length?
-            iter->readlen = bam.Length;
-          }
+          //if (bam.Length > iter->readlen) {                 // should we re-define the read length?
+          //  iter->readlen = bam.Length;
+          //}
           
           unsigned int mismatches = 0;                      // how many mismatches does this read have? 
           bool varInRead = false;                           // is the var in the read?
@@ -568,7 +568,7 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
   tmp.countMappingBad = 0;
   tmp.inends = 0;
   tmp.countJump = 0;
-  tmp.readlen = 0;
+  //tmp.readlen = 0;
   
   for(i = 1; iter != line_content.end(); iter++, i++) {
     switch (i) {
@@ -679,7 +679,8 @@ inline void var_processing(struct var &variant) {
   }
 
   // get local error rate estimate
-  float totalBases = (float)variant.countAll * (float)variant.readlen;
+  float totalBases = 1;
+  //float totalBases = (float)variant.countAll * (float)variant.readlen;
   //map<unsigned int, unsigned int>::iterator cmi = (variant.conMis).begin();
   unsigned int numncMis = 0;
   //for (; cmi != (variant.conMis).end(); cmi++) {
