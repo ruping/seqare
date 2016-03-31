@@ -669,7 +669,7 @@ inline void var_processing(struct var &variant) {
     meanMis = 0.0;
     medianMis = 0.0;
   } else {
-    meanMis = ssum)/((float)surrSize);
+    meanMis = ssum/((float)surrSize);
     medianMis = CalcMedian(variant.surrounding);
   }
 
