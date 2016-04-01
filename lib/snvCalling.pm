@@ -1,6 +1,7 @@
 package snvCalling;
 
 use strict;
+use List::Util qw[min max product sum];
 
 #
 # snv Calling
@@ -99,6 +100,84 @@ sub rechecksnv {
 
 }
 
+
+sub calTumorLOD {
+  my ($class, $e, $le, $eg, $f, $v, $d) = @_;
+  my $r = $d-$v;                         #reference allele count
+  my @er = split("", $e);
+  my @pms;
+  my @pms0;
+  foreach my $er (@er) {
+    my $err = ord($er)-33;                     #ASCII -> quality
+    $err = 10**(-$err/10);
+    $er = max($err, $le);                      #maximum between local and phred score
+    my $Pm = $f*(1-$er) + (1-$f)*($er/3);
+    my $Pm0 = $er/3;
+    push(@pms, $Pm);
+    push(@pms0, $Pm0);
+  }
+  my $Pr = $f*($eg/3) + (1-$f)*(1-$eg);
+  my $lmut = ($Pr**$r)*(product(@pms));
+
+  my $Pr0 = 1-$eg;
+  my $lref = ($Pr0**$r)*(product(@pms0));
+
+  if ($lref == 0) {
+    return(100);
+  } elsif ($lmut == 0) {
+    return(-100);
+  }
+  my $lod = log10($lmut/$lref);
+  if ($lod eq 'inf'){
+    return(100);
+  } elsif ($lod eq '-inf'){
+    return(-100);
+  }
+  #print STDERR "\t$f\t$v\t$d\t$r\t$\t$lod\n";
+  return($lod);
+}
+
+sub calNormalLOD {
+  my ($class, $e, $le, $eg, $f, $v, $d) = @_;
+  my $r = $d-$v;                        #reference allele count
+  my $fg = 0.5;
+  my @er = split("", $e);
+  my @pms0;
+  my @pmsg;
+  foreach my $er (@er) {
+    my $err = ord($er)-33;                     #ASCII -> quality
+    $err = 10**(-$err/10);
+    $er = max($err, $le);                      #maximum between local and phred score
+    my $Pm0 = $er/3;
+    my $Pmg = $fg*(1-$er) + (1-$fg)*($er/3);
+    push(@pms0, $Pm0);
+    push(@pmsg, $Pmg);
+  }
+  my $Pr0 = 1-$eg;
+  my $lref = ($Pr0**$r)*(product(@pms0));
+
+  my $Prg = $fg*($eg/3) + (1-$fg)*(1-$eg);
+  my $lger = ($Prg**$r)*(product(@pmsg));
+
+  if ($lref == 0) {
+    return(-100);
+  } elsif ($lger == 0) {
+    return(100);
+  }
+  my $lod = log10($lref/$lger);
+  if ($lod eq 'inf'){
+    return(100);
+  } elsif ($lod eq '-inf'){
+    return(-100);
+  }
+  #print STDERR "\t$f\t$v\t$d\t$r\t$\t$lod\n";
+  return($lod);
+}
+
+sub log10 {
+  my $n = shift;
+  return log($n)/log(10);
+}
 
 
 1;
