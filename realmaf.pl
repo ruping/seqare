@@ -1,6 +1,6 @@
 use strict;
 use File::Glob ':glob';
-use List::Util qw[min max product sum];
+use List::Util qw[min max];
 use Data::Dumper;
 use Getopt::Long;
 use File::Basename;
