@@ -1,7 +1,7 @@
 package snvCalling;
 
 use strict;
-use List::Util qw[min max product sum];
+use List::Util qw[min max sum];
 
 #
 # snv Calling
@@ -117,10 +117,10 @@ sub calTumorLOD {
     push(@pms0, $Pm0);
   }
   my $Pr = $f*($eg/3) + (1-$f)*(1-$eg);
-  my $lmut = ($Pr**$r)*(product(@pms));
+  my $lmut = ($Pr**$r)*(product(\@pms));
 
   my $Pr0 = 1-$eg;
-  my $lref = ($Pr0**$r)*(product(@pms0));
+  my $lref = ($Pr0**$r)*(product(\@pms0));
 
   if ($lref == 0) {
     return(100);
@@ -154,10 +154,10 @@ sub calNormalLOD {
     push(@pmsg, $Pmg);
   }
   my $Pr0 = 1-$eg;
-  my $lref = ($Pr0**$r)*(product(@pms0));
+  my $lref = ($Pr0**$r)*(product(\@pms0));
 
   my $Prg = $fg*($eg/3) + (1-$fg)*(1-$eg);
-  my $lger = ($Prg**$r)*(product(@pmsg));
+  my $lger = ($Prg**$r)*(product(\@pmsg));
 
   if ($lref == 0) {
     return(-100);
@@ -177,6 +177,15 @@ sub calNormalLOD {
 sub log10 {
   my $n = shift;
   return log($n)/log(10);
+}
+
+sub product {
+  my $a = shift;
+  my $prod = 1;
+  foreach my $element (@{$a}) {
+    $prod *= $element;
+  }
+  return $prod;
 }
 
 
