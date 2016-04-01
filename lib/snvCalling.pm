@@ -108,12 +108,13 @@ sub calTumorLOD {
   my @pms;
   my @pms0;
   foreach my $er (@er) {
+    print STDERR "$er\t";
     my $err = ord($er)-33;                     #ASCII -> quality
     $err = 10**(-$err/10);
     $er = max($err, $le);                      #maximum between local and phred score
     my $Pm = $f*(1-$er) + (1-$f)*($er/3);
     my $Pm0 = $er/3;
-    print STDERR "$er\t$Pm\t$Pm0";
+    print STDERR "$er\t$Pm\t$Pm0\t";
     push(@pms, $Pm);
     push(@pms0, $Pm0);
   }
@@ -146,12 +147,13 @@ sub calNormalLOD {
   my @pms0;
   my @pmsg;
   foreach my $er (@er) {
+    print STDERR "$er\t";
     my $err = ord($er)-33;                     #ASCII -> quality
     $err = 10**(-$err/10);
     $er = max($err, $le);                      #maximum between local and phred score
     my $Pm0 = $er/3;
     my $Pmg = $fg*(1-$er) + (1-$fg)*($er/3);
-    print STDERR "$er\t$Pm0\t$Pmg";
+    print STDERR "$er\t$Pm0\t$Pmg\t";
     push(@pms0, $Pm0);
     push(@pmsg, $Pmg);
   }
