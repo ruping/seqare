@@ -113,6 +113,7 @@ sub calTumorLOD {
     $er = max($err, $le);                      #maximum between local and phred score
     my $Pm = $f*(1-$er) + (1-$f)*($er/3);
     my $Pm0 = $er/3;
+    print STDERR "$er\t$Pm\t$Pm0";
     push(@pms, $Pm);
     push(@pms0, $Pm0);
   }
@@ -150,6 +151,7 @@ sub calNormalLOD {
     $er = max($err, $le);                      #maximum between local and phred score
     my $Pm0 = $er/3;
     my $Pmg = $fg*(1-$er) + (1-$fg)*($er/3);
+    print STDERR "$er\t$Pm0\t$Pmg";
     push(@pms0, $Pm0);
     push(@pmsg, $Pmg);
   }
