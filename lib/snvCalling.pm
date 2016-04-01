@@ -133,7 +133,7 @@ sub calTumorLOD {
   } elsif ($lod eq '-inf'){
     return(-100);
   }
-  #print STDERR "\t$f\t$v\t$d\t$r\t$\t$lod\n";
+  print STDERR "\t$f\t$v\t$r\t$d\t$lmut\t$lref\t$lod\n";
   return($lod);
 }
 
@@ -170,7 +170,7 @@ sub calNormalLOD {
   } elsif ($lod eq '-inf'){
     return(-100);
   }
-  #print STDERR "\t$f\t$v\t$d\t$r\t$\t$lod\n";
+  print STDERR "\t$f\t$v\t$r\t$d\t$lref\t$lger\t$lod\n";
   return($lod);
 }
 
