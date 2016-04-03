@@ -33,6 +33,9 @@ using namespace boost;
 struct var {  // a bed file containing gene annotations
   string chr;
   string chro;  //original chr name from the input list
+  string snpID;
+  string ref;
+  string alt;
   unsigned int start;
   unsigned int end;
   // results storing here
@@ -418,11 +421,12 @@ int main ( int argc, char *argv[] ) {
 
                 //cout << cuPosRead << endl;             // deBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 string baseInRead = (bam.QueryBases).substr( cuPosRead-1, 1 );
-                iter->qualities += (bam.Qualities).substr( cuPosRead-1, 1 );   //base quality
-
+                if (baseInRead == iter->alt) {           // it is exactly the same alt base
+                  iter->qualities += (bam.Qualities).substr( cuPosRead-1, 1 );   //base quality
+                }
                 
                 iter->countAlt += 1;
-                if (strand == "+"){                   //positive strand
+                if (strand == "+") {                  //positive strand
                   if (baseInRead == "A") {
                     iter->countA += 1;
                   } else if (baseInRead == "C") {
@@ -595,6 +599,15 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
     case 2:  // pos
       tmp.start = atoi((*iter).c_str());
       tmp.end = atoi((*iter).c_str());
+      continue;
+    case 3:  // id
+      tmp.snpID = *iter;
+      continue;
+    case 4:  // ref
+      tmp.ref = *iter;
+      continue;
+    case 5:  // alt
+      tmp.alt = *iter;
       continue;
     default:
       break;
