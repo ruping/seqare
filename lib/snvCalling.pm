@@ -129,7 +129,7 @@ sub calTumorLOD {
   } elsif ($lmut == 0) {
     return(-100);
   }
-  my $lod = log10($lmut/$lref);
+  my $lod = sprintf("%.6f", log10($lmut/$lref));
   if ($lod eq 'inf'){
     return(100);
   } elsif ($lod eq '-inf'){
@@ -168,7 +168,7 @@ sub calNormalLOD {
   } elsif ($lger == 0) {
     return(100);
   }
-  my $lod = log10($lref/$lger);
+  my $lod = sprintf("%.6f", log10($lref/$lger));
   if ($lod eq 'inf'){
     return(100);
   } elsif ($lod eq '-inf'){
