@@ -14,7 +14,6 @@ my $rna;                # if for rna found
 
 my $Th_tumorLOD = 5.3;
 my $Th_normalLOD = 2.3;
-my $errorRate = 0.001;
 my $Th_maf = 0.03;
 my $Th_endsratio = 0.9;
 my $Th_vard = 2;
@@ -285,6 +284,7 @@ while ( <IN> ) {
       my $cmeanav = 0;
       my $cmedianav = 0;
       my $mmaf = 0;
+      my $mlod = 0;
       my $rep = 0;
       my $sc = 0;
       for ( my $i = 0; $i <= $#cols; $i++ ) {
@@ -310,15 +310,13 @@ while ( <IN> ) {
           foreach my $detectedSamp (@detectedSample) {
             $detectedSample{$detectedSamp} = '';
           }
-          #print STDERR "$chr\t$pos\t$traceSomatic\t$traceGermline\n";
-          #print STDERR Dumper(\%detectedSample);
         } elsif ($colindex{$i} eq 'rep') {
           $rep = $cols[$i];
         } elsif ($colindex{$i} eq 'sc') {
           $sc = $cols[$i];
         } elsif ($colindex{$i} =~ /^(.+?)maf$/) {   #store maf information
           my $samp = $1;
-          $mafs{$samp} = $cols[$i];
+          $mafs{$samp} = $cols[$i].'|'.$cols[$i+1];  #maf + depth
         } elsif ($colindex{$i} eq 'cmeanav') {
           $cmeanav = $cols[$i];
           $cmedianav = $cols[$i+1];
@@ -328,19 +326,18 @@ while ( <IN> ) {
       foreach my $samp (keys %mafs) {  #get endsratio and cmean cmedian info
         next if (! exists($detectedSample{$samp}));   #only look at the sample where it is called
         my $sampmaf = $mafs{$samp};
-        if ($sampmaf =~ /\|/) { #split the var surrounding information
+        if ($sampmaf =~ /\|/) {        #split the var surrounding information
           my @infos = split(/\|/, $sampmaf);
-          $endsratio = ($infos[0] > $mmaf)? $infos[1]:$endsratio;
-          ($cmean, $cmedian) = ($infos[0] > $mmaf)? split(',', $infos[2]):($cmean, $cmedian);
-          $strandRatio = ($infos[0] > $mmaf)? $infos[3]:$strandRatio;
-          $badQualFrac = ($infos[0] > $mmaf)? $infos[4]:$badQualFrac;
-          $mmaf = ($infos[0] > $mmaf)? $infos[0]:$mmaf;
-          #print STDERR "sr: $strandRatio\n";
+          $endsratio = ($infos[5] > $mlod)? $infos[1]:$endsratio;
+          ($cmean, $cmedian) = ($infos[5] > $mlod)? split(',', $infos[2]):($cmean, $cmedian);
+          $strandRatio = ($infos[5] > $mlod)? $infos[3]:$strandRatio;
+          $badQualFrac = ($infos[5] > $mlod)? $infos[4]:$badQualFrac;
+          #$mmaf = ($infos[5] > $mlod)? $infos[0]:$mmaf;
+          $mlod = ($infos[5] > $mlod)? $infos[5]:$mlod;
         }
       }
 
       my $status;
-      #print STDERR "$chr\t$pos\t$rep$sc\t$detectedSample[0]\t$mmaf\t$endsratio\t$cmean\t$cmedian\t$cmeanav\t$cmedianav\n";
       if ($rep == 1 and $sc == 1) {
         $status = ($endsratio < $Th_endsratio and $badQualFrac <= ($Th_badQualFrac-0.1) and (($cmean+$cmedian) < ($Th_cmeancmedian-1) or $cmedian < $Th_cmedian) and ($cmeanav + $cmedianav) <= ($Th_cmeancmedian-0.3))? 'PASS':'FOUT';   #conservative for rep and sc
       } elsif ($rep == 1 or $sc == 1) {
@@ -374,6 +371,7 @@ while ( <IN> ) {
           my $badQualFrac = 0;
           my $cmean = 0;
           my $cmedian = 0;
+          my $lod = 0;
 
           if ($cols[$i] =~ /\|/) {  #split the var surrounding information
             my @infos = split(/\|/, $cols[$i]);
@@ -382,6 +380,7 @@ while ( <IN> ) {
             ($cmean, $cmedian) = split(',', $infos[2]);
             $strandRatio = $infos[3];
             $badQualFrac = $infos[4];
+            $lod = $infos[5];
           }
 
           my $depth = $cols[$i+1];
@@ -403,40 +402,32 @@ while ( <IN> ) {
             }
           }
 
-          #print STDERR "$samp\t$maf\t$endsratio\t$cmean\t$cmedian\n";
-
           if (exists $somatic{$samp}) {       #it is tumor sample name
+            my $tumorLOD = $lod;
             if ($vard >= ($Th_vard+1) and $maf >= ($Th_maf+0.01) and $depth >= 8) {
               if ($vard >= 50) {              #must be sig anyway
                 $tumor{$samp} = $maf;
               } else {                        #cal for less vard
-                print STDERR "$samp\t$errorRate\t$maf\t$vard\t$depth\t";
-                ##############################################################################
-                my $tumorLOD = &calTumorLOD($errorRate, $maf, $vard, $depth); #cal tumor LOD
-                ##############################################################################
-                print STDERR "$tumorLOD\n";
+                print STDERR "$samp\t$maf\t$vard\t$depth\t$tumorLOD\n";
                 if ($tumorLOD >= $Th_tumorLOD) {
                   $tumor{$samp} = $maf;
                 }
               }
             }
-          } elsif (exists $germline{$samp}) { #it is blood
+          } elsif (exists $germline{$samp}) {    #it is blood
+            my $normalLOD = $lod;
             foreach my $ct (@{$germline{$samp}}) {
               if ($bloodCall eq 'yes' and $cols[$i-1] =~ /\|/) { #it is originally called
                 $bloodcalled{$ct} = '';
               }
-              print STDERR "$samp\t$errorRate\t$maf\t$vard\t$depth\t";
-              ##############################################################################
-              my $normalLOD = &calNormalLOD($errorRate, $maf, $vard, $depth); #cal tumor LOD
-              ##############################################################################
-              print STDERR "$normalLOD\n";
+              print STDERR "$samp\t$maf\t$vard\t$depth\t$normalLOD\n";
               if ( $maf == 0 ) {   #no blood alt found
                 if ( $normalLOD > $Th_normalLOD and $depth >= 8 ) {  #around 8 depth
                   $nonblood{$ct} = '';
                 } else {
                   $unknown{$ct} = '';
                 }
-              } else {          #maf != 0
+              } else {          #maf != 0, should keep normalLOD in mind
                 $blood{$ct} = $maf.','.$normalLOD;
               }
             }
@@ -483,65 +474,3 @@ while ( <IN> ) {
   }
 }
 close IN;
-
-
-#calculate LOD scores for deciding somatic calls
-sub calTumorLOD {
-  my $e = shift;
-  my $f = shift;
-  my $v = shift;
-  my $d = shift;
-  my $r = $d-$v;
-  my $Pr = $f*($e/3) + (1-$f)*(1-$e);
-  my $Pm = $f*(1-$e) + (1-$f)*($e/3);
-  my $Pr0 = 1-$e;
-  my $Pm0 = $e/3;
-  my $lmut = ($Pr**$r)*($Pm**$v);
-  my $lref = ($Pr0**$r)*($Pm0**$v);
-  print STDERR "\t$e\t$f\t$v\t$d\t$r\t$Pr\t$Pm\t$Pr0\t$Pm0\t";
-  if ($lref == 0) {
-    return(1000);
-  } elsif ($lmut == 0) {
-    return(-1000);
-  }
-  my $lod = log10($lmut/$lref);
-  if ($lod eq 'inf'){
-    return(1000);
-  } elsif ($lod eq '-inf'){
-    return(-1000);
-  }
-  return($lod);
-}
-
-sub calNormalLOD {
-  my $e = shift;
-  my $f = shift;
-  my $v = shift;
-  my $d = shift;
-  my $r = $d-$v;
-  my $fg = 0.5;
-  my $Pr0 = 1-$e;
-  my $Pm0 = $e/3;
-  my $Prg = $fg*($e/3) + (1-$fg)*(1-$e);
-  my $Pmg = $fg*(1-$e) + (1-$fg)*($e/3);
-  my $lref = ($Pr0**$r)*($Pm0**$v);
-  my $lger = ($Prg**$r)*($Pmg**$v);
-  print STDERR "\t$e\t$f\t$v\t$d\t$r\t$Pr0\t$Pm0\t$Prg\t$Pmg\t";
-  if ($lref == 0) {
-    return(-1000);
-  } elsif ($lger == 0) {
-    return(1000);
-  }
-  my $lod = log10($lref/$lger);
-  if ($lod eq 'inf'){
-    return(1000);
-  } elsif ($lod eq '-inf'){
-    return(-1000);
-  }
-  return($lod);
-}
-
-sub log10 {
-  my $n = shift;
-  return log($n)/log(10);
-}
