@@ -674,7 +674,7 @@ inline void ParseCigar(const vector<CigarOp> &cigar, vector<int> &blockStarts, v
 
 inline void var_processing(struct var &variant) {
 
-  float ssum;
+  unsigned int ssum;
   vector <unsigned int>::iterator sit = (variant.surrounding).begin();
   for(; sit != (variant.surrounding).end(); sit++) {
     ssum += *sit;
@@ -686,7 +686,7 @@ inline void var_processing(struct var &variant) {
     meanMis = 0.0;
     medianMis = 0.0;
   } else {
-    meanMis = ssum/((float)surrSize);
+    meanMis = ((float)ssum)/((float)surrSize);
     medianMis = CalcMedian(variant.surrounding);
   }
 
