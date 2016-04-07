@@ -2,7 +2,7 @@
 
   (c) 2015 - Sun Ruping
   ruping@stanford.edu
-  grep starts for reads
+  grep starts for sequencing reads
 
 
 g++ grep_starts.cpp
