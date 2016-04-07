@@ -2,6 +2,7 @@
 
   (c) 2015 - Sun Ruping
   ruping@stanford.edu
+  grep starts for reads
 
 
 g++ grep_starts.cpp
