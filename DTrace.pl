@@ -38,7 +38,7 @@ $options{'qcOFF'}       = undef;
 $options{'root'}        = "$RealBin/../PIPELINE";
 $options{'readpool'}    = 'SRP';
 $options{'gf'}          = "png";                 #the format used in html report
-$options{'bzip'}        = undef;                 #to allow bzip compressed fastq files
+$options{'bzip'}        = undef;                 #to allow bzip copressed fastq files
 $options{'Rbinary'}     = 'R';
 $options{'seqType'}     = 'WXS,paired-end';      #experimental types
 $options{'tmpDir'}      = '';
@@ -760,6 +760,69 @@ if (exists $runlevel{$runlevels}) {
     my $cmd = cnaCalling->runTitan("$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
                                    $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  printtime();
+  print STDERR "####### runlevel $runlevels done #######\n\n";
+
+}
+
+
+###
+###runlevel8: merge mutations to a table
+###
+
+my $runlevels = 8;
+if (exists($runlevel{$runlevels}) or exists($runTask{'merge'})) {
+
+  printtime();
+  print STDERR "####### runlevel $runlevels now #######\n\n";
+
+  my $vcflist_mutect = "$options{'root'}/mutect.vcf.list";
+  my $vcftable_mutect = "$options{'root'}/mutect.snv.table";
+  my $originaltable_mutect = "$options{'root'}/mutect.snv.table.annotated";
+
+  my $vcflist_samtools = "$options{'root'}/samtools.vcf.list";
+  my $vcftable_samtools = "$options{'root'}/samtools.snv.table";
+  my $originaltable_samtools = "$options{'root'}/samtools.snv.table.annotated";
+
+  my $PREF;
+  my $BLOOD;
+  for my $eatumor (keys %somatic) {
+    $PREF .= $eatumor.',';
+  }
+  for my $eanormal (keys %germline) {
+    $PREF .= $eanormal.',';
+    $BLOOD .= $eanormal.',';
+  }
+  $PREF =~ s/\,$//;
+  $BLOOD =~ s/\,$//;
+
+  print STDERR "PREF: $PREF\n";
+  print STDERR "BLOOD: $BLOOD\n";
+
+  unless (-s "$vcflist_mutect") {
+    for my $eatumor (keys %somatic) {
+      my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+      my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+  }
+  unless (-s "$vcflist_samtools") {
+    for my $eatumor (keys %somatic) {
+      my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+      my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+  }
+  unless (-s "$originaltable_mutect") {
+    #perl $TOOLP/trick/somatic.pl --list $VCFLIST --prefix $PREF --normal $BLOOD --type snv --task rare,muTect --dbsnp yes --nonsegdup >$VCFTABLE
+    #perl $TOOLP/trick/junk_remove.pl --nonrepeat $REPEATMASKER --nonselfchain $SELFCHAIN --file $VCFTABLE >$ORIGINAL
+  }
+
+  unless (-s "$originaltable_samtools") {
+    #perl $TOOLP/trick/somatic.pl --list $VCFLIST --prefix $PREF --normal $BLOOD --type snv --task rare,muTect --dbsnp yes --nonsegdup >$VCFTABLE
+    #perl $TOOLP/trick/junk_remove.pl --nonrepeat $REPEATMASKER --nonselfchain $SELFCHAIN --file $VCFTABLE >$ORIGINAL
   }
 
   printtime();
