@@ -802,48 +802,52 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   print STDERR "BLOOD: $BLOOD\n";
 
   #mutect merge
-  unless (-s "$vcflist_mutect") {
-    for my $eatumor (keys %somatic) {
-      my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
-      if (-s "$eavcfmutect"){
-        my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
-        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      } else {
-        print STDERR "warning: $eavcfmutect is not found!\n";
+  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'})) {
+    unless (-s "$vcflist_mutect") {
+      for my $eatumor (keys %somatic) {
+        my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+        if (-s "$eavcfmutect") {
+          my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eavcfmutect is not found!\n";
+        }
       }
     }
-  }
-  unless (-s "$originaltable_mutect") {
-    unless (-s "$vcftable_mutect") {
-      my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_mutect --prefix $PREF --normal $BLOOD --type snv --task rare,muTect --dbsnp yes --nonsegdup >$vcftable_mutect";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    }
-    if (-s "$vcftable_mutect") {
-      my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_mutect >$originaltable_mutect";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    unless (-s "$originaltable_mutect") {
+      unless (-s "$vcftable_mutect") {
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_mutect --prefix $PREF --normal $BLOOD --type snv --task rare,muTect --dbsnp yes --nonsegdup >$vcftable_mutect";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      if (-s "$vcftable_mutect") {
+        my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_mutect >$originaltable_mutect";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
     }
   }
 
   #samtools merge
-  unless (-s "$vcflist_samtools") {
-    for my $eatumor (keys %somatic) {
-      my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
-      if (-s "$eavcfsamtools"){
-        my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
-        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      } else {
-        print STDERR "warning: $eavcfsamtools is not found!\n";
+  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtools'})) {
+    unless (-s "$vcflist_samtools") {
+      for my $eatumor (keys %somatic) {
+        my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+        if (-s "$eavcfsamtools") {
+          my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eavcfsamtools is not found!\n";
+        }
       }
     }
-  }
-  unless (-s "$originaltable_samtools") {
-    unless (-s "$vcftable_samtools") {
-      my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --type snv --task titan --dbsnp yes --nonsegdup >$vcftable_samtools";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    }
-    if (-s "$vcftable_samtools") {
-      my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_samtools >$originaltable_samtools";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    unless (-s "$originaltable_samtools") {
+      unless (-s "$vcftable_samtools") {
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --type snv --task titan --dbsnp yes --nonsegdup >$vcftable_samtools";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      if (-s "$vcftable_samtools") {
+        my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_samtools >$originaltable_samtools";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
     }
   }
 
