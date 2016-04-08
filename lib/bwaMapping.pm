@@ -26,6 +26,17 @@ sub bwaSingleMapping {
 
 }
 
+
+sub bowtieMappingSnv {
+
+  my ($class, $bowtie2index, $inputFa, $outSam, $threads) = @_;
+
+  my $cmd = "bowtie2 -k 22 -p $threads -f --no-unal -D 15 -R 2 -N 1 -L 20 -i S,1,0.75 --score-min L,-2,-0.3 -x $bowtie2index $inputFa >$outSam";
+
+  return $cmd;
+}
+
+
 sub bamSort {
 
   my ($class, $threads, $bamTmp, $outBam, $inBam) = @_;
@@ -36,11 +47,22 @@ sub bamSort {
 
 }
 
+
 sub bamIndex {
 
   my ($class, $inBam) = @_;
 
   my $cmd = "samtools index $inBam";
+
+  return $cmd;
+}
+
+
+sub samToBam {
+
+  my ($class, $inSam, $outBam) = @_;
+
+  my $cmd = "samtools view -Sb $inSam -o $outBam";
 
   return $cmd;
 }

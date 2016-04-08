@@ -857,6 +857,172 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
 }
 
 
+###
+###runlevel9: variant classification from merged and recheck files
+###
+
+$runlevels = 9;
+if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or exists($runTask{'germlineCallingSNV'})) {
+
+  printtime();
+  print STDERR "####### runlevel $runlevels now #######\n\n";
+
+  my $originaltable_mutect = "$options{'root'}/mutect.snv.table.annotated";
+  my $rechecklist_mutect = "$options{'root'}/mutect.snv.rechecked.list";
+  my $realmaf_mutect = "$options{'root'}/mutect.snv.realmaf";
+  my $varout_mutect = "$options{'root'}/mutect.snv.res";
+
+  my $originaltable_samtools = "$options{'root'}/samtools.snv.table.annotated";
+  my $rechecklist_samtools = "$options{'root'}/samtools.snv.rechecked.list";
+  my $realmaf_samtools = "$options{'root'}/samtools.snv.realmaf";
+  my $varout_samtools = "$options{'root'}/samtools.snv.res";
+
+  my $PREF;
+  my $BLOOD;
+  for my $eatumor (keys %somatic) {
+    $PREF .= $eatumor.',';
+  }
+  for my $eanormal (keys %germline) {
+    $PREF .= $eanormal.',';
+    $BLOOD .= $eanormal.',';
+  }
+  $PREF =~ s/\,$//;
+  $BLOOD =~ s/\,$//;
+
+  print STDERR "PREF: $PREF\n";
+  print STDERR "BLOOD: $BLOOD\n";
+
+  #mutect classification
+  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'})) {
+    unless (-s "$rechecklist_mutect") {   #generate recheck list for mutect
+      for my $eatumor (keys %somatic) {
+        my $eaRecheckmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.snv.table.annotated.rechecked";
+        if (-s "$eaRecheckmutect") {
+          my $cmd = "echo $eaRecheckmutect >>$rechecklist_mutect";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eaRecheckmutect is not found!\n";
+        }
+      }
+      for my $eacontrol (keys %germline) {
+        my $eaRecheckmutect = "$options{'root'}/$eacontrol/04_SNV/$eacontrol\.mutect.snv.table.annotated.rechecked";
+        if (-s "$eaRecheckmutect") {
+          my $cmd = "echo $eaRecheckmutect >>$rechecklist_mutect";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eaRecheckmutect is not found!\n";
+        }
+      }
+    }
+    unless (-s "$realmaf_mutect") {
+      my $cmd = "perl $options{'bin'}/realmaf.pl --file $rechecklist_mutect --type snv --original $originaltable_mutect --prefix $PREF --blood $BLOOD >$realmaf_mutect";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect") {
+      my $lastcolindex = `perl $options{'bin'}/columnIndex.pl cmedianav $realmaf_mutect`;
+      $lastcolindex =~ s/\n$//;
+      my $cmd = "perl $options{'bin'}/intersectFiles.pl -o $originaltable_mutect -m $realmaf_mutect -extraOM 4,4 -column 5-$lastcolindex >$varout_mutect";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/columnRearrange.pl --file $varout_mutect --prefix $PREF --sep bp >$varout_mutect\.1";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "mv $varout_mutect\.1 $varout_mutect -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect\.filtered") {
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect --type snv --task filter >$varout_mutect\.filtered";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect\.filtered\.classified") {
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered --type snv --task somatic --somaticInfo $options{'somaticInfo'} >$varout_mutect\.filtered\.classified";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect\.filtered\.classified\.founds") {
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified --type snv --task samfounds --somaticInfo $options{'somaticInfo'} >$varout_mutect\.filtered\.classified\.founds";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara") {
+      my $cmd = "perl $options{'bin'}/readsFlankingVariants.pl $confs{'GFASTA'} $varout_mutect\.filtered\.classified\.founds snv >$varout_mutect\.filtered\.classified\.founds.flanking.fa";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->bowtieMappingSnv($confs{'BowtieINDEX'}, "$varout_mutect\.filtered\.classified\.founds.flanking.fa", "$varout_mutect\.filtered\.classified\.founds.flanking.sam", $options{'threads'});
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->samToBam("$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --writer tmp --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd =  "$options{'bin'}/badvariantmapping.pl $varout_mutect\.filtered\.classified\.founds.flanking.bam.out >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/intersectFiles.pl -o $varout_mutect\.filtered\.classified\.founds -m $varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad -count >$varout_mutect\.filtered\.classified\.founds\.1";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      my $PRC = `head -1 $varout_mutect\.filtered\.classified\.founds\.1 |awk '{print \$NF}'`;
+      $PRC =~ s/\n$//;
+      my $PRCI = `perl $options{'bin'}/columnIndex.pl $PRC $varout_mutect\.filtered\.classified\.founds\.1`;
+      $PRCI =~ s/\n$//;
+      $PRCI += 1;
+      $cmd = "awk -F\"\\t\" \'\$$PRCI \!\= 1\' $varout_mutect\.filtered\.classified\.founds\.1 >$varout_mutect\.filtered\.classified\.founds\.nopara";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table") {
+      my $SOMI = `perl $options{'bin'}/columnIndex.pl somatic $varout_mutect\.filtered\.classified\.founds\.1`;
+      $SOMI =~ s/\n$//;
+      $SOMI += 1;
+      my $cmd = "awk -F\"\\t\" \'\$$SOMI \!\= \"NA\"\' $varout_mutect\.filtered\.classified\.founds\.nopara >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/mutationTable.pl --mutation $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic --type snv --normal $BLOOD --prefix $PREF >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+  }
+
+
+
+  #samtools merge
+  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtools'})) {
+    unless (-s "$rechecklist_samtools") {   #generate recheck list for samtools
+      for my $eatumor (keys %somatic) {
+        my $eaRechecksamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.snv.table.annotated.rechecked";
+        if (-s "$eaRechecksamtools") {
+          my $cmd = "echo $eaRechecksamtools >>$rechecklist_samtools";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eaRechecksamtools is not found!\n";
+        }
+      }
+      for my $eacontrol (keys %germline) {
+        my $eaRechecksamtools = "$options{'root'}/$eacontrol/04_SNV/$eacontrol\.samtools.snv.table.annotated.rechecked";
+        if (-s "$eaRechecksamtools") {
+          my $cmd = "echo $eaRechecksamtools >>$rechecklist_samtools";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eaRechecksamtools is not found!\n";
+        }
+      }
+    }
+    unless (-s "$realmaf_samtools") {
+      my $cmd = "perl $options{'bin'}/realmaf.pl --file $rechecklist_samtools --type snv --original $originaltable_samtools --prefix $PREF --blood $BLOOD >$realmaf_samtools";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_samtools") {
+      my $lastcolindex = `perl $options{'bin'}/columnIndex.pl cmedianav $realmaf_samtools`;
+      $lastcolindex =~ s/\n$//;
+      my $cmd = "perl $options{'bin'}/intersectFiles.pl -o $originaltable_samtools -m $realmaf_samtools -extraOM 4,4 -column 5-$lastcolindex >$varout_samtools";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/columnRearrange.pl --file $varout_samtools --prefix $PREF --sep bp >$varout_samtools\.1";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "mv $varout_samtools\.1 $varout_samtools -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    unless (-s "$varout_samtools\.filtered") {
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_samtools --type snv --task filter >$varout_samtools\.filtered";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+  }
+
+  printtime();
+  print STDERR "####### runlevel $runlevels done #######\n\n";
+
+}
+
+
 
 
 ###------------###################################################################################################

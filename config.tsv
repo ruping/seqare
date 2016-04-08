@@ -2,6 +2,7 @@ anno	/srv/gsfs0/projects/curtis/ruping/annotation/
 species	hg19
 chrs	1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y
 BWAINDEX	$anno/hg19.other/hg19.bwa.index/hg19.fasta
+BowtieINDEX	$anno/trupanno/hg19/hg19.bowtie2_index/hg19/hg19
 gatkBin	/srv/gsfs0/projects/curtis/ruping/tools/gatk/GenomeAnalysisTK.jar
 MarkDuplicatesBin	/srv/gs1/software/picard-tools/1.111/MarkDuplicates.jar
 GFASTA	$anno/hg19.other/hg19.fasta
