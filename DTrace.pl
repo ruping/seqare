@@ -221,7 +221,7 @@ if (-s "$options{'somaticInfo'}") {
 ###preparation the lane and read path enviroment
 ###
 
-if ($options{'lanepath'} eq 'SRP') {
+if ($options{'lanepath'} eq 'SRP' and $options{'sampleName'} ne 'SRP') {
   printtime();
   $options{'lanepath'} = "$options{'root'}/$options{'sampleName'}";   #define lane path
   print STDERR "####### lane name is set to $options{'sampleName'} #######\n\n";
@@ -294,15 +294,15 @@ if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'
 
 }
 
-
-foreach my $fastqFile1 (split(" ", $options{'fastqFiles1'})){
-  my $cmd = "ln -s $fastqFile1 $options{'lanepath'}/01_READS/";
-  my $fastqFile1Basename = basename($fastqFile1);
-  RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile1Basename");
+if ($options{'fastqFiles1'} ne 'SRP') {
+  foreach my $fastqFile1 (split(" ", $options{'fastqFiles1'})) {
+    my $cmd = "ln -s $fastqFile1 $options{'lanepath'}/01_READS/";
+    my $fastqFile1Basename = basename($fastqFile1);
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless (-s "$options{'lanepath'}/01_READS/$fastqFile1Basename");
+  }
 }
 
-
-if ($options{'fastqFiles2'} ne 'SRP'){
+if ($options{'fastqFiles2'} ne 'SRP') {
   foreach my $fastqFile2 (split(" ", $options{'fastqFiles2'})){
     my $cmd = "ln -s $fastqFile2 $options{'lanepath'}/01_READS/";
     my $fastqFile2Basename = basename($fastqFile2);
@@ -311,7 +311,7 @@ if ($options{'fastqFiles2'} ne 'SRP'){
 }
 
 
-if ( $options{'readlen'} == 0 ) { #read length not set
+if ( $options{'readlen'} == 0 and $options{'sampleName'} ne 'SRP') { #read length not set
   my @fastqFiles1Temp = split(/\s/, $options{'fastqFiles1'});
   my $first_second_line = `$options{'decompress'} "$fastqFiles1Temp[0]" | head -2 | grep -v "^@"`;
   $options{'readlen'} = length($first_second_line) - 1;
@@ -804,15 +804,23 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'merge'})) {
   unless (-s "$vcflist_mutect") {
     for my $eatumor (keys %somatic) {
       my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
-      my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$eavcfmutect"){
+        my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      } else {
+        print STDERR "warning: $eavcfmutect is not found!\n";
+      }
     }
   }
   unless (-s "$vcflist_samtools") {
     for my $eatumor (keys %somatic) {
       my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
-      my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$eavcfsamtools"){
+        my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      } else {
+        print STDERR "warning: $eavcfsamtools is not found!\n";
+      }
     }
   }
   unless (-s "$originaltable_mutect") {
