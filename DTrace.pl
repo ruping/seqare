@@ -772,7 +772,7 @@ if (exists $runlevel{$runlevels}) {
 ###runlevel8: merge mutations to a table
 ###
 
-my $runlevels = 8;
+$runlevels = 8;
 if (exists($runlevel{$runlevels}) or exists($runTask{'merge'})) {
 
   printtime();
