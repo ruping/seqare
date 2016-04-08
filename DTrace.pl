@@ -1016,6 +1016,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
     unless (-e "$options{'root'}/titan") {
       my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered $options{'somaticInfo'} 1";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/redistributeTitan.pl $options{'root'}/titan/ $options{'root'}";                #distribute allele counts for titan
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
 
