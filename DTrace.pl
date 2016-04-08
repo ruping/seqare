@@ -973,7 +973,6 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
   }
 
 
-
   #samtools merge
   if (exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtools'})) {
     unless (-s "$rechecklist_samtools") {   #generate recheck list for samtools
@@ -1014,7 +1013,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
       my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_samtools --type snv --task filter >$varout_samtools\.filtered";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-
+    unless (-e "$options{'root'}/titan") {
+      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered $options{'somaticInfo'} 1";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
   }
 
   printtime();
