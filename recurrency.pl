@@ -12,7 +12,7 @@ my $somaticInfo;        # if for somatic judgement
 my $bloodCall;          # whether the blood is also single called
 my $rna;                # if for rna found
 
-my $Th_tumorLOD = 4.6;
+my $Th_tumorLOD = 4.0;
 my $Th_normalLOD = 2.3;
 my $Th_maf = 0.03;
 my $Th_endsratio = 0.9;
