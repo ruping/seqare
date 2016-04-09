@@ -169,10 +169,14 @@ int main (int argc, char *argv[]) {
 
   // attempt to open BamWriter
   BamWriter writer;
-  if ( !writer.Open(param->writer, header, refs) ) {
-    cerr << "Could not open output BAM file" << endl;
-    exit(0);
+  string outputBam = param->writer;
+  if ( outputBam != "" ) {
+    if ( !writer.Open(param->writer, header, refs) ) {
+      cerr << "Could not open output BAM file" << endl;
+      exit(0);
+    }
   }
+
 
   // attempt to write unmapped reads
   ofstream unmapped_f;

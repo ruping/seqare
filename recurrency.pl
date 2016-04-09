@@ -418,7 +418,7 @@ while ( <IN> ) {
           } elsif (exists $germline{$samp}) {    #it is blood
             my $normalLOD = $lod;
             foreach my $ct (@{$germline{$samp}}) {
-              if ($bloodCall eq 'yes' and $cols[$i-1] =~ /\|/) { #it is originally called
+              if ($bloodCall eq 'yes' and $cols[$i-1] =~ /\|/) {                         #it is originally called
                 $bloodcalled{$ct} = '';
               }
               print STDERR "$samp\t$maf\t$vard\t$depth\t$normalLOD\n";
