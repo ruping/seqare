@@ -949,7 +949,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --writer tmp --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd =  "$options{'bin'}/badvariantmapping.pl $varout_mutect\.filtered\.classified\.founds.flanking.bam.out >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad";
+      $cmd = "perl $options{'bin'}/badvariantmapping.pl $varout_mutect\.filtered\.classified\.founds.flanking.bam.out >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/intersectFiles.pl -o $varout_mutect\.filtered\.classified\.founds -m $varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad -count >$varout_mutect\.filtered\.classified\.founds\.1";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
