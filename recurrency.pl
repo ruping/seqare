@@ -20,6 +20,7 @@ my $Th_vard = 2;
 my $Th_badQualFrac = 0.6;
 my $Th_cmeancmedian = 5.5;
 my $Th_cmedian = 2;
+my $Th_bloodZero = 0.1;
 if ($type eq 'indel') {
   $Th_endsratio = 0.95;
   $Th_cmeancmedian = 6.5;
@@ -351,7 +352,7 @@ while ( <IN> ) {
       }
       if ($task !~ /keep/) {
         print "$_\t$status\n" if ($status eq 'PASS');
-        print STDERR "$_\t$status\n" if ($status eq 'FOUT');
+        #print STDERR "$_\t$status\n" if ($status eq 'FOUT');
       } else {
         print "$_\t$status\n";
       }
@@ -422,7 +423,7 @@ while ( <IN> ) {
               }
               print STDERR "$samp\t$maf\t$vard\t$depth\t$normalLOD\n";
               if ( $maf == 0 ) {   #no blood alt found
-                if ( $normalLOD > $Th_normalLOD and $depth >= 8 ) {  #around 8 depth
+                if ( ($normalLOD > $Th_normalLOD or $cols[$i] == 0) and $depth >= 8 ) {  #good normalLOD or no variant reads
                   $nonblood{$ct} = '';
                 } else {
                   $unknown{$ct} = '';
@@ -447,7 +448,7 @@ while ( <IN> ) {
         } elsif (exists($blood{$tumorSamp})) {
 
           my @bloodmafLOD = split(',',$blood{$tumorSamp});
-          if ( $bloodmafLOD[0] <= 0.05 and $tumor{$tumorSamp}/$bloodmafLOD[0] >= 4 and $bloodmafLOD[1] > $Th_normalLOD ) {
+          if ( $bloodmafLOD[0] < $Th_bloodZero and $tumor{$tumorSamp}/$bloodmafLOD[0] >= 4 and $bloodmafLOD[1] > $Th_normalLOD ) {
             $stype = 'doubt';
             $stype .= ($tumor{$tumorSamp} < 0.1)? 'Sub' : '';  #add subclonal info
             $soma = ($soma eq 'NA')? $tumorSamp."\[$stype\]".',':$soma.$tumorSamp."\[$stype\]".',';

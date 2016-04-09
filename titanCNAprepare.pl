@@ -3,7 +3,6 @@ use Data::Dumper;
 use File::Glob ':glob';
 use File::Basename;
 
-
 my $data = shift;
 my $somaticInfo = shift;
 my $pairedCall = shift;
@@ -30,8 +29,9 @@ if ($somaticInfo ne '' and -s "$somaticInfo") {
 }
 
 
-my $outdir = "./titan/";
-unless (-e "$outdir"){
+my $outdir = dirname($data)."/titan/";
+print STDERR "$outdir\n";
+unless (-e "$outdir") {
   system("mkdir -p $outdir");
 }
 
