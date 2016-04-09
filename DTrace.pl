@@ -947,7 +947,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->samToBam("$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --writer tmp --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
+      $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/badvariantmapping.pl $varout_mutect\.filtered\.classified\.founds.flanking.bam.out >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
