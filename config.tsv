@@ -5,6 +5,7 @@ BWAINDEX	$anno/hg19.other/hg19.bwa.index/hg19.fasta
 BowtieINDEX	$anno/trupanno/hg19/hg19.bowtie2_index/hg19/hg19
 gatkBin	/srv/gsfs0/projects/curtis/ruping/tools/gatk/GenomeAnalysisTK.jar
 MarkDuplicatesBin	/srv/gs1/software/picard-tools/1.111/MarkDuplicates.jar
+RscriptBin	/srv/gsfs0/projects/curtis/ruping/tools/R/bin/Rscript
 GFASTA	$anno/hg19.other/hg19.fasta
 KNOWNINDEL1	$anno/hg19.other/1000G_phase1.indels.b37.vcf
 KNOWNINDEL2	$anno/hg19.other/Mills_and_1000G_gold_standard.indels.b37.vcf
