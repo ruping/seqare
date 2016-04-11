@@ -61,9 +61,9 @@ sub insertSize {
 
 sub plotInsertSize {
 
-  my ($class, $insertSizeRbin, $path, $sampleName, $insGZ, $outPDF) = @_;
+  my ($class, $RscriptBin, $insertSizeRbin, $path, $sampleName, $insGZ, $outPDF) = @_;
 
-  my $cmd = "$insertSizeRbin $path $sampleName $insGZ $outPDF";
+  my $cmd = "$RscriptBin $insertSizeRbin $path $sampleName $insGZ $outPDF";
 
   return $cmd;
 

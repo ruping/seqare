@@ -531,7 +531,7 @@ if (exists $runlevel{$runlevels}) {
     }
 
     unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.insertSize\.pdf") {
-      my $cmd = seqStats->plotInsertSize("$options{'bin'}/insertSize.R", "$options{'lanepath'}/03_STATS/", $options{'sampleName'},
+      my $cmd = seqStats->plotInsertSize($confs{'RscriptBin'}, "$options{'bin'}/insertSize.R", "$options{'lanepath'}/03_STATS/", $options{'sampleName'},
                                          "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins\.gz", "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.insertSize\.pdf");
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
@@ -757,7 +757,7 @@ if (exists $runlevel{$runlevels}) {
 
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
-    my $cmd = cnaCalling->runTitan("$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
+    my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
                                    $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
