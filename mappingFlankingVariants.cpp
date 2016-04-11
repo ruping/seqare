@@ -16,10 +16,11 @@ g++ mappingFlankingVariants.cpp
 -I/srv/gsfs0/projects/curtis/ruping/tools/bamtools/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/boost/current/include/ 
 -L/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ 
 -lbamtools -lz -Wl,-rpath,/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/:/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ -lboost_regex -o mappingFlankingVariants
-g++ mappingFlankingVariants.cpp 
--I/ifs/home/c2b2/ac_lab/rs3412/tools/bamtools/include/ -I/ifs/home/c2b2/ac_lab/rs3412/tools/zlib-1.2.8/include/ -I/ifs/home/c2b2/ac_lab/rs3412/tools/boost_1_54_0/include/
--L/ifs/home/c2b2/ac_lab/rs3412/tools/bamtools/lib/ -L/ifs/home/c2b2/ac_lab/rs3412/tools/zlib-1.2.8/lib/ -L/ifs/home/c2b2/ac_lab/rs3412/tools/boost_1_54_0/lib/
--lbamtools -lz -Wl,-rpath,/ifs/home/c2b2/ac_lab/rs3412/tools/bamtools/lib/:/ifs/home/c2b2/ac_lab/rs3412/tools/boost_1_54_0/lib/ -lboost_regex -o mappingFlankingVariants
+
+g++ mappingFlankingVariants.cpp
+-I/home/regularhand/tools/bamtools/include/ -I/home/regularhand/tools/zlib/current/include/ -I/home/regularhand/tools/boost/current/include/ 
+-L/home/regularhand/tools/bamtools/lib/ -L/home/regularhand/tools/zlib/current/lib/ -L/home/regularhand/tools/boost/current/lib/ 
+-lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o mappingFlankingVariants
 ******************************************************************************/
 
 #include <api/BamReader.h>
