@@ -8,9 +8,9 @@ use strict;
 
 sub bwaPairMapping {
 
-  my ($class, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1, $readfiles2) = @_;
+  my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1, $readfiles2) = @_;
 
-  my $cmd = "bwa mem -r 1.2 -t $threads -R \'$ReadGroup\' $bwaindex \'\<zcat $readfiles1\' \'\<zcat $readfiles2\' | samtools view -bS - >$outBam";
+  my $cmd = "$bwaBin mem -r 1.2 -t $threads -R \'$ReadGroup\' $bwaindex \'\<zcat $readfiles1\' \'\<zcat $readfiles2\' | $samtoolsBin view -bS - >$outBam";
 
   return $cmd;
 
@@ -18,9 +18,9 @@ sub bwaPairMapping {
 
 sub bwaSingleMapping {
 
-  my ($class, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1) = @_;
+  my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1) = @_;
 
-  my $cmd = "bwa mem -r 1.2 -t $threads -R \'$ReadGroup\' $bwaindex \'\<zcat $readfiles1\' | samtools view -bS - >$outBam";
+  my $cmd = "$bwaBin mem -r 1.2 -t $threads -R \'$ReadGroup\' $bwaindex \'\<zcat $readfiles1\' | $samtoolsBin view -bS - >$outBam";
 
   return $cmd;
 
@@ -29,9 +29,9 @@ sub bwaSingleMapping {
 
 sub bowtieMappingSnv {
 
-  my ($class, $bowtie2index, $inputFa, $outSam, $threads) = @_;
+  my ($class, $bowtieBin, $bowtie2index, $inputFa, $outSam, $threads) = @_;
 
-  my $cmd = "bowtie2 -k 22 -p $threads -f --no-unal -D 15 -R 2 -N 1 -L 20 -i S,1,0.75 --score-min L,-2,-0.3 -x $bowtie2index $inputFa >$outSam";
+  my $cmd = "$bowtieBin -k 22 -p $threads -f --no-unal -D 15 -R 2 -N 1 -L 20 -i S,1,0.75 --score-min L,-2,-0.3 -x $bowtie2index $inputFa >$outSam";
 
   return $cmd;
 }
@@ -39,9 +39,9 @@ sub bowtieMappingSnv {
 
 sub bamSort {
 
-  my ($class, $threads, $bamTmp, $outBam, $inBam) = @_;
+  my ($class, $samtoolsBin, $threads, $bamTmp, $outBam, $inBam) = @_;
 
-  my $cmd = "samtools sort -@ $threads -O bam -T $bamTmp -o $outBam $inBam";
+  my $cmd = "$samtoolsBin sort -@ $threads -O bam -T $bamTmp -o $outBam $inBam";
 
   return $cmd;
 
@@ -50,9 +50,9 @@ sub bamSort {
 
 sub bamIndex {
 
-  my ($class, $inBam) = @_;
+  my ($class, $samtoolsBin, $inBam) = @_;
 
-  my $cmd = "samtools index $inBam";
+  my $cmd = "$samtoolsBin index $inBam";
 
   return $cmd;
 }
@@ -60,9 +60,9 @@ sub bamIndex {
 
 sub samToBam {
 
-  my ($class, $inSam, $outBam) = @_;
+  my ($class, $samtoolsBin, $inSam, $outBam) = @_;
 
-  my $cmd = "samtools view -Sb $inSam -o $outBam";
+  my $cmd = "$samtoolsBin view -Sb $inSam -o $outBam";
 
   return $cmd;
 }
@@ -70,9 +70,9 @@ sub samToBam {
 
 sub recalMD {
 
-  my ($class, $inBam, $GFASTA, $outBam) = @_;
+  my ($class, $samtoolsBin, $inBam, $GFASTA, $outBam) = @_;
 
-  my $cmd = "samtools calmd -brE $inBam $GFASTA >$outBam";
+  my $cmd = "$samtoolsBin calmd -brE $inBam $GFASTA >$outBam";
 
   return $cmd;
 

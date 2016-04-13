@@ -20,8 +20,12 @@ chromosomeSize	$anno/trupanno/$species/$species.chromosome_size.txt
 #For read alignment#
 #                  #
 ####################
+#BWA bin
+bwaBin	bwa
 #BWA mapping index
 BWAINDEX	$anno/hg19.other/hg19.bwa.index/hg19.fasta
+#bowtieBin
+bowtieBin	bowtie2
 #bowtie2 mapping index
 BowtieINDEX	$anno/trupanno/hg19/hg19.bowtie2_index/hg19/hg19
 #blat database

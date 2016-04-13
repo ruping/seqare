@@ -380,18 +380,18 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     my $ReadGroup = '@RG'."\tID:".$options{'bamID'}."\tSM\:".$options{'sampleName'};
     my $cmd;
     if ($options{'fastqFiles2'} eq 'SRP') { #single end
-      $cmd = bwaMapping->bwaPairMapping($ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'});
+      $cmd = bwaMapping->bwaSingleMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'});
     } else {                    #paired-end
-      $cmd = bwaMapping->bwaPairMapping($ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'}, $options{'fastqFiles2'});
+      $cmd = bwaMapping->bwaPairMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'}, $options{'fastqFiles2'});
     }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
   unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) ) {    #processing bam
     if (-s "$rawBam" and !(-s "$sortedBam")) {     #must sort
-      my $cmd = bwaMapping->bamSort($options{'threads'}, $rawBam."\.tmp", $sortedBam, $rawBam);
+      my $cmd = bwaMapping->bamSort($confs{'samtoolsBin'}, $options{'threads'}, $rawBam."\.tmp", $sortedBam, $rawBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bamIndex($sortedBam);     #index it
+      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $sortedBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     if (-s "$rawBam" and -s "$sortedBam") {
@@ -416,7 +416,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
             $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-            $cmd = bwaMapping->bamIndex($irBam);     #index it
+            $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
             $manager->finish;
             $processedChroms .= $chrom.',';
@@ -429,7 +429,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-        $cmd = bwaMapping->bamIndex($irBam);     #index it
+        $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
@@ -449,9 +449,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     }
 
     if ((-s "$rmDupBam" and !(-s "$finalBam")) or exists($runTask{'recalMD'})) {
-      my $cmd = bwaMapping->recalMD($rmDupBam, $confs{'GFASTA'}, $finalBam);
+      my $cmd = bwaMapping->recalMD($confs{'samtoolsBin'}, $rmDupBam, $confs{'GFASTA'}, $finalBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bamIndex($finalBam);     #index it
+      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $finalBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     if (-s "$rmDupBam" and -s "$finalBam") {
@@ -943,9 +943,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara") {
       my $cmd = "perl $options{'bin'}/readsFlankingVariants.pl $confs{'GFASTA'} $varout_mutect\.filtered\.classified\.founds snv >$varout_mutect\.filtered\.classified\.founds.flanking.fa";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bowtieMappingSnv($confs{'BowtieINDEX'}, "$varout_mutect\.filtered\.classified\.founds.flanking.fa", "$varout_mutect\.filtered\.classified\.founds.flanking.sam", $options{'threads'});
+      $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_mutect\.filtered\.classified\.founds.flanking.fa", "$varout_mutect\.filtered\.classified\.founds.flanking.sam", $options{'threads'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->samToBam("$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
+      $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
