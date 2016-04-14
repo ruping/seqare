@@ -68,6 +68,9 @@ if ($split == 1) {
               $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];
             }
             if ($calledBlood =~ /\|/) {   #originally called
+              my @calledBloodInfo = split(/\|/, $calledBlood);
+              next if ($calledBloodInfo[2] ne '0/1');                 #only focus on originally hetero ones
+
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
                 my @infos = split(/\|/, $cols[$i]);
                 my $bmaf = $infos[0];
