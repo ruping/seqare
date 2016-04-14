@@ -709,7 +709,12 @@ inline void var_processing(struct var &variant) {
       numncMis += 1;
     }
   }
-  float localEr = ((float)numncMis)/totalBases;
+  float localEr;
+  if (totalBases == 0) {
+    localEr = 0;
+  } else {
+    localEr = ((float)numncMis)/totalBases;
+  }
 
   cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
