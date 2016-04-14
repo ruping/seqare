@@ -409,7 +409,7 @@ foreach my $file (@list) {
      if ($task =~ /titan/) {
        if ($blood ne '') {
          my @bloodInfo = split(/\:/, $blood);             #for titan, get blood info
-         if ( $bloodInfo[$formindex{'GT'}] !~ /0\/1/ ) {  #skip non-hetero sites
+         if ( $bloodInfo[$formindex{'GT'}] !~ /1/ ) {     #skip vars that are not found in blood
            next;
          }
        } else {
