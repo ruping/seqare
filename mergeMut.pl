@@ -406,14 +406,21 @@ foreach my $file (@list) {
      # generate reference panel for her2 brca
 
      #for titan purpose
+     my $GTblood;
+     my $DPblood;
      if ($task =~ /titan/) {
        if ($blood ne '') {
          my @bloodInfo = split(/\:/, $blood);             #for titan, get blood info
-         if ( $bloodInfo[$formindex{'GT'}] !~ /1/ ) {     #skip vars that are not found in blood
+         $GTblood = $bloodInfo[$formindex{'GT'}];
+         $DPblood = $bloodInfo[$formindex{'DP'}];
+         if ( $GTblood !~ /1/ or $DPblood == 0 ) {     #skip vars that are not found in blood
            next;
          }
        } else {
-         next if ($maf < 0.25 or $maf > 0.75);           #retain only heterozygous one
+         my @sampleInfo = split(":", $sample);
+         $GTblood = $sampleInfo[$formindex{'GT'}];
+         $DPblood = $sampleInfo[$formindex{'DP'}];
+         next if ($maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
        }
      }
      #for titan purpose
@@ -438,6 +445,9 @@ foreach my $file (@list) {
 
      #now start to store data
      $somatic{$coor}{$name} = ($task =~ /muTect/)? $maf.'|'.$tdp.'|'.$muTectLod : $maf.'|'.$qual;
+     if ($task =~ /titan/){
+       $somatic{$coor}{$name} .= '|'.$GTblood;
+     }
 
      my $idrefalt = join("\t", ($id,$ref,$alt));
      $somatic{$coor}{'info'}{$idrefalt} = $function;  #not necessarily just one!
