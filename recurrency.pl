@@ -2,6 +2,7 @@ use strict;
 use Data::Dumper;
 use File::Glob ':glob';
 use List::Util qw[min max];
+use Math::CDF qw[:all];
 use Data::Dumper;
 use Getopt::Long;
 
