@@ -1085,6 +1085,9 @@ sub helpm {
   print STDERR "\t--ncTitan\tnormal contamination initial value, default \'0.5\'\n";
   print STDERR "\t--ncmTitan\tmethod used for estimating normal contamination, default \'map\', use \'fixed\' to fix.\n";
 
+  print STDERR "\nrunlevel 8: merge calls\n";
+  print STDERR "\nrunlevel 9: variant classification\n";
+
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";
   print STDERR "\t--quiet\t\tdo not print the command line calls and time information\n";

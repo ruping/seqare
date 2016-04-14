@@ -270,7 +270,7 @@ while ( <IN> ) {
       } #each column
       my $depav = ($Ndep > 0)? sprintf("%.1f", $dep/$Ndep):0;
       print "$_\t$depav\n";
-    } elsif ($task =~ /filter/) {     #filter (based on Jie's Results)
+    } elsif ($task =~ /filter/) {     #filter
       my @detectedSample;
       my %detectedSample;
       my $somaticCalled = 0;
