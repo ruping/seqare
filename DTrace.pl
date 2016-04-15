@@ -824,7 +824,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   print STDERR "BLOOD: $BLOOD\n";
 
   #mutect merge
-  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeMutectOnly'})) and !exists($runTask{'mergeSamtoolsOnly'})) {
     unless (-s "$vcflist_mutect") {
       for my $eatumor (keys %somatic) {
         my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
@@ -849,7 +849,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   }
 
   #samtools merge
-  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtools'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtoolsOnly'})) and !exists($runTask{'mergeMutectOnly'})) {
     unless (-s "$vcflist_samtools") {
       for my $eatumor (keys %somatic) {
         my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
