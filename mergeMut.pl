@@ -160,6 +160,7 @@ foreach my $file (@list) {
      #judging whether it is single calling or paired calling
 
      my ($chr, $pos, $id, $ref, $alt, $qual, $pass, $info, $format, $sample, $blood) = split /\t/;
+     $chr =~ s/^chr//;
      if ($withChr) {
        $chr = 'chr'.$chr if ($chr !~ /^chr/);
        $chr = 'chrM' if ($chr eq 'chrMT');
