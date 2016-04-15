@@ -239,23 +239,43 @@ foreach my $file (@list) {
      }
 
 
-     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /ESP\d+\=/) {  #snp in population, is it a somatic one?
+     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
 
        my $freq = -1;
        if ($info =~ /(1KG=(.+?));/) {
-           my $kid = $1;                               #re define $id to 1KG when absent
-           $freq = $2;
-           if ($id eq '.') {
-              $id = $kid;
-           }
+         my $kid = $1;                                 #re define $id to 1KG when absent
+         $freq = $2;
+         if ($id !~ /^[rR][sS]/) {
+           $id = $kid;
+         }
        }
-
+       if ($info =~ /(1000g[0-9a-z\_\-]+\=(.+?));/) {
+         my $kid = $1;                                 #re define $id to 1KG when absent
+         $freq = $2;
+         if ($id !~ /^[rR][sS]/) {
+           $id = $kid;
+         }
+       }
        if ($info =~ /((ESP\d+)=(.+?));/) {
            my $kid = $1;                               #re define $id to ESP when absent
            $freq = $3;
-           if ($id eq '.') {
+           if ($id !~ /^[rR][sS]/) {
               $id = $kid;
            }
+       }
+       if ($info =~ /(ExAC\_ALL=(.+?));/) {
+         my $kid = $1;                                 #re define $id to ExAC when absent
+         $freq = $2;
+         if ($id !~ /^[rR][sS]/) {
+           $id = $kid;
+         }
+       }
+       if ($info =~ /(PopFreqMax=(.+?));/) {
+         my $kid = $1;                                 #re define $id to PopFreqMax when absent
+         $freq = $2;
+         if ($id !~ /^[rR][sS]/) {
+           $id = $kid;
+         }
        }
 
        if ( $info =~ /clinvar/ ) {                    #if clinvar, skip normal filter
@@ -268,7 +288,7 @@ foreach my $file (@list) {
              next;
            }
          } else {   #freq is defined
-           if ($id !~ /^1KG/ and $id !~ /^ESP\d+/) {   #dbSNP ones with reported MAF in 1KG or ESP (also with a dbSNP id)
+           if ($id =~ /^[rR][sS]/) {   #dbSNP ones with reported MAF (with dbSNP id)
              next if ($dbsnp eq "no");
            }
            if ($task =~ /rare/i) {
