@@ -623,6 +623,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ((-s "$muTectOut" or -s "$muTectOut\.gz") and !-s "$vcfMultiAnnoMod" and exists( $somatic{$options{'sampleName'}} ) ) {
 
     my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut);                                                #convert mutect 2 vcf
+    if (-s "$muTectOut\.gz"){
+      $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut.".gz", $vcfOut);
+    }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
     $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted);                                                                                    #sort vcf
