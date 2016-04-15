@@ -271,9 +271,9 @@ foreach my $file (@list) {
          }
        }
        if ($info =~ /(PopFreqMax=(.+?));/) {
-         my $kid = $1;                                 #re define $id to PopFreqMax when absent
-         $freq = $2;
-         if ($id !~ /^[rR][sS]/) {
+         my $kid = $1;                                 #re define $id to PopFreqMax when TOTALLY absent
+         if ($freq == -1 and $id eq '.') {
+           $freq = $2;
            $id = $kid;
          }
        }
