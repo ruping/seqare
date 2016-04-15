@@ -20,7 +20,11 @@ $vcfheader .= '##INFO=<ID=VT,Number=1,Type=String,Description="Variant type, can
 
 my $samples = 'SRP';
 my %colindex;
-open MU, "$mutect";
+if ($mutect =~ /\.gz$/) {
+  open MU, "gzip -dc $mutect |";
+} else {
+  open MU, "$mutect";
+}
 while ( <MU> ) {
   chomp;
   next if /^#/;   #skip comments
@@ -73,3 +77,5 @@ while ( <MU> ) {
 
 }
 close MU;
+
+exit 0;

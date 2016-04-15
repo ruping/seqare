@@ -620,7 +620,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   }
 
   #annoVar annotate---------------------------------------------------------------------
-  if (-s "$muTectOut" and !-s "$vcfMultiAnnoMod" and exists( $somatic{$options{'sampleName'}} ) ) {
+  if ((-s "$muTectOut" or -s "$muTectOut\.gz") and !-s "$vcfMultiAnnoMod" and exists( $somatic{$options{'sampleName'}} ) ) {
 
     my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut);                                                #convert mutect 2 vcf
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
