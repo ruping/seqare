@@ -30,6 +30,7 @@ $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
 $options{'bams'}        = 'SRP';
 $options{'bamID'}       = 1;
+$options{'mutectCall'}  = 'SRP';
 $options{'lanepath'}    = 'SRP';
 $options{'threads'}     = 1;
 $options{'splitChr'}    = undef;
@@ -67,8 +68,9 @@ GetOptions(
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
            "fastqFiles2=s"=> \$options{'fastqFiles2'},
-           "bams=s"       => \$options{'bams'},
+           "bams=s"       => \$options{'bams'},            #already mapped -> halfway enter the pipe
            "bamID=s"      => \$options{'bamID'},
+           "mutectCall=s" => \$options{'mutectCall'},      #already called -> halfway enter the pipe
            "qcOFF"        => \$options{'qcOFF'},
            "runID=s"      => \$options{'runID'},
            "runlevel=s"   => \$options{'runlevels'},
@@ -231,7 +233,7 @@ if ($options{'lanepath'} eq 'SRP' and $options{'sampleName'} ne 'SRP') {
   }
 }
 
-if ($options{'bams'} ne 'SRP') {
+if ($options{'bams'} ne 'SRP') {                              #bam -> halfway enter pipe
   unless (-e "$options{'lanepath'}/02_MAPPING") {
     my $cmd = "mkdir -p $options{'lanepath'}/02_MAPPING";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -253,6 +255,23 @@ if ($options{'bams'} ne 'SRP') {
   }
   unless (-s "$linkBam\.bai") {
     my $cmd = "ln -s $options{'bams'}\.bai $linkBam\.bai";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  goto REALSTEPS;
+}
+
+if ($options{'mutectCall'} ne 'SRP') {                               #mutectCall -> halfway enter pipe
+  unless (-e "$options{'lanepath'}/04_SNV") {
+    my $cmd = "mkdir -p $options{'lanepath'}/04_SNV";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  my $linkMutect = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect";
+  if ($options{'mutectCall'} =~ /\.gz$/) { #gzipped
+    $linkMutect .= '.gz';
+  }
+
+  unless (-s "$linkMutect") {
+    my $cmd = "ln -s $options{'mutectCall'} $linkMutect";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
   goto REALSTEPS;
