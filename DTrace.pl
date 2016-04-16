@@ -886,7 +886,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
 ###
 
 $runlevels = 9;
-if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or exists($runTask{'germlineCallingSNV'})) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exists($runTask{'SamtoolsCallOnly'})) {
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
@@ -917,7 +917,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
   print STDERR "BLOOD: $BLOOD\n";
 
   #mutect classification
-  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'})) and !exists($runTask{'SamtoolsCallOnly'})) {
     unless (-s "$rechecklist_mutect") {   #generate recheck list for mutect
       for my $eatumor (keys %somatic) {
         my $eaRecheckmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.snv.table.annotated.rechecked";
@@ -998,7 +998,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'somaticCallingSNV'}) or ex
 
 
   #samtools merge
-  if (exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtools'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'SamtoolsCallOnly'})) and !exists($runTask{'MutectCallOnly'})) {
     unless (-s "$rechecklist_samtools") {   #generate recheck list for samtools
       for my $eatumor (keys %somatic) {
         my $eaRechecksamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.snv.table.annotated.rechecked";
