@@ -114,10 +114,10 @@ sub calTumorLOD {
     #print STDERR "$er\t";
     my $err = ord($er)-33;                     #ASCII -> quality
     $err -= 31 if ($err >= 64);                #qual shift
-    $err = 41 if ($err > 41);                  #qual max
+    $err = 62 if ($err > 62);                  #qual max
     $err = 10**(-$err/10);
     $er = max($err, $le);                      #maximum between local and phred score
-    $er = 0.01 if ($er >= 1);                  #minimum if wierd case
+    $er = 0.01 if ($er > 0.01);                #minimum if wierd case
     my $Pm = $f*(1-$er) + (1-$f)*($er/3);
     my $Pm0 = $er/3;
     #print STDERR "$er\t$Pm\t$Pm0\t";
@@ -159,7 +159,7 @@ sub calNormalLOD {
     $err = 41 if ($err > 41);                  #qual max
     $err = 10**(-$err/10);
     $er = max($err, $le);                      #maximum between local and phred score
-    $er = 0.01 if ($er >= 1);                  #minimum if wierd case
+    $er = 0.01 if ($er > 0.01);                #minimum if wierd case
     my $Pm0 = $er/3;
     my $Pmg = $fg*(1-$er) + (1-$fg)*($er/3);
     #print STDERR "$er\t$Pm0\t$Pmg\t";
