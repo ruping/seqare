@@ -92,9 +92,12 @@ sub grepINDELvcf {
 
 sub rechecksnv {
 
-  my ($class, $rechecsnvBin, $recheckTable, $BAM, $recheckOut) = @_;
+  my ($class, $rechecsnvBin, $recheckTable, $BAM, $recheckOut, $chrPref) = @_;
 
   my $cmd = "$rechecsnvBin --var $recheckTable --mapping $BAM --skipPileup >$recheckOut";
+  if ($chrPref ne 'SRP'){
+    $cmd = "$rechecsnvBin --var $recheckTable --mapping $BAM --skipPileup --chr $chrPref >$recheckOut";
+  }
 
   return $cmd;
 

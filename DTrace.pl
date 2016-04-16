@@ -46,6 +46,7 @@ $options{'tmpDir'}      = '';
 $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
 
+$options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
 $options{'recheck'}     = "SRP";
@@ -70,6 +71,7 @@ GetOptions(
            "fastqFiles2=s"=> \$options{'fastqFiles2'},
            "bams=s"       => \$options{'bams'},            #already mapped -> halfway enter the pipe
            "bamID=s"      => \$options{'bamID'},
+           "chrPrefInBam=s" => \$options{'chrPrefInBam'},
            "mutectCall=s" => \$options{'mutectCall'},      #already called -> halfway enter the pipe
            "qcOFF"        => \$options{'qcOFF'},
            "runID=s"      => \$options{'runID'},
@@ -739,7 +741,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'recheck'} ne 'SRP' and -s "$options{'recheck'}") { #do the recheck
     my $recheckBasename = basename($options{'recheck'});
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
-    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut);
+    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -1100,6 +1102,7 @@ sub helpm {
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
   print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
   print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
+  print STDERR "\t--chrPrefInBam\tthe prefix of chromosome names in the bam file. default is no prefix, set to the actual prefix you have in the bam.\n";
 
   print STDERR "\nrunlevel 5: CNA calling (TitanCNA)\n";
   print STDERR "\t--plpTitan\tploidy starting value, default \'2.0\'\n";
