@@ -200,7 +200,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
           my @alreadyHave = split(/\t/, $somatic{$coor}{$djindex}{$name});
           my @alreadyDepths = split(',', $alreadyHave[1]);
           my $alreadyDepth = $alreadyDepths[0];
-          if ($alreadyDepths[0] > $depth){
+          if ($alreadyDepths[0] > $depth) {
             goto SEENB;
           }
         }
