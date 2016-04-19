@@ -5,6 +5,7 @@ use List::Util qw[min max];
 use Math::CDF qw[:all];
 use Data::Dumper;
 use Getopt::Long;
+use Text::NSP::Measures::2D::Fisher::right;  #fisher test right tail
 
 my $file;
 my $task;
@@ -386,7 +387,8 @@ while ( <IN> ) {
           }
 
           my $depth = $cols[$i+1];
-          my $vard = sprintf("%.1f", $maf*$depth);
+          #my $vard = sprintf("%.1f", $maf*$depth);
+          my $vard = round($maf*$depth);
 
           if (exists $somatic{$samp}) {     #for tumor samples require some additional thing
             if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and ($strandRatio > 0 and $strandRatio < 1) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
@@ -408,11 +410,11 @@ while ( <IN> ) {
             my $tumorLOD = $lod;
             if ($vard >= ($Th_vard+1) and $maf >= ($Th_maf+0.01) and $depth >= 8) {
               if ($vard >= 50) {              #must be sig anyway
-                $tumor{$samp} = $maf;
+                $tumor{$samp} = join(',', $maf, $vard, $depth);               #maf - > maf, vard, depth
               } else {                        #cal for less vard
                 print STDERR "$samp\t$maf\t$vard\t$depth\t$tumorLOD\n";
                 if ($tumorLOD >= $Th_tumorLOD) {
-                  $tumor{$samp} = $maf;
+                  $tumor{$samp} = join(',', $maf, $vard, $depth);             #maf - > maf, vard, depth
                 }
               }
             }
@@ -422,7 +424,7 @@ while ( <IN> ) {
               if ($bloodCall eq 'yes' and $cols[$i-1] =~ /\|/) {                         #it is originally called
                 $bloodcalled{$ct} = '';
               }
-              print STDERR "$samp\t$maf\t$vard\t$depth\t$normalLOD\n";
+              #print STDERR "$samp\t$maf\t$vard\t$depth\t$normalLOD\n";
               if ( $maf == 0 ) {   #no blood alt found
                 if ( ($normalLOD > $Th_normalLOD or $cols[$i] == 0) and $depth >= 8 ) {  #good normalLOD or no variant reads
                   $nonblood{$ct} = '';
@@ -430,7 +432,7 @@ while ( <IN> ) {
                   $unknown{$ct} = '';
                 }
               } else {          #maf != 0, should keep normalLOD in mind
-                $blood{$ct} = $maf.','.$normalLOD;
+                $blood{$ct} = join(',', $maf, $vard, $depth, $normalLOD);              #maf,normalLOD - > maf, vard, depth,normalLOD
               }
             }
           }                     #it is blood
@@ -440,22 +442,27 @@ while ( <IN> ) {
       my $soma = 'NA';
       my $germ = 'NA';
       foreach my $tumorSamp (keys %tumor) {   #check blood to confirm that it is somatic
+
+        my ($tumorMaf, $tumorVard, $tumorDepth) = split(',', $tumor{$tumorSamp});
         my $stype = 'NA';
         if (exists $nonblood{$tumorSamp}) {
           $stype = 'good';
-          $stype .= ($tumor{$tumorSamp} < 0.1)? 'Sub' : '';  #add subclonal info
+          $stype .= ($tumorMaf < 0.1)? 'Sub' : '';  #add subclonal info
           $soma = ($soma eq 'NA')? $tumorSamp."\[$stype\]".',':$soma.$tumorSamp."\[$stype\]".',';
 
         } elsif (exists($blood{$tumorSamp})) {
 
-          my @bloodmafLOD = split(',',$blood{$tumorSamp});
-          if ( $bloodmafLOD[0] < $Th_bloodZero and $tumor{$tumorSamp}/$bloodmafLOD[0] >= 4 and $bloodmafLOD[1] > $Th_normalLOD ) {
+          my ($bloodMaf, $bloodVard, $bloodDepth, $bloodLOD) = split(',',$blood{$tumorSamp});
+          my $pFisher = calculateStatistic(n11=>$tumorVard, n1p=>$tumorDepth, np1=>($tumorVard+$bloodVard), npp=>($tumorDepth+$bloodDepth));    #fisher exact test to see whether tumor enrich for variants
+          print STDERR "$tumorVard\t$tumorDepth\t$bloodVard\t$bloodDepth\t$pFisher\n";
+
+          if ( $bloodMaf < $Th_bloodZero and $tumorMaf/$bloodMaf >= 4 and $bloodLOD > $Th_normalLOD and $pFisher < 0.05 ) {
             $stype = 'doubt';
-            $stype .= ($tumor{$tumorSamp} < 0.1)? 'Sub' : '';  #add subclonal info
+            $stype .= ($tumorMaf < 0.1)? 'Sub' : '';  #add subclonal info
             $soma = ($soma eq 'NA')? $tumorSamp."\[$stype\]".',':$soma.$tumorSamp."\[$stype\]".',';
           } elsif (exists($unknown{$tumorSamp})) {
             $stype = 'undef';
-            $stype .= ($tumor{$tumorSamp} < 0.1)? 'Sub' : '';  #add subclonal info
+            $stype .= ($tumorMaf < 0.1)? 'Sub' : '';  #add subclonal info
             $soma = ($soma eq 'NA')? $tumorSamp."\[$stype\]".',':$soma.$tumorSamp."\[$stype\]".',';
           } else {
             $germ = ($germ eq 'NA')? $tumorSamp.',':$germ.$tumorSamp.',';
@@ -476,3 +483,14 @@ while ( <IN> ) {
   }
 }
 close IN;
+
+exit 0;
+
+sub round {
+    my $number = shift;
+    my $tmp = int($number);
+    if ($number >= ($tmp+0.5)){
+      $tmp++;
+    }
+    return $tmp;
+}
