@@ -316,6 +316,14 @@ if ($options{'readpool'} ne 'SRP' and $options{'FASTQ1'} ne 'SRP' and $options{'
 }
 
 if ($options{'fastqFiles1'} ne 'SRP') {
+  printtime();
+  print STDERR "####### preparing directories #######\n\n";
+
+  unless (-e "$options{'lanepath'}/01_READS/") {
+    my $cmd = "mkdir -p $options{'lanepath'}/01_READS/";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
   foreach my $fastqFile1 (split(" ", $options{'fastqFiles1'})) {
     my $cmd = "ln -s $fastqFile1 $options{'lanepath'}/01_READS/";
     my $fastqFile1Basename = basename($fastqFile1);
