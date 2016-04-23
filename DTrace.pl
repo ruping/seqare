@@ -55,6 +55,9 @@ $options{'plpeTitan'}   = "TRUE";
 $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
 
+$options{'mergeNonsegdup'} = 1;
+$options{'mergeRare'}      = 1;
+
 
 if (@ARGV == 0) {
   helpm();
@@ -98,7 +101,8 @@ GetOptions(
            "plpTitan=f"   => \$options{'plpTitan'},
            "plpeTitan=s"  => \$options{'plpeTitan'},
            "ncTitan=f"    => \$options{'ncTitan'},
-           "ncmTitan=s"   => \$options{'ncmTitan'},
+           "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
+           "mergeRare=i"  => \$options{'mergeRare'}
           );
 
 #print help
@@ -848,7 +852,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
     }
     unless (-s "$originaltable_mutect") {
       unless (-s "$vcftable_mutect") {
-        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_mutect --prefix $PREF --normal $BLOOD --type snv --task rare,muTect --dbsnp yes --nonsegdup >$vcftable_mutect";
+        my $optionNosegdup = ($options{'mergeNonsegdup'} == 1)? '--nonsegdup':'';
+        my $optionRare = ($options{'mergeRare'} == 1)? 'rare,muTect':'muTect';
+
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_mutect --prefix $PREF --normal $BLOOD --type snv --task $optionRare --dbsnp yes $optionNosegdup >$vcftable_mutect";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
       if (-s "$vcftable_mutect") {
