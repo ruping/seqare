@@ -406,7 +406,7 @@ foreach my $file (@list) {
        unless ( $somatic == 1 ) {
          next if ( $tdp < 5 );
          next if ( $altd < 2 );
-         next if ( $maf < 0.01 );
+         #next if ( $maf < 0.001 );
        }
      }
      #depth filter
