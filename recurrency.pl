@@ -19,9 +19,9 @@ my $Th_normalLOD = 2.3;
 my $Th_maf = 0.03;
 my $Th_endsratio = 0.9;
 my $Th_vard = 2;
-my $Th_badQualFrac = 0.7;    #0.6
-my $Th_cmeancmedian = 7.5;   #5.5
-my $Th_cmedian = 3;          #2
+my $Th_badQualFrac = 0.6;    #0.6
+my $Th_cmeancmedian = 5.5;   #5.5
+my $Th_cmedian = 2;          #2
 my $Th_bloodZero = 0.1;
 if ($type eq 'indel') {
   $Th_endsratio = 0.95;
