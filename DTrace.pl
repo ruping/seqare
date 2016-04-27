@@ -642,7 +642,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-    $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted);                                                                                    #sort vcf
+    $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted);                                                                                    #sort vcf
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
     $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, );       #table annovar
@@ -692,7 +692,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
@@ -701,7 +701,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
       unless (-s "$vcfMultiAnnoMod") {
 
-        my $cmd = snvCalling->vcfSort($vcfOut, $vcfOutSorted);      #sort vcf
+        my $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted);      #sort vcf
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
         $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, ); #table annovar

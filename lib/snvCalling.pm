@@ -19,9 +19,9 @@ sub muTectCalling {
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut) = @_;
 
-  my $cmd = "$samtoolsBin mpileup -Eugd 400 -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | bcftools call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+  my $cmd = "$samtoolsBin mpileup -Eugd 400 -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
 
   return $cmd;
 
@@ -40,9 +40,9 @@ sub muTect2vcf {
 
 sub vcfSort {
 
-  my ($class, $inVCF, $outVCF) = @_;
+  my ($class, $vcfSortBin, $inVCF, $outVCF) = @_;
 
-  my $cmd = "cat $inVCF | vcf-sort >$outVCF";
+  my $cmd = "cat $inVCF | $vcfSortBin >$outVCF";
 
   return $cmd;
 
