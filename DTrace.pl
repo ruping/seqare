@@ -28,6 +28,7 @@ $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
+$options{'skipTask'}    = 'SRP';
 $options{'bams'}        = 'SRP';
 $options{'bamID'}       = 1;
 $options{'mutectCall'}  = 'SRP';
@@ -80,6 +81,7 @@ GetOptions(
            "runID=s"      => \$options{'runID'},
            "runlevel=s"   => \$options{'runlevels'},
            "runTask=s"    => \$options{'runTask'},
+           "skipTask=s"   => \$options{'skipTask'},
            "seqType=s"    => \$options{'seqType'},
            "noexecute"    => \$options{'noexecute'},
            "quiet"        => \$options{'quiet'},
@@ -370,15 +372,15 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'QC'})) {
   my $qc_out1 = "$options{'lanepath'}/01_READS/mate1.qc";    ######
   my $qc_out2;
 
-  if ($options{'fastqFiles2'} ne 'SRP') {
+  if ($options{'fastqFiles2'} ne 'SRP' and $options{'fastqFiles2'} ne 'interleaved') {
     $qc_out2 = "$options{'lanepath'}/01_READS/mate2.qc";
   }
 
-  unless (-e "$qc_out1") {
+  unless ((-e "$qc_out1") or ($options{'skipTask'} eq 'qc')) {
     my $cmd = "$options{'decompress'} $options{'fastqFiles1'} | $options{'bin'}/fastx_quality_stats -Q33 -o $qc_out1";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless ($options{'qcOFF'});
   }
-  unless (($options{'fastqFiles2'} eq 'SRP') or (-e "$qc_out2")) {
+  unless (($options{'fastqFiles2'} eq 'SRP' or $options{'fastqFiles2'} eq 'interleaved') or ($qc_out2 ne '' and -e "$qc_out2") or ($options{'skipTask'} eq 'qc')) {
     my $cmd = "$options{'decompress'} $options{'fastqFiles2'} | $options{'bin'}/fastx_quality_stats -Q33 -o $qc_out2";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless ($options{'qcOFF'});
   }
