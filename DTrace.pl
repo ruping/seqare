@@ -244,15 +244,18 @@ if ($options{'bams'} ne 'SRP') {                              #bam -> halfway en
     my $cmd = "mkdir -p $options{'lanepath'}/02_MAPPING";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  my $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
+  my $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   if ( exists($runTask{'indelRealignment'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
   }
-  if ( exists($runTask{'MarkDuplicates'}) ) {
+  if ( exists($runTask{'BaseRecalibration'}) ) {
     $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
   }
+  if ( exists($runTask{'MarkDuplicates'}) ) {
+    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.bam";
+  }
   if ( exists($runTask{'recalMD'}) ) {
-    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
+    $linkBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.bam";
   }
 
   unless (-s "$linkBam") {
@@ -335,7 +338,7 @@ if ($options{'fastqFiles1'} ne 'SRP') {
   }
 }
 
-if ($options{'fastqFiles2'} ne 'SRP') {
+if ($options{'fastqFiles2'} ne 'SRP' and $options{'fastqFiles2'} ne 'interleaved') {
   foreach my $fastqFile2 (split(" ", $options{'fastqFiles2'})){
     my $cmd = "ln -s $fastqFile2 $options{'lanepath'}/01_READS/";
     my $fastqFile2Basename = basename($fastqFile2);
@@ -392,13 +395,14 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'QC'})) {
 
 
 $runlevels = 2;
-if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runTask{'indelRealignment'}) or exists($runTask{'BaseRecalibration'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) {
 
   my $rawBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.bam";
   my $sortedBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
   my $irBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
-  my $rmDupBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
-  my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.md\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
+  my $brBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.bam";
+  my $rmDupBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.bam";
+  my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.rmDup\.md\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
@@ -412,9 +416,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
   if ($#allBams == -1 or exists($runTask{'mapping'})) {
     my $ReadGroup = '@RG'."\tID:".$options{'bamID'}."\tSM\:".$options{'sampleName'};
     my $cmd;
-    if ($options{'fastqFiles2'} eq 'SRP') { #single end
+    if ($options{'fastqFiles2'} eq 'interleaved') {  #need smart paring
+      $cmd = bwaMapping->bwaSmartMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'});
+    } elsif ($options{'fastqFiles2'} eq 'SRP') {     #single end
       $cmd = bwaMapping->bwaSingleMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'});
-    } else {                    #paired-end
+    } else {                                         #paired-end
       $cmd = bwaMapping->bwaPairMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'}, $options{'fastqFiles2'});
     }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -471,13 +477,27 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
-    if ((-s "$irBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
-      my $rmDupMetric = $irBam.".rmDupMetric";
-      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $irBam, $rmDupBam, $rmDupMetric);
+    if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) {  #base recalibration
+      my $brTable = $irBam.".baseRecal.table";
+      my $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $brBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    if (-s "$irBam" and -s "$rmDupBam") {
+    if (-s "$brBam" and -s "$irBam") {
       my $cmd = "rm $irBam $irBam\.bai -f";
+      #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+    if ((-s "$brBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
+      my $rmDupMetric = $brBam.".rmDupMetric";
+      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $brBam, $rmDupBam, $rmDupMetric);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$brBam" and -s "$rmDupBam") {
+      my $cmd = "rm $brBam $brBam\.bai -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
@@ -645,7 +665,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted);                                                                                    #sort vcf
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-    $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, );       #table annovar
+    $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'});       #table annovar
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
     $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);

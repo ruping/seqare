@@ -51,7 +51,7 @@ sub vcfSort {
 
 sub runAnnovar {
 
-  my ($class, $annovarBin, $inVCF, $ANNOVARDB, $species, ) = @_;
+  my ($class, $annovarBin, $inVCF, $ANNOVARDB, $species) = @_;
 
   my $cmd = "perl $annovarBin $inVCF $ANNOVARDB -buildver $species -remove -protocol refGene,cytoBand,genomicSuperDups,phastConsElements46way,tfbsConsSites,gwasCatalog,esp6500siv2_all,1000g2014oct_all,1000g2014oct_afr,1000g2014oct_eas,1000g2014oct_eur,snp138,exac03,popfreq_max_20150413,ljb26_all,clinvar_20150629 -operation g,r,r,r,r,r,f,f,f,f,f,f,f,f,f,f -nastring . -vcfinput --outfile $inVCF";
 

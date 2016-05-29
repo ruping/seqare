@@ -16,6 +16,18 @@ sub bwaPairMapping {
 
 }
 
+
+sub bwaSmartMapping {   #smart paring, for interleaved fastqs
+
+  my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1) = @_;
+
+  my $cmd = "$bwaBin mem -p -r 1.2 -t $threads -R \'$ReadGroup\' $bwaindex \'\<zcat $readfiles1\' | $samtoolsBin view -bS - >$outBam";
+
+  return $cmd;
+
+}
+
+
 sub bwaSingleMapping {
 
   my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1) = @_;
@@ -92,6 +104,7 @@ sub indelRealignment1 {
 
 }
 
+
 sub indelRealignment2 {
 
   my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam) = @_;
@@ -116,6 +129,25 @@ sub MarkDuplicates {
 }
 
 
+sub BaseRecalibration {
+
+  my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable) = @_;
+
+  my $cmd = "java -Xmx3g -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -o $outTable";
+
+  return $cmd;
+
+}
+
+sub BaseRecalibrationPrint {
+
+  my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam) = @_;
+
+  my $cmd = "java -Xmx3g -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable --emit_original_quals -o $outBam";
+
+  return $cmd;
+
+}
 
 1;
 
