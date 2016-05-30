@@ -28,6 +28,7 @@ $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
 $options{'fastqFiles2'} = 'SRP';
+$options{'platform'}    = "ILLUMINA";
 $options{'skipTask'}    = 'SRP';
 $options{'bams'}        = 'SRP';
 $options{'bamID'}       = 1;
@@ -73,6 +74,7 @@ GetOptions(
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
            "fastqFiles2=s"=> \$options{'fastqFiles2'},
+           "platform=s"   => \$options{'platform'},
            "bams=s"       => \$options{'bams'},            #already mapped -> halfway enter the pipe
            "bamID=s"      => \$options{'bamID'},
            "chrPrefInBam=s" => \$options{'chrPrefInBam'},
@@ -416,7 +418,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 
   my @allBams = bsd_glob("$options{'lanepath'}/02_MAPPING/$options{'sampleName'}*\.bam");
   if ($#allBams == -1 or exists($runTask{'mapping'})) {
-    my $ReadGroup = '@RG'."\tID:".$options{'bamID'}."\tSM\:".$options{'sampleName'};
+    my $ReadGroup = '@RG'."\tID:".$options{'bamID'}."\tSM\:".$options{'sampleName'}."\tPL\:".$options{'platform'};
     my $cmd;
     if ($options{'fastqFiles2'} eq 'interleaved') {  #need smart paring
       $cmd = bwaMapping->bwaSmartMapping($confs{'bwaBin'}, $confs{'samtoolsBin'}, $ReadGroup, $options{'threads'}, $confs{'BWAINDEX'}, $rawBam, $options{'fastqFiles1'});
