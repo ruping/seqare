@@ -143,7 +143,7 @@ sub BaseRecalibrationPrint {
 
   my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam) = @_;
 
-  my $cmd = "java -Xmx3g -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable --emit_original_quals -o $outBam";
+  my $cmd = "java -Xmx3g -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -o $outBam";
 
   return $cmd;
 

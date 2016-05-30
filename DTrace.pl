@@ -455,8 +455,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
             $CHR = $chrom;
             $indelTargetList =~ s/\.target_intervals.list/\.$CHR\.target_intervals.list/;
             $irBam =~ s/\.bam/\.$CHR\.bam/;
-            my $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
-            RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+            my $cmd;
+            unless (-s "$indelTargetList") {
+              $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+              RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+            }
             $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
             $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
@@ -468,8 +471,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
           print STDERR "$processedChroms have been processed!\n";
         }
       } else {
-        my $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
-        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        my $cmd;
+        unless (-s "$indelTargetList") {
+          $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        }
         $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
@@ -480,11 +486,21 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       my $cmd = "rm $sortedBam $sortedBam\.bai -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+    if (-s "$irBam") {               #remove redundant bai
+      (my $redBai = $irBam.'.bai') =~ s/\.bam\.bai/\.bai/;
+      if (-s "$redBai") {
+        my $cmd = "rm $redBai -f";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
 
     if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) {  #base recalibration
       my $brTable = $irBam.".baseRecal.table";
-      my $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      my $cmd;
+      unless (-s "$brTable") {
+        $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
       $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $brBam);     #index it
@@ -493,6 +509,13 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     if (-s "$brBam" and -s "$irBam") {
       my $cmd = "rm $irBam $irBam\.bai -f";
       #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$brBam") {               #remove redundant bai
+      (my $redBai = $brBam.'.bai') =~ s/\.bam\.bai/\.bai/;
+      if (-s "$redBai") {
+        my $cmd = "rm $redBai -f";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
     }
 
     if ((-s "$brBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
