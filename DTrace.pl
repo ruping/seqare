@@ -559,7 +559,7 @@ if (exists $runlevel{$runlevels}) {
 
   #basic read counting stats:
   my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
-  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   unless (-s "$mappingStats"){
     my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $finalBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -643,7 +643,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
   #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
-  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.md\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   my $normalBam;
 
   if (!exists($runlevel{$runlevels}) and exists($runTask{'recheck'})){
@@ -657,7 +657,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
-    $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.rmDup\.md\.bam";
+    $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.br\.rmDup\.md\.bam";
     unless (-s "$normalBam") {
       print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
       exit 22;
