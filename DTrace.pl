@@ -494,23 +494,28 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       }
     }
 
-    if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) {  #base recalibration
-      my $brTable = $irBam.".baseRecal.table";
-      my $cmd;
-      unless (-s "$brTable") {
-        $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
+    if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) { #base recalibration
+      if ($options{'skipTask'} !~ /BaseRecalibration/) {             #if skipped
+        my $brTable = $irBam.".baseRecal.table";
+        my $cmd;
+        unless (-s "$brTable") {
+          $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        }
+        $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      } else {
+        my $cmd = "mv $irBam $brBam";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
-      $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam);
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $brBam);     #index it
+      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $brBam); #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     if (-s "$brBam" and -s "$irBam") {
       my $cmd = "rm $irBam $irBam\.bai -f";
-      #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    if (-s "$brBam") {               #remove redundant bai
+    if (-s "$brBam") {          #remove redundant bai
       (my $redBai = $brBam.'.bai') =~ s/\.bam\.bai/\.bai/;
       if (-s "$redBai") {
         my $cmd = "rm $redBai -f";
