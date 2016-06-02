@@ -342,7 +342,7 @@ int main (int argc, char *argv[]) {
         writer.SaveAlignment(bam);                    // write mapped tags to a new bam
       }
 
-      if ( bam.IsMapped() == false ) {              // skip the one with only mate mappable
+      if ( bam.IsMapped() == false ) {                // skip the one with only mate mappable
         continue;
       }
 

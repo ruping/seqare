@@ -430,6 +430,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
+  if ( $options{'seqType'} =~ /xenograft/) {  #need to filter out mouse reads
+    last;
+  }
+
   unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) ) {    #processing bam
     if (-s "$rawBam" and !(-s "$sortedBam")) {     #must sort
       my $cmd = bwaMapping->bamSort($confs{'samtoolsBin'}, $options{'threads'}, $rawBam."\.tmp", $sortedBam, $rawBam);
