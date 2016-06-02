@@ -511,7 +511,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $brBam); #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    if (-s "$brBam" and -s "$irBam") {
+    if (-s "$brBam" and (-s "$irBam" or -s "$irBam\.bai")) {
       my $cmd = "rm $irBam $irBam\.bai -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
