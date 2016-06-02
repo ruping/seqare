@@ -378,11 +378,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'QC'})) {
     $qc_out2 = "$options{'lanepath'}/01_READS/mate2.qc";
   }
 
-  unless ((-e "$qc_out1") or ($options{'skipTask'} eq 'qc')) {
+  unless ((-e "$qc_out1")) {
     my $cmd = "$options{'decompress'} $options{'fastqFiles1'} | $options{'bin'}/fastx_quality_stats -Q33 -o $qc_out1";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless ($options{'qcOFF'});
   }
-  unless (($options{'fastqFiles2'} eq 'SRP' or $options{'fastqFiles2'} eq 'interleaved') or ($qc_out2 ne '' and -e "$qc_out2") or ($options{'skipTask'} eq 'qc')) {
+  unless (($options{'fastqFiles2'} eq 'SRP' or $options{'fastqFiles2'} eq 'interleaved') or ($qc_out2 ne '' and -e "$qc_out2")) {
     my $cmd = "$options{'decompress'} $options{'fastqFiles2'} | $options{'bin'}/fastx_quality_stats -Q33 -o $qc_out2";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless ($options{'qcOFF'});
   }
