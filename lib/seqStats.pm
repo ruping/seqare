@@ -16,6 +16,17 @@ sub mappingStats {
 
 }
 
+sub xenoStats {
+
+  my ($class, $bamStatsBin, $BAM, $outBam, $readlen, $xenoStatsOut) = @_;
+
+  my $cmd = "$bamStatsBin --mapping $BAM --writer $outBam --readlength $readlen --maxIntron 23000 --type xeno >$xenoStatsOut";
+
+  return $cmd;
+
+}
+
+
 sub grepStarts {
 
   my  ($class, $grepStartsBin, $targetRegion, $BAM, $bedCover) = @_;
