@@ -435,7 +435,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     my $xenoStats = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.xenoStats";
     my $noMouseBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.noMouse\.bam";
     my $cmd = seqStats->xenoStats("$options{'bin'}/Rseq_bam_stats", $rawBam,  $noMouseBam, $options{'readlen'}, $xenoStats);
-    unless (-s "$xenoStats") {
+    unless (-e "$xenoStats") {
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
