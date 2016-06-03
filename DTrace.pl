@@ -435,7 +435,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     my $xenoStats = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.xenoStats";
     my $noMouseBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.noMouse\.bam";
     my $cmd = seqStats->xenoStats("$options{'bin'}/Rseq_bam_stats", $rawBam,  $noMouseBam, $options{'readlen'}, $xenoStats);
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    unless (-s "$xenoStats") {
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
 
     if (-s "$noMouseBam" and -s "$rawBam") {
       (my $originalBam = $rawBam) =~ s/\.bam/\.original\.bam/;
@@ -444,8 +446,6 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       $cmd = "mv $noMouseBam $rawBam -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-
-    exit 22;
   }
 
   unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) ) {    #processing bam
