@@ -7,6 +7,7 @@ use File::Glob ':glob';
 use File::Basename;
 use FindBin qw($RealBin);
 use Parallel::ForkManager;
+use Statistics::Basic qw(:all);
 use lib "$RealBin/lib";
 use bwaMapping;
 use snvCalling;
@@ -352,9 +353,32 @@ if ($options{'fastqFiles2'} ne 'SRP' and $options{'fastqFiles2'} ne 'interleaved
 
 
 if ( $options{'readlen'} == 0 and $options{'sampleName'} ne 'SRP') { #read length not set
-  my @fastqFiles1Temp = split(/\s/, $options{'fastqFiles1'});
-  my $first_second_line = `$options{'decompress'} "$fastqFiles1Temp[0]" | head -2 | grep -v "^@"`;
-  $options{'readlen'} = length($first_second_line) - 1;
+  if ($options{'fastqFiles1'} ne 'SRP') {
+    my @fastqFiles1Temp = split(/\s/, $options{'fastqFiles1'});
+    if ( -s "$fastqFiles1Temp[0]" ) {
+      my $first_second_line = `$options{'decompress'} "$fastqFiles1Temp[0]" | head -2 | grep -v "^@"`;
+      $options{'readlen'} = length($first_second_line) - 1;
+    }
+  }
+  if ( $options{'readlen'} == 0 ) {  #still zero, check bams
+    my @bamTmp = bsd_glob("$options{'lanepath'}/02_MAPPING/*.bam");
+    foreach my $bamTmp (@bamTmp){
+      if (-s "$bamTmp"){
+        my $samSix = `samtools view $bamTmp \| awk \-F\"\t\" \'\{print \$6\}\' \| awk \'\$1 \!\~ \/\[IDNHS\\\*\]\/\' \| head \-1000 \| tr \"\\n\" \"\,\"`;
+        chomp($samSix);
+        my @matchLen;
+        foreach my $matchLen (split(/\,/, $samSix)){
+          $matchLen =~ /^(\d+)M$/;
+          $matchLen = $1;
+          push(@matchLen, $matchLen);
+        }
+        $options{'readlen'} = median(\@matchLen);   #set length to the median of the first 1000 reads with complete matching
+      }
+      if ($options{'readlen'} > 0){
+        last;
+      }
+    } #loop each bams to find existing bam
+  } #check bam
   print STDERR "read length is not set, will take the original read length ($options{'readlen'} bp)\n";
 }
 
