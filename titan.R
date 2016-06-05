@@ -39,7 +39,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
     }
     logR <- getPositionOverlap(snpData$chr, snpData$posn, cnData)
     snpData$logR <- log(2^logR) #transform the log ratio to natural logs
-    snpData <- filterData(snpData, 1:22, minDepth = 10, maxDepth = 400, positionList = NULL)
+    snpData <- filterData(snpData, 1:22, minDepth = 10, maxDepth = 500, positionList = NULL)
     #prepare data
 
     registerDoMC(cores = 2)
