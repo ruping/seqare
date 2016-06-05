@@ -60,7 +60,7 @@ $options{'ncmTitan'}    = "map";
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
-
+$options{'germlineLOH'} = '';
 
 if (@ARGV == 0) {
   helpm();
@@ -107,7 +107,8 @@ GetOptions(
            "plpeTitan=s"  => \$options{'plpeTitan'},
            "ncTitan=f"    => \$options{'ncTitan'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
-           "mergeRare=i"  => \$options{'mergeRare'}
+           "mergeRare=i"  => \$options{'mergeRare'},
+           "germlineLOH=s"=> \$options{'germlineLOH'}
           );
 
 #print help
@@ -1147,7 +1148,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-e "$options{'root'}/titan") {
-      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered $options{'somaticInfo'} 1";
+      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered $options{'somaticInfo'} 1 $options{'germlineLOH'}";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/redistributeTitan.pl $options{'root'}/titan/ $options{'root'}";                #distribute allele counts for titan
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
