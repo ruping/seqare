@@ -6,6 +6,7 @@ use File::Basename;
 my $data = shift;
 my $somaticInfo = shift;
 my $pairedCall = shift;
+my $lohRegion = shift;
 my $split = 1;
 
 my %somatic;
@@ -35,6 +36,20 @@ unless (-e "$outdir") {
   system("mkdir -p $outdir");
 }
 
+my %lohr;
+if ($lohRegion ne ''){
+  open LR, "$lohRegion";
+  while ( <LR> ) {
+    chomp;
+    next if /^ID/;
+    my ($sample, $chr, $start, $end, $nm, $segmean) = split /\t/;
+    $lohr{$sample}{$chr}{$start} = $end;
+  }
+  close LR;
+}
+print STDERR "predetermined germline LOH region:\n";
+print STDRRR Dumper(\%lohr);
+
 
 if ($split == 1) {
 
@@ -61,15 +76,36 @@ if ($split == 1) {
         if ($colnames{$i} =~ /^(.+?)maf$/){  #now it is sample maf
 
           my $sample = $1;
+          my $lohSamplePos = 'no';
+          if ($lohRegion ne '') {
+            foreach my $lsamp (keys %lohr) {
+              if ($sample =~ /$lsamp/) {   #now the sample is found with germline LOH, take action
+                if ($lohr{$lsamp}{$chr} ne '') {  #now the chr is found
+                  foreach my $lstart (keys %{$lohr{$lsamp}{$chr}}) {
+                    my $lend = $lohr{$lsamp}{$chr}{$lstart};
+                    if ($pos >= $lstart and $pos <= $lend) { #overlaps
+                      $lohSamplePos = 'yes';
+                      last;
+                    }
+                  } #each l start and end
+                } #l chr
+                last;
+              } #sample found
+            } #loop all loh samples
+          } #check germline loh
+          if ($lohSamplePos eq 'yes'){
+            print STDERR "GLOH: $sample\t$chr\t$pos\n";
+          }
+
 
           if (exists($germline{$sample})) {  #it is a blood
             my $calledBlood = $cols[$i-1];
             if ( $pairedCall == 1 ) {
               $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];
             }
-            if ($calledBlood =~ /\|/) {   #originally called
+            if ($calledBlood =~ /\|/) {                               #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
-              next if ($calledBloodInfo[2] ne '0/1');                 #only focus on originally hetero ones
+              next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
                 my @infos = split(/\|/, $cols[$i]);
