@@ -57,6 +57,7 @@ $options{'plpTitan'}    = 2.0;
 $options{'plpeTitan'}   = "TRUE";
 $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
+$options{'symmetric'}   = "TRUE";
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
@@ -106,6 +107,7 @@ GetOptions(
            "plpTitan=f"   => \$options{'plpTitan'},
            "plpeTitan=s"  => \$options{'plpeTitan'},
            "ncTitan=f"    => \$options{'ncTitan'},
+           "symmetric=s"  => \$options{'symmetric'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'}
@@ -889,7 +891,7 @@ if (exists $runlevel{$runlevels}) {
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
     my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
-                                   $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $confs{'targetRegionTitan'});
+                                   $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $options{'symmetric'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 

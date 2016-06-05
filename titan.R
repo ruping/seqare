@@ -3,11 +3,8 @@
 ## this is for WGS or WXS titan run
 
 inputpar <- commandArgs(TRUE)
-if (length(inputpar) < 11) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig'")
-#for (i in 1:7) {
-#    if (!file.exists(inputpar[i]))
-#          stop("File ",inputpar[i]," doesn't exist")
-#  }
+if (length(inputpar) < 12) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig'")
+
 
 
 path <- inputpar[1]
@@ -21,7 +18,8 @@ plp <- inputpar[8]
 plpe <- inputpar[9]
 normalc <- inputpar[10]
 normalcm <- inputpar[11]
-exons <- inputpar[12]
+symmetric <- inputpar[12]
+exons <- inputpar[13]
 
 
 library(TitanCNA)
@@ -31,12 +29,12 @@ library(doMC)
 setwd(path)
 
 #run titan
-runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, exons) {
+runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, symmetric, exons) {
 
     #prepare data
-    snpData <- loadAlleleCounts(snpFile)
+    snpData <- loadAlleleCounts(snpFile, symmetric=symmetric)
     cnData <- correctReadDepth(tumWig, normWig, gc, map)
-    if (length(inputpar) == 12){
+    if (length(inputpar) == 13) {
       cnData <- correctReadDepth(tumWig, normWig, gc, map, targetedSequence = exons)
     }
     logR <- getPositionOverlap(snpData$chr, snpData$posn, cnData)
@@ -70,6 +68,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         results <- outputTitanResults(snpData, convergeParams, optimalPath,
                                       filename = NULL, posteriorProbs = FALSE,
                                       subcloneProfiles = TRUE)
+        results$AllelicRatio = 1-as.numeric(results$AllelicRatio)
         ploidy <- tail(convergeParams$phi, 1)
         norm <- tail(convergeParams$n, 1)
         cellularity = 1 - convergeParams$s[, ncol(convergeParams$s)] # estimated cellular prevalence
@@ -83,7 +82,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                     quote = F, row.names = F, sep = "\t")
         
         #make plots
-        if (length(inputpar) == 11){
+        if (length(inputpar) == 12){
           for (chro in 1:22) {
             pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=11.5, height=8)
             if (is.null(titancnaresults[[j]])) next
@@ -109,7 +108,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
             dev.off()
           }
-        } else if (length(inputpar) == 12){
+      } else if (length(inputpar) == 13) { #exon-seq
           
           pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=11.5, height=8)
           if (is.null(titancnaresults[[j]])) next
@@ -125,7 +124,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           plotCNlogRByChr(results, chr = NULL, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
                           main=paste(sampleName, " nc=", numClusters, sep=""),
                           xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
-                            " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
+                              " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
           par(mar=c(4,4,2,1))
           plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25,xlab = "Chromosomes", main = "", cex.lab=0.8)
 
@@ -133,33 +132,8 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           #plotClonalFrequency(results, chr = NULL, normal = norm, ylim = c(0, 1), cex = 0.25, xlab = "", main = "", cex.lab=.8)
           dev.off()
 
-        }
+      }
         
-        #generate segmentation table (for adjusting somatic mutation frequencies)
-        allstate <- paste(results$Chr,results$TITANstate,results$ClonalCluster)
-        changepoints <- c(1,which(allstate[-1] != allstate[-length(allstate)])+1)      #get change points
-        segments <- results[changepoints,c(1,2,2,6,7,8,9,10,11,12)]
-        names(segments)[2:3] <- c("Position1","Position2")
-        segments$Position2 <- results$Position[c(changepoints[-1]-1,length(allstate))]
-        segments$NumMarker <- diff(c(changepoints,length(allstate)+1))
-        segments[[2]] <- as.numeric(segments[[2]])
-        segments[[3]] <- as.numeric(segments[[3]])
-        segments[[4]] <- as.numeric(segments[[4]])
-        segments[[5]] <- as.numeric(segments[[5]])
-        segments[[6]] <- as.numeric(segments[[6]])
-        segments[[7]] <- as.numeric(segments[[7]])
-        segments[[10]] <- as.numeric(segments[[10]])
-        segments$NumMarker <- diff(c(changepoints,length(allstate)+1))
-        segments$normC <- norm
-        segments$ploidy <- ploidy
-        for (k in 1:nrow(segments)) {
-            af <- as.numeric(results$AllelicRatio[changepoints[k]:(changepoints[k]+segments$NumMarker[k]-1)])
-            segments$AllelicRatio[k] <- mean(pmax(af,1-af))    #smooth mirrored allelic ratio
-            lr <- as.numeric(results$LogRatio[changepoints[k]:(changepoints[k]+segments$NumMarker[k]-1)])
-            segments$LogRatio[k] <- mean(lr)                   #smooth depth log ratio
-        }
-        #write.table(segments, file=paste(sampleName,"_nclones",numClusters,".TitanCNA.result.txt",sep=""),
-        #            quote = F, row.names = F, sep = "\t")
     }
     #save(titancnaresults,file=paste("./results/",sampleName,".TitanCNA.RData",sep=""))
 }
@@ -235,6 +209,13 @@ if (plpe == "FALSE") {
     plpe = TRUE
 }
 
+if (symmetric == "FALSE") {
+    symmetric = FALSE
+} else {
+    symmetric = TRUE
+}
+
+
 plp = as.numeric(plp)
 message(plp)
 message(plpe)
@@ -246,5 +227,5 @@ targetRegion = read.delim(exons, header=F)
 targetRegion = data.frame(targetRegion[,1:3])
 #targetRegion[,1] = gsub("chr","",targetRegion[,1])
 
-runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,targetRegion)
+runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,targetRegion)
 
