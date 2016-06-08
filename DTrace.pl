@@ -270,7 +270,7 @@ if ($options{'bams'} ne 'SRP') {                              #bam -> halfway en
     my $cmd = "ln -s $options{'bams'} $linkBam";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  unless (-s "$linkBam\.bai") {
+  unless (-s "$linkBam\.bai" or !-s "$options{'bams'}\.bai") {  #if bam bai available and not linked
     my $cmd = "ln -s $options{'bams'}\.bai $linkBam\.bai";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
