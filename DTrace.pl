@@ -355,6 +355,9 @@ if ($options{'fastqFiles2'} ne 'SRP' and $options{'fastqFiles2'} ne 'interleaved
 }
 
 
+
+REALSTEPS:
+############################ determine read length if not provided ###################################
 if ( $options{'readlen'} == 0 and $options{'sampleName'} ne 'SRP') { #read length not set
   if ($options{'fastqFiles1'} ne 'SRP') {
     my @fastqFiles1Temp = split(/\s/, $options{'fastqFiles1'});
@@ -386,7 +389,6 @@ if ( $options{'readlen'} == 0 and $options{'sampleName'} ne 'SRP') { #read lengt
 }
 
 #######################################################################################################
-REALSTEPS:
 
 ###
 ###runlevel1: QC
