@@ -52,6 +52,7 @@ $options{'configure'}   = "SRP";
 $options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
+$options{'samCallmaxDepth'} = 400;
 $options{'recheck'}     = "SRP";
 $options{'plpTitan'}    = 2.0;
 $options{'plpeTitan'}   = "TRUE";
@@ -102,6 +103,7 @@ GetOptions(
            "configure=s"  => \$options{'configure'},
            "somaticInfo=s"=> \$options{'somaticInfo'},
            "germline=s"   => \$options{'germline'},
+           "samCallmaxDepth=i" => \$options{'samCallmaxDepth'},
            "recheck=s"    => \$options{'recheck'},
            "tmpDir=s"     => \$options{'tmpDir'},
            "plpTitan=f"   => \$options{'plpTitan'},
@@ -791,7 +793,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut);
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
@@ -1184,7 +1186,8 @@ sub RunCommand {
 
 sub helpm {
   print STDERR "\nGENERAL OPTIONS:\n\t--runlevel\tthe steps of runlevel, from 1-3, either rl1-rl2 or rl. See below for options for each runlevel.\n\tor\n";
-  print STDERR "\t--runTask\tthe specific task. e.g., \'QC\', \'indelRealignment\', \'MarkDuplicates\', \'recalMD\' etc\n\n";
+  print STDERR "\t--runTask\tthe specific task. e.g., \'QC\', \'indelRealignment\', \'MarkDuplicates\', \'recalMD\' and \'BaseRecalibration\'.\n\n";
+  print STDERR "\t--skipTask\tthe task to be skipped, e.g, \'BaseRecalibration\' for reduced bam processing time while not affecting the calling significantly.\n";
   print STDERR "\t--configure\tthe tab delimited file containing conf info for annotations\n";
   print STDERR "\t--sampleName\tthe name of the lane needed to be processed (must set for runlevel 1-5)\n";
   print STDERR "\t--seqType\tcomma separated, possible arguments \'paired-end\', \'single-end\', \'WXS\' and \'WGS\' (default).\n";
@@ -1192,14 +1195,15 @@ sub helpm {
   print STDERR "\t--species\tspecify the reference version of the species, such as hg19 (default), mm10.\n";
   print STDERR "\t--patient\tthe patient id, which will be written into the target file for edgeR\n";
   print STDERR "\t--tissue\tthe tissue type name (like \'normal\', \'cancer\'), for the target file for running edgeR and cuffdiff\n";
-  print STDERR "\t--Rbinary\tthe name of R executable, default is \'R\'. Set if your R binary name is different.\n\n";
+  print STDERR "\t--Rbinary\tthe name of R executable, default is \'R\'. Set if your R binary name is different.\n";
+  print STDERR "\t--platform\tthe sequencing platform (default: ILLUMINA)\n\n";
 
   #print STDERR "CONTROL OPTIONS FOR EACH RUNLEVEL:\n";
   #print STDERR "runlevel 1: quality checking and insert size estimatiion using part of reads\n";
   print STDERR "\t--readpool\tthe directory where all the read files with names ending with \.f(ast)?q\.[gb]z2\? located.\n";
   print STDERR "\t--qcOFF\t\tturn off quality check.\n";
-  print STDERR "\t--FASTQ1\t\tcomma separated zipped fastq file names for mate 1 (without dir name).\n";
-  print STDERR "\t--FASTQ2\t\tcomma separated zipped fastq file names for mate 2 (without dir name).\n";
+  print STDERR "\t--FASTQ1\tcomma separated zipped fastq file names for mate 1 (without dir name).\n";
+  print STDERR "\t--FASTQ2\tcomma separated zipped fastq file names for mate 2 (without dir name).\n";
   print STDERR "\t--fastqFiles1\tcomma separated zipped fastq file names for mate 1 (with dir name).\n";
   print STDERR "\t--fastqFiles2\tcomma separated zipped fastq file names for mate 2 (with dir name).\n";
   print STDERR "\t--readlen\tthe sequenced read length (default the length of the first read in the fastq file)\n";
@@ -1212,9 +1216,10 @@ sub helpm {
 
   print STDERR "\nrunlevel 3: STATS\n";
 
-  print STDERR "\nrunlevel 4: SNV calling (muTect)\n";
+  print STDERR "\nrunlevel 4: SNV calling (muTect for somatic, samtools for germline)\n";
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
   print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
+  print STDERR "\t--samCallmaxDepth\tthe maximum depth for samtools mpileup to work (default 400, set to the high quantile depth)\n";
   print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
   print STDERR "\t--chrPrefInBam\tthe prefix of chromosome names in the bam file. default is no prefix, set to the actual prefix you have in the bam.\n";
 

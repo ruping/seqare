@@ -19,9 +19,9 @@ sub muTectCalling {
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth) = @_;
 
-  my $cmd = "$samtoolsBin mpileup -Eugd 400 -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+  my $cmd = "$samtoolsBin mpileup -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
 
   return $cmd;
 
