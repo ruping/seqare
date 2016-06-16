@@ -48,7 +48,7 @@ if ($lohRegion ne ''){
   close LR;
 }
 print STDERR "predetermined germline LOH region:\n";
-print STDRRR Dumper(\%lohr);
+print STDERR Dumper(\%lohr);
 
 
 if ($split == 1) {
