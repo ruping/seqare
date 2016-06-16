@@ -479,7 +479,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     }
   }
 
-  unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'})) ) {    #processing bam
+  unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'}) or exists($runTask{'BaseRecalibration'})) ) {    #processing bam
     if (-s "$rawBam" and !(-s "$sortedBam")) {     #must sort
       my $cmd = bwaMapping->bamSort($confs{'samtoolsBin'}, $options{'threads'}, $rawBam."\.tmp", $sortedBam, $rawBam);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -570,6 +570,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         my $cmd = "rm $redBai -f";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
+    }
+    if ( exists($runTask{'BaseRecalibrationOnly'}) ) {
+      exit 0;
     }
 
     if ((-s "$brBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
