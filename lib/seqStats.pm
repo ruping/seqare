@@ -61,10 +61,15 @@ sub bed2wig {
 
 sub insertSize {
 
-  my ($class, $samtoolsBin, $BAM, $outINS) = @_;
+  my ($class, $samtoolsBin, $BAM, $outINS, $maxLine) = @_;
 
-  my $cmd = "$samtoolsBin view -f 0x2 -F 0x400 $BAM | cut -f 9 | awk \'\$1\>0 \&\& \$1\<1000\' >$outINS";
+  my $cmd = "$samtoolsBin view -f 0x2 -F 0x400 $BAM | cut -f 9 | awk \'\$1\>0 \&\& \$1\<1000\'";
 
+  if ($maxLine == 0){
+    $cmd .= " >$outINS";
+  } else {
+    $cmd .= " | head -$maxLine >$outINS";
+  }
   return $cmd;
 
 }

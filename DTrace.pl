@@ -63,6 +63,7 @@ $options{'symmetric'}   = "TRUE";
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
 $options{'germlineLOH'} = '';
+$options{'maxInsLine'} = 0;
 
 if (@ARGV == 0) {
   helpm();
@@ -112,7 +113,8 @@ GetOptions(
            "symmetric=s"  => \$options{'symmetric'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
-           "germlineLOH=s"=> \$options{'germlineLOH'}
+           "germlineLOH=s"=> \$options{'germlineLOH'},
+           "maxInsLine=i" => \$options{'maxInsLine'}
           );
 
 #print help
@@ -658,7 +660,7 @@ if (exists $runlevel{$runlevels}) {
   if ($options{'seqType'} =~ /paired/) {                       #do the insert size only if it is paired-end
     unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins\.gz") {
       unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
-         my $cmd = seqStats->insertSize($confs{'samtoolsBin'}, $finalBam, "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins");
+         my $cmd = seqStats->insertSize($confs{'samtoolsBin'}, $finalBam, "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins", $options{'maxInsLine'});
          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
       if (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
