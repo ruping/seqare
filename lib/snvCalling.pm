@@ -19,10 +19,13 @@ sub muTectCalling {
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG) = @_;
 
   my $cmd = "$samtoolsBin mpileup -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
 
+  if ($ignoreRG == 1){
+    $cmd = "$samtoolsBin mpileup --ignore-RG -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+  }
   return $cmd;
 
 }

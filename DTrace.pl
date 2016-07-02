@@ -64,6 +64,7 @@ $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
 $options{'germlineLOH'} = '';
 $options{'maxInsLine'} = 0;
+$options{'ignoreRG'} = 0;
 
 if (@ARGV == 0) {
   helpm();
@@ -114,7 +115,8 @@ GetOptions(
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'},
-           "maxInsLine=i" => \$options{'maxInsLine'}
+           "maxInsLine=i" => \$options{'maxInsLine'},
+           "ignoreRG=i"   => \$options{'ignoreRG'}
           );
 
 #print help
@@ -798,7 +800,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'});
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
