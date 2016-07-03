@@ -12,7 +12,7 @@ GetOptions (
            "order|o=s"      => \$order,            #comma seperated indexes
            "prefix|p=s"     => \$prefix,
            "sep|s=s"        => \$sep,
-           "help|h"         => sub{
+           "help|h"         => sub {
                                print "usage: $0 rearrange columns according to your order or for maf rearrange\n\nOptions:\n\t--file\t\tthe filename to be reordered\n";
                                print "\t--order\t\tcomma seperated indexes\n";
                                print "\t--prefix\tthe prefix of samples' names\n";
@@ -75,13 +75,13 @@ while ( <IN> ) {
           splice(@order, $insertpos, 0, $i, $i+1);
           $inserted{$cols[$i]} = '';
           $cols[$i] .= 'maf';
-        } elsif ( $cols[$i] !~ /d$/ ) { #not depth
-          if ($cols[$i] =~ /^($prefixReg)([A-Za-z0-9\-\_]+)?/) {
+        } elsif ( $cols[$i] !~ /^($prefixReg)([A-Za-z0-9\-\_]+)?d$/ ) {                #it is not depth for a sample
+          if ( $cols[$i] =~ /^($prefixReg)([A-Za-z0-9\-\_]+)?/ ) {
             $cols[$i] .= 'maf';
             push(@order, $i);
-            if ($cols[$i] =~ /^TCGA/ or $cols[$i] =~ /^($prefixReg)([A-Za-z0-9\-\_]+)?/){
+            if ($cols[$i] =~ /^TCGA/ or $cols[$i] =~ /^($prefixReg)([A-Za-z0-9\-\_]+)?/) {
               push(@order, $i+1) if $cols[$i+1] =~ /^($prefixReg)([A-Za-z0-9\-\_]+)?d$/;      #depth info pushed
-            } 
+            }
           } else {
             push(@order, $i);
           }
