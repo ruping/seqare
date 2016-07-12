@@ -3,7 +3,7 @@
 ## this is for WGS or WXS titan run
 
 inputpar <- commandArgs(TRUE)
-if (length(inputpar) < 12) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig'")
+if (length(inputpar) < 12) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric exons(if WXS)'")
 
 
 
@@ -68,7 +68,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         results <- outputTitanResults(snpData, convergeParams, optimalPath,
                                       filename = NULL, posteriorProbs = FALSE,
                                       subcloneProfiles = TRUE)
-        results$AllelicRatio = 1-as.numeric(results$AllelicRatio)
+        results$AllelicRatio = 1-as.numeric(results$AllelicRatio)    # reverse the allelic ratio
         ploidy <- tail(convergeParams$phi, 1)
         norm <- tail(convergeParams$n, 1)
         cellularity = 1 - convergeParams$s[, ncol(convergeParams$s)] # estimated cellular prevalence
@@ -80,9 +80,14 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         segmenttmp = titancna2seg(results, convergeParams)
         write.table(segmenttmp, file=paste(sampleName,"_nclones",numClusters,".TitanCNA.segments.txt",sep=""),
                     quote = F, row.names = F, sep = "\t")
+        if (j == 1){
+            rawTable = titancna2seg(results, convergeParams, raw=TRUE)
+            write.table(rawTable, file=paste(sampleName,".TitanCNA.rawTable.txt",sep=""),
+                        quote = F, row.names = F, sep = "\t")
+        }
         
         #make plots
-        if (length(inputpar) == 12){
+        if (length(inputpar) == 12) {
           for (chro in 1:22) {
             pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=11.5, height=8)
             if (is.null(titancnaresults[[j]])) next
@@ -140,7 +145,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
 
 
-titancna2seg <- function(titanresult,titanparams) {
+titancna2seg <- function(titanresult,titanparams,raw=FALSE) {
 
   major_cn_code <- c(0,1,2,1,3,2,4,3,2,5,4,3,6,5,4,3,7,6,5,4,8,7,6,5,4)
   minor_cn_code <- c(0,0,0,1,0,1,0,1,2,0,1,2,0,1,2,3,0,1,2,3,0,1,2,3,4)
@@ -195,7 +200,13 @@ titancna2seg <- function(titanresult,titanparams) {
   for (i in c(5,12)) {
     cnv[[i]] <- round(cnv[[i]],3)
   }
-  return(cnv)
+  if (raw == FALSE){
+      return(cnv)
+  } else {
+      rawRes = data.frame(Chr=titanresult$Chr, Position=titanresult$Position, LogRatio=titanresult$LogRatio,
+          AllelicRatio=titanresult$AllelicRatio)
+      return(rawRes)
+  }
 
 }
 
