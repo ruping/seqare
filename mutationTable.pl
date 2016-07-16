@@ -101,7 +101,7 @@ while ( <IN> ) {
 
       } elsif ($colnames[$i] =~ /function/) { #now it is function, gene names need to be extracted
         my $functions = &splitFunction($cols[$i]);
-        $print = "$functions->{'geneName'}\t$functions->{'loc'}\t$functions->{'functionClass'}\t$functions->{'AAChange'}\t$functions->{'CADD_phred'}\t$functions->{'rest'}";
+        $print = "$functions->{'geneName'}\t$functions->{'loc'}\t$functions->{'functionClass'}\t$functions->{'AAChange'}\t$functions->{'CADD_phred'}\t$functions->{'GERP_RS'}\t$functions->{'SIFT_score'}\t$functions->{'Polyphen2_HVAR_pred'}\t$functions->{'rest'}";
         push (@printcols, $print);
 
       } elsif ($colnames[$i] eq 'clinical') {
@@ -140,7 +140,10 @@ sub splitFunction {
               'functionClass' => 'NA',
               'geneName' => 'NA',
               'AAchange' => 'NA',
-              'CADD_phred' => 'NA'
+              'CADD_phred' => 'NA',
+              'GERP_RS' => 'NA',
+              'SIFT_score' => 'NA',
+              'Polyphen2_HVAR_pred' => 'NA'
               );
   if ($func =~ /function=([^\;]+)/){
     $func{'loc'} = $1;
@@ -156,6 +159,15 @@ sub splitFunction {
   }
   if ($func =~ /CADD_phred=([^\;]+)/) {
     $func{'CADD_phred'} = $1;
+  }
+  if ($func =~ /GERP\+\+\_RS=([^\;]+)/) {
+    $func{'GERP_RS'} = $1;
+  }
+  if ($func =~ /SIFT_score=([^\;]+)/) {
+    $func{'SIFT_score'} = $1;
+  }
+  if ($func =~ /Polyphen2_HVAR_pred=([^\;]+)/) {
+    $func{'Polyphen2_HVAR_pred'} = $1;
   }
   if ($func =~ /(cytoBand=.+?)$/){
     $func{'rest'} = $1;
