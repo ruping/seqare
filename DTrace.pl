@@ -1108,13 +1108,15 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       $cmd = "awk -F\"\\t\" \'\$$PRCI \!\= 1\' $varout_mutect\.filtered\.classified\.founds\.1 >$varout_mutect\.filtered\.classified\.founds\.nopara";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+    unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic") {
+        my $SOMI = `perl $options{'bin'}/columnIndex.pl somatic $varout_mutect\.filtered\.classified\.founds\.1`;
+        $SOMI =~ s/\n$//;
+        $SOMI += 1;
+        my $cmd = "awk -F\"\\t\" \'\$$SOMI \!\= \"NA\"\' $varout_mutect\.filtered\.classified\.founds\.nopara >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table") {
-      my $SOMI = `perl $options{'bin'}/columnIndex.pl somatic $varout_mutect\.filtered\.classified\.founds\.1`;
-      $SOMI =~ s/\n$//;
-      $SOMI += 1;
-      my $cmd = "awk -F\"\\t\" \'\$$SOMI \!\= \"NA\"\' $varout_mutect\.filtered\.classified\.founds\.nopara >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = "perl $options{'bin'}/mutationTable.pl --mutation $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic --type snv --normal $BLOOD --prefix $PREF >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table";
+      my $cmd = "perl $options{'bin'}/mutationTable.pl --mutation $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic --type snv --normal $BLOOD --prefix $PREF >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
