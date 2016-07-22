@@ -79,11 +79,11 @@ selfChain	$anno/trupanno/$species/$species.SelfChain_UCSC.txt
 #                          #
 ############################
 #target region
-targetRegion	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed.w5
+targetRegion	$anno/hg19.other/TruSeq-Exome-Targeted-Regions-BED-file.sorted.bed.w5
 #genome bed 1kb
 w1kBed	$anno/hg19.other/hg19.w1k.bed
 #targeted region for TitanCNA
-targetRegionTitan	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed
+targetRegionTitan	$anno/hg19.other/TruSeq-Exome-Targeted-Regions-BED-file.sorted.bed
 #gc wig for TitanCNA
 gcWigTitan	$anno/hg19.other/hg19.gc.wig
 #map wig for TitanCNA
