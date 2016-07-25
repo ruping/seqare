@@ -111,6 +111,7 @@ GetOptions(
            "plpTitan=f"   => \$options{'plpTitan'},
            "plpeTitan=s"  => \$options{'plpeTitan'},
            "ncTitan=f"    => \$options{'ncTitan'},
+           "ncmTitan=s"    => \$options{'ncmTitan'},
            "symmetric=s"  => \$options{'symmetric'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
