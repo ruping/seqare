@@ -36,8 +36,9 @@ unless (-e "$outdir") {
   system("mkdir -p $outdir");
 }
 
+
 my %lohr;
-if ($lohRegion ne ''){
+if ($lohRegion ne '') {
   open LR, "$lohRegion";
   while ( <LR> ) {
     chomp;
@@ -98,14 +99,16 @@ if ($split == 1) {
           }
 
 
-          if (exists($germline{$sample})) {  #it is a blood
+          if (exists($germline{$sample})) {                                             #it is a blood
             my $calledBlood = $cols[$i-1];
             if ( $pairedCall == 1 ) {
               $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];
             }
-            if ($calledBlood =~ /\|/) {                               #originally called
+            if ($calledBlood =~ /\|/) {                                                 #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
+              my @calledBloodRecheck = split(/\|/, $cols[$i]);
+              next if ($calledBloodRecheck[0] > 0.85);                                  #if blood has greater than 0.85 VAF, indicating wrong genotyping
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
                 my @infos = split(/\|/, $cols[$i]);
