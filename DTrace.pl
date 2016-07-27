@@ -66,6 +66,8 @@ $options{'germlineLOH'} = '';
 $options{'maxInsLine'} = 0;
 $options{'ignoreRG'} = 0;
 
+$options{'chrProcess'} = 'SRP';
+
 if (@ARGV == 0) {
   helpm();
 } else {
@@ -117,7 +119,8 @@ GetOptions(
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'},
            "maxInsLine=i" => \$options{'maxInsLine'},
-           "ignoreRG=i"   => \$options{'ignoreRG'}
+           "ignoreRG=i"   => \$options{'ignoreRG'},
+           "chrProcess=s" => \$options{'chrProcess'}
           );
 
 #print help
@@ -237,6 +240,29 @@ if (-s "$options{'somaticInfo'}") {
   #print STDERR Dumper (\%somatic);
   #print STDERR Dumper (\%germline);
 }
+#-------------------------------------------------------------------------
+
+
+#-----get the chr that need to be processed-------------------------------
+if ($options{'chrProcess'} ne 'SRP') {
+  open IN, "$confs{'chromosomeSize'}";
+  while ( <IN> ) {
+    chomp;
+    my ($chr, $size) = split /\t/;
+    if ( $chr !~ /^chr/ ) {
+      $chr = 'chr'.$chr;
+    }
+    my $chrWithchr = $options{'chrProcess'};
+    if ( $chrWithchr !~ /^chr/ ) {
+      $chrWithchr = 'chr'.$chrWithchr;
+    }
+    if ($chr eq $chrWithchr){
+      $options{'chrProcessRegion'} = $options{'chrProcess'}.':1-'.$size;
+    }
+  }
+  close IN;
+}
+print STDERR "chr region that need to be taken care is $options{'chrProcess'}\n";
 #-------------------------------------------------------------------------
 
 
@@ -439,10 +465,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 
   my $rawBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.bam";
   my $sortedBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
-  my $irBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
-  my $brBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.bam";
-  my $rmDupBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.bam";
-  my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.br\.rmDup\.md\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
+  my $irBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
+  my $brBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.bam";
+  my $rmDupBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.bam";
+  my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
@@ -499,7 +525,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     if ((-s "$sortedBam" and !(-s "$irBam")) or exists($runTask{'indelRealignment'})) { #indel realignment
       my $indelTargetList = $sortedBam."\.target_intervals.list";
       my $CHR = 'ALL';
-      if ($options{'splitChr'}) {     #if split chr, folk it up
+      if ($options{'splitChr'}) {     #if split chr, folk it up, not for hpc clusters, only for workstations, need to be merged later
         my $chrBatches = partitionArray(\@chrs, $options{'threads'});
         foreach my $chrBatch (@{$chrBatches}) {
           my $manager = Parallel::ForkManager->new($options{'threads'});
@@ -726,19 +752,19 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
   }
 
-  if ($options{'germline'} =~ /samtoolsOnly/){
+  if ($options{'germline'} =~ /samtoolsOnly/) {
     goto GERMLINE;
   }
 
-  my $muTectOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect";
-  my $vcfOutTmp = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.vcf";
-  my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.vcf";
-  my $vcfOutSorted = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf";
-  my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.txt";
-  my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
-  my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+  my $muTectOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.mutect";
+  my $vcfOutTmp = $muTectOut.'.vcf';
+  my $vcfOut = $muTectOut.'.genome.vcf';
+  my $vcfOutSorted = $muTectOut.'genome.sorted.vcf';
+  my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
+  my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
+  my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
   unless ((-s "$muTectOut" or -s "$muTectOut\.gz") or !exists( $somatic{$options{'sampleName'}} ) ) {
-    my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp);
+    my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp, $options{'chrProcessRegion'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -793,15 +819,15 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
   if ($options{'germline'} =~ /samtools/) {
 
-    my $vcfOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.vcf";
-    my $vcfOutSorted = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf";
-    my $vcfMultiAnno = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.txt";
-    my $vcfMultiAnnoVCF = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.vcf";
-    my $vcfMultiAnnoMod = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
-    my $vcfMultiAnnoModsnv = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
-    my $vcfMultiAnnoModindel = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.indel";
+    my $vcfOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.samtools.genome.vcf" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.samtools.genome.vcf";
+    (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
+    my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
+    my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
+    my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
+    my $vcfMultiAnnoModsnv = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.snv";
+    my $vcfMultiAnnoModindel = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'});
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
@@ -813,7 +839,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
         my $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted);      #sort vcf
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-        $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}, ); #table annovar
+        $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}); #table annovar
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
         $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);

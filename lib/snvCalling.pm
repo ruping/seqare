@@ -7,28 +7,41 @@ use List::Util qw[min max sum];
 # snv Calling
 #
 
+
 sub muTectCalling {
 
-  my ($class, $muTectBin, $BAM, $NORMALBAM, $gfasta, $COSMIC, $DBSNP, $muTectOut, $vcfOut) = @_;
+  my ($class, $muTectBin, $BAM, $NORMALBAM, $gfasta, $COSMIC, $DBSNP, $muTectOut, $vcfOut, $chrProcess) = @_;
 
   my $cmd = "java -Xmx2g -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --cosmic $COSMIC --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+  if ($chrProcess ne 'SRP') {
+    $cmd = "java -Xmx2g -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --intervals $chrProcess --cosmic $COSMIC --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+  }
 
   return $cmd;
 
 }
+
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess) = @_;
 
-  my $cmd = "$samtoolsBin mpileup -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
-
+  my $ignoreRGopt = '';
   if ($ignoreRG == 1){
-    $cmd = "$samtoolsBin mpileup --ignore-RG -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+    $ignoreRGopt = '--ignore-RG';
   }
+
+  my $regionOpt = '';
+  if ($chrProcess ne 'SRP') {
+    $regionOpt = '--region '.$chrProcess;
+  }
+
+  my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+
   return $cmd;
 
 }
+
 
 sub muTect2vcf {
 
