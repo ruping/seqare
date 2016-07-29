@@ -47,7 +47,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
     
     for (j in 1:2) {
         numClusters <- j
-        params <- loadDefaultParameters(copyNumber = 6, numberClonalClusters = numClusters)
+        params <- loadDefaultParameters(copyNumber = 8, numberClonalClusters = numClusters)
         K <- length(params$genotypeParams$alphaKHyper)
         params$genotypeParams$alphaKHyper <- rep(1000, K)
         params$normalParams$n_0 <- normalc
