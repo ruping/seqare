@@ -56,6 +56,8 @@ struct var {  // a bed file containing gene annotations
   unsigned int countTn;
   unsigned int countMappingGood;
   unsigned int countMappingBad;
+  unsigned int countPositive;
+  unsigned int countNegative;
   unsigned int inends;
   unsigned int countJump;
   unsigned int readlen;
@@ -329,8 +331,14 @@ int main ( int argc, char *argv[] ) {
             bSiter++;
           }
 
-          if (posInRead == true)         
+          if (posInRead == true) {    //need to get strand information for all reads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              iter->countAll += 1;
+             if (strand == "+") {
+               iter->countPositive += 1;
+             } else {
+               iter->countNegative += 1;
+             }
+          }
           else
             iter->countJump += 1;
 
@@ -579,6 +587,8 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
   tmp.countTn = 0;
   tmp.countMappingGood = 0;
   tmp.countMappingBad = 0;
+  tmp.countPositive = 0;
+  tmp.countNegative = 0;
   tmp.inends = 0;
   tmp.countJump = 0;
   tmp.readlen = 0;
@@ -716,7 +726,10 @@ inline void var_processing(struct var &variant) {
     localEr = ((float)numncMis)/totalBases;
   }
 
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
+  tmp.countPositive = 0;
+  tmp.countNegative = 0;
+
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
 }
 
