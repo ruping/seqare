@@ -519,7 +519,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
-    if ($options{'seqType'} =~ /WGS/) {
+    if ($options{'seqType'} =~ /WGS/ and $options{'seqType'} !~ /ignore/) {
       print STDERR "stop for disk space checking\n";
       exit 0;
     }
@@ -530,42 +530,49 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     }
 
     if ((-s "$sortedBam" and !(-s "$irBam")) or exists($runTask{'indelRealignment'})) { #indel realignment
-      my $indelTargetList = $sortedBam."\.target_intervals.list";
-      my $CHR = 'ALL';
-      if ($options{'splitChr'}) {     #if split chr, folk it up, not for hpc clusters, only for workstations, need to be merged later
-        my $chrBatches = partitionArray(\@chrs, $options{'threads'});
-        foreach my $chrBatch (@{$chrBatches}) {
-          my $manager = Parallel::ForkManager->new($options{'threads'});
-          my $processedChroms = "chromosome ";
-          foreach my $chrom (@{$chrBatch}) {
-            $manager->start and next;
-            $CHR = $chrom;
-            $indelTargetList =~ s/\.target_intervals.list/\.$CHR\.target_intervals.list/;
-            $irBam =~ s/\.bam/\.$CHR\.bam/;
-            my $cmd;
-            unless (-s "$indelTargetList") {
-              $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+      if ($options{'skipTask'} !~ /indelRealignment/) {
+        my $indelTargetList = $sortedBam."\.target_intervals.list";
+        my $CHR = 'ALL';
+        if ($options{'splitChr'}) { #if split chr, folk it up, not for hpc clusters, only for workstations, need to be merged later
+          my $chrBatches = partitionArray(\@chrs, $options{'threads'});
+          foreach my $chrBatch (@{$chrBatches}) {
+            my $manager = Parallel::ForkManager->new($options{'threads'});
+            my $processedChroms = "chromosome ";
+            foreach my $chrom (@{$chrBatch}) {
+              $manager->start and next;
+              $CHR = $chrom;
+              $indelTargetList =~ s/\.target_intervals.list/\.$CHR\.target_intervals.list/;
+              $irBam =~ s/\.bam/\.$CHR\.bam/;
+              my $cmd;
+              unless (-s "$indelTargetList") {
+                $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+                RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+              }
+              $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
               RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+              $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
+              RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+              $manager->finish;
+              $processedChroms .= $chrom.',';
             }
-            $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
-            RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-            $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
-            RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-            $manager->finish;
-            $processedChroms .= $chrom.',';
+            $manager->wait_all_children;
+            print STDERR "$processedChroms have been processed!\n";
           }
-          $manager->wait_all_children;
-          print STDERR "$processedChroms have been processed!\n";
-        }
-      } else {
-        my $cmd;
-        unless (-s "$indelTargetList") {
-          $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+        } else {
+          my $cmd;
+          unless (-s "$indelTargetList") {
+            $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList);
+            RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+          }
+          $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+          $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         }
-        $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam);
+      } else {
+        my $cmd = "mv $sortedBam $irBam";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-        $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam);     #index it
+        $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
@@ -624,10 +631,17 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     }
 
     if ((-s "$rmDupBam" and !(-s "$finalBam")) or exists($runTask{'recalMD'})) {
-      my $cmd = bwaMapping->recalMD($confs{'samtoolsBin'}, $rmDupBam, $confs{'GFASTA'}, $finalBam);
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $finalBam);     #index it
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if ($options{'skipTask'} !~ /recalMD/) {
+        my $cmd = bwaMapping->recalMD($confs{'samtoolsBin'}, $rmDupBam, $confs{'GFASTA'}, $finalBam);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $finalBam); #index it
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      } else {
+        my $cmd = "mv $rmDupBam $finalBam";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $finalBam); #index it
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
     }
     if (-s "$rmDupBam" and -s "$finalBam") {
       my $cmd = "rm $rmDupBam $rmDupBam\.bai -f";
