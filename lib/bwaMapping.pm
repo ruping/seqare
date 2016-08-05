@@ -97,7 +97,7 @@ sub indelRealignment1 {
 
   my $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -L $CHR -nt $threads -o $outList";
   if ($CHR eq 'ALL') {
-    $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -o $outList";
+    $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -nt $threads -o $outList";
   }
 
   return $cmd;
@@ -111,7 +111,7 @@ sub indelRealignment2 {
 
   my $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -nct $threads -o $outBam";
   if ($CHR eq 'ALL') {
-    $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -o $outBam";
+    $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -nct $threads -o $outBam";
   }
 
   return $cmd;
