@@ -7,6 +7,7 @@ use File::Basename;
 use FindBin qw($RealBin);
 use lib "$RealBin/lib";
 use snvCalling;
+use Text::NSP::Measures::2D::Fisher::right;
 
 
 my $file;      #filename of all rechecked files
@@ -213,22 +214,33 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
             my $alt = $information[2];
             my $altd;
             my $strandRatio;
+            my $strandRatioRef;        #strand bias ratio from reference allele
+            my $stranFisherP;          #strand bias fisher p value, calculate from $pstrand and $nstrad
             if ($alt eq 'A') {
               $altd = $A + $An;
               $strandRatio =($altd > 0)? sprintf("%.4f", $A/$altd) : 0;
+              $strandRatioRef = (($depth-$altd) > 0)? sprintf("%.4f", ($pstrand-$A)/($depth-$altd)) : 0;
+              $stranFisherP = ($altd > 0)? calculateStatistic(n11=>max($A, $An), n1p=>$altd, np1=>max($A, $An)+max(($pstrand-$A), ($nstrand-$An)), npp=>$depth) : 1;
             } elsif ($alt eq 'C') {
               $altd = $C + $Cn;
               $strandRatio =($altd > 0)? sprintf("%.4f", $C/$altd) : 0;
+              $strandRatioRef = (($depth-$altd) > 0)? sprintf("%.4f", ($pstrand-$C)/($depth-$altd)) : 0;
+              $stranFisherP = ($altd > 0)? calculateStatistic(n11=>max($C, $Cn), n1p=>$altd, np1=>max($C, $Cn)+max(($pstrand-$C), ($nstrand-$Cn)), npp=>$depth) : 1;
             } elsif ($alt eq 'G') {
               $altd = $G + $Gn;
               $strandRatio =($altd > 0)? sprintf("%.4f", $G/$altd) : 0;
+              $strandRatioRef = (($depth-$altd) > 0)? sprintf("%.4f", ($pstrand-$G)/($depth-$altd)) : 0;
+              $stranFisherP = ($altd > 0)? calculateStatistic(n11=>max($G, $Gn), n1p=>$altd, np1=>max($G, $Gn)+max(($pstrand-$G), ($nstrand-$Gn)), npp=>$depth) : 1;
             } elsif ($alt eq 'T') {
               $altd = $T + $Tn;
               $strandRatio =($altd > 0)? sprintf("%.4f", $T/$altd) : 0;
+              $strandRatioRef = (($depth-$altd) > 0)? sprintf("%.4f", ($pstrand-$T)/($depth-$altd)) : 0;
+              $stranFisherP = ($altd > 0)? calculateStatistic(n11=>max($T, $Tn), n1p=>$altd, np1=>max($T, $Tn)+max(($pstrand-$T), ($nstrand-$Tn)), npp=>$depth) : 1;
             } else {
               print STDERR "$coor\t$alt\talt is not ACGT\n";
               exit 22;
             }
+            $stranFisherP = sprintf("%.5f", $stranFisherP);   #keep precision 5
             if ($altd > 0) {
               #prepare LODs
               if ( $depth < 5000/$readlen ) {
@@ -241,7 +253,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                 ########################### NLOD ###########################
                 my $nlod = snvCalling->calNormalLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                 ############################################################
-                $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.'|'.$badqual.'|'.$nlod;
+                $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$nlod;
               } else {  #it is tumor
                 my $endratio = sprintf("%.4f", $vends/$vard);
                 if (($endratio <= 0.8 or ($altd - $vends) >= 2) and (($cmean+$cmedian) < 6 or $cmedian <= 2)) {  #limiting endsratio and mismatch stuff
@@ -249,13 +261,13 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                   ########################### TLOD ###########################
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################
-                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.'|'.$badqual.'|'.$tlod;
+                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod;
                 } else {  #looks like artifact
                   $somatic{$coor}{$djindex}{$name} = sprintf("%.4f", $altd/$depth);                   #now accept everything for further filtration!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                   ########################### TLOD ###########################
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################
-                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.'|'.$badqual.'|'.$tlod;
+                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod;
                   $cmean = 0; #reset for artifact like stuff
                   $cmedian = 0; #reset
                 }
