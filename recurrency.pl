@@ -213,7 +213,7 @@ while ( <IN> ) {
           my $vard = sprintf("%.1f", $maf*$depth);
           my $refd = $depth-$vard;
 
-          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($$strandFisherP > 0.9 & refd >= 10)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
+          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($strandFisherP > 0.9 and $refd >= 10)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
             if ($task =~ /rna/) {
               if ($maf >= ($Th_maf - 0.02) and $vard >= $Th_vard) {
                 $founds++;
@@ -404,9 +404,10 @@ while ( <IN> ) {
           my $depth = $cols[$i+1];
           #my $vard = sprintf("%.1f", $maf*$depth);
           my $vard = round($maf*$depth);
+          my $refd = $depth-$vard;
 
           if (exists $somatic{$samp}) {     #for tumor samples require some additional thing
-            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($$strandFisherP > 0.9 & refd >= 10)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
+            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($strandFisherP > 0.9 and $refd >= 10)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
               if ( $maf >= 0.1 ) {  #clonal ones
                 $maf = $maf;
               } else {              #subclonal ones, subject to additional constrains
