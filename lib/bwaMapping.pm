@@ -109,9 +109,9 @@ sub indelRealignment2 {
 
   my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam, $threads) = @_;
 
-  my $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -nt $threads -o $outBam";
+  my $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -o $outBam";
   if ($CHR eq 'ALL') {
-    $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -nt $threads -o $outBam";
+    $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -o $outBam";
   }
 
   return $cmd;
