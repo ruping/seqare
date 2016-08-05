@@ -465,7 +465,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 
   my $rawBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.bam";
   my $sortedBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.bam";
-  my $irBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam";
+  my $irBam = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.bam" : "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$options{'chrProcess'}\.bam";
   my $brBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.bam";
   my $rmDupBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.bam";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
@@ -533,6 +533,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       if ($options{'skipTask'} !~ /indelRealignment/) {
         my $indelTargetList = $sortedBam."\.target_intervals.list";
         my $CHR = 'ALL';
+        if ( $options{'chrProcess'} ne 'SRP' ) {
+          $CHR = $options{'chrProcess'};
+          $indelTargetList = $sortedBam."\.$CHR\.target_intervals.list";
+        }
         if ($options{'splitChr'}) { #if split chr, folk it up, not for hpc clusters, only for workstations, need to be merged later
           my $chrBatches = partitionArray(\@chrs, $options{'threads'});
           foreach my $chrBatch (@{$chrBatches}) {
@@ -575,6 +579,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
+    }
+    if ($options{'chrProcess'} ne 'SRP') {  #for each chromosome
+      print STDERR "stop for merging irBams\n";
+      exit 0;
     }
     if (-s "$sortedBam" and -s "$irBam") {
       my $cmd = "rm $sortedBam $sortedBam\.bai -f";
@@ -669,7 +677,7 @@ if (exists $runlevel{$runlevels}) {
   #basic read counting stats:
   my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
-  unless (-s "$mappingStats"){
+  unless (-s "$mappingStats") {
     my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $finalBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
