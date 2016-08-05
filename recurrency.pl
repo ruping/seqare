@@ -192,6 +192,8 @@ while ( <IN> ) {
           my $cmean = 0;
           my $cmedian = 0;
           my $strandRatio = 0;
+          my $strandRatioRef = 0;
+          my $strandFisherP = 0;
           my $badQualFrac = 0;
 
           if ($cols[$i] =~ /\|/) { #split the var surrounding information
@@ -199,7 +201,7 @@ while ( <IN> ) {
             $maf = $infos[0];
             $endsratio = $infos[1];
             ($cmean, $cmedian) = split(',', $infos[2]);
-            $strandRatio = $infos[3];
+            ($strandRatio, $strandRatioRef, $strandFisherP) = split(',', $infos[3]);
             $badQualFrac = $infos[4];
           }
 
@@ -209,8 +211,9 @@ while ( <IN> ) {
             $depth = $depths[0];
           }
           my $vard = sprintf("%.1f", $maf*$depth);
+          my $refd = $depth-$vard;
 
-          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and ($strandRatio > 0 and $strandRatio < 1) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
+          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($$strandFisherP > 0.9 & refd >= 10)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
             if ($task =~ /rna/) {
               if ($maf >= ($Th_maf - 0.02) and $vard >= $Th_vard) {
                 $founds++;
@@ -280,7 +283,10 @@ while ( <IN> ) {
       my $chr;
       my $pos;
       my $endsratio = 0;
+      my @strandRatio;
       my $strandRatio = 0;
+      my $strandRatioRef = 0;
+      my $strandFisherP = 0;
       my $badQualFrac = 0;
       my $cmean = 0;
       my $cmedian = 0;
@@ -333,7 +339,10 @@ while ( <IN> ) {
           my @infos = split(/\|/, $sampmaf);
           $endsratio = ($infos[5] > $mlod)? $infos[1]:$endsratio;
           ($cmean, $cmedian) = ($infos[5] > $mlod)? split(',', $infos[2]):($cmean, $cmedian);
-          $strandRatio = ($infos[5] > $mlod)? $infos[3]:$strandRatio;
+          @strandRatio = ($infos[5] > $mlod)? split(',', $infos[3]):@strandRatio;
+          $strandRatio = $strandRatio[0];
+          $strandRatioRef = $strandRatio[1];
+          $strandFisherP = $strandRatio[2];
           $badQualFrac = ($infos[5] > $mlod)? $infos[4]:$badQualFrac;
           #$mmaf = ($infos[5] > $mlod)? $infos[0]:$mmaf;
           $mlod = ($infos[5] > $mlod)? $infos[5]:$mlod;
@@ -370,7 +379,10 @@ while ( <IN> ) {
           my $samp = $1;
           my $maf = $cols[$i];
           my $endsratio = 0;
+          my @strandRatio;
           my $strandRatio = 0;
+          my $strandRatioRef = 0;
+          my $strandFisherP = 0;
           my $badQualFrac = 0;
           my $cmean = 0;
           my $cmedian = 0;
@@ -381,7 +393,10 @@ while ( <IN> ) {
             $maf = $infos[0];
             $endsratio = $infos[1];
             ($cmean, $cmedian) = split(',', $infos[2]);
-            $strandRatio = $infos[3];
+            @strandRatio = split(',', $infos[3]);
+            $strandRatio = $strandRatio[0];
+            $strandRatioRef = $strandRatio[1];
+            $strandFisherP = $strandRatio[2];
             $badQualFrac = $infos[4];
             $lod = $infos[5];
           }
@@ -391,7 +406,7 @@ while ( <IN> ) {
           my $vard = round($maf*$depth);
 
           if (exists $somatic{$samp}) {     #for tumor samples require some additional thing
-            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and ($strandRatio > 0 and $strandRatio < 1) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
+            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) | ($$strandFisherP > 0.9 & refd >= 10)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
               if ( $maf >= 0.1 ) {  #clonal ones
                 $maf = $maf;
               } else {              #subclonal ones, subject to additional constrains
