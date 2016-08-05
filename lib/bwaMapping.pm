@@ -93,9 +93,9 @@ sub recalMD {
 
 sub indelRealignment1 {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $knownindel1, $knownindel2, $CHR, $outList) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $knownindel1, $knownindel2, $CHR, $outList, $threads) = @_;
 
-  my $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -L $CHR -o $outList";
+  my $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -L $CHR -nt $threads -o $outList";
   if ($CHR eq 'ALL') {
     $cmd = "java -Xmx2g -jar $gatkBin -T RealignerTargetCreator -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -o $outList";
   }
@@ -107,9 +107,9 @@ sub indelRealignment1 {
 
 sub indelRealignment2 {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam, $threads) = @_;
 
-  my $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -o $outBam";
+  my $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -nct $threads -o $outBam";
   if ($CHR eq 'ALL') {
     $cmd = "java -Xmx2g -jar $gatkBin -T IndelRealigner -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -o $outBam";
   }
