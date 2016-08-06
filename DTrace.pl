@@ -568,7 +568,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
           unless (-s "$indelTargetList") {
             $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList, $options{'threads'});
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-            if ($options{'skipTask'} =~ /indelRealignment2/) {
+            if ($options{'skipTask'} =~ /irStep2/) {
               print STDERR "indel realign list produced. stop now\n";
               exit 0;
             }
