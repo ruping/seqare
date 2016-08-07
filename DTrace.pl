@@ -793,7 +793,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   my $muTectOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.mutect";
   my $vcfOutTmp = $muTectOut.'.vcf';
   my $vcfOut = $muTectOut.'.genome.vcf';
-  my $vcfOutSorted = $muTectOut.'genome.sorted.vcf';
+  my $vcfOutSorted = $muTectOut.'.genome.sorted.vcf';
   my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
   my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
   my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
