@@ -131,9 +131,9 @@ sub MarkDuplicates {
 
 sub BaseRecalibration {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable, $threads) = @_;
 
-  my $cmd = "java -Xmx3g -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -o $outTable";
+  my $cmd = "java -Xmx3g -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
 
   return $cmd;
 
@@ -141,9 +141,9 @@ sub BaseRecalibration {
 
 sub BaseRecalibrationPrint {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam, $threads) = @_;
 
-  my $cmd = "java -Xmx3g -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -o $outBam";
+  my $cmd = "java -Xmx3g -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
 
   return $cmd;
 

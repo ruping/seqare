@@ -601,15 +601,15 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       }
     }
 
-    if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) { #base recalibration
+    if ((-s "$irBam" and !(-s "$brBam")) or exists($runTask{'BaseRecalibration'})) {   #base recalibration
       my $cmd;
       if ($options{'skipTask'} !~ /BaseRecalibration/) {             #if skipped
         my $brTable = $irBam.".baseRecal.table";
         unless (-s "$brTable") {
-          $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable);
+          $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable, $options{'threads'});
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         }
-        $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam);
+        $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam, $options{'threads'});
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       } else {
         $cmd = "mv $irBam $brBam";
