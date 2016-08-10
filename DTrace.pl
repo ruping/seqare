@@ -764,9 +764,6 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
-  if (exists($runTask{'mergeMutect'})) {
-    goto MERGE;
-  }
 
   #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
@@ -801,6 +798,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
   my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
   my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
+
+  if (exists($runTask{'mergeMutect'})) {
+    goto MERGE;
+  }
+
   unless ((-s "$muTectOut" or -s "$muTectOut\.gz") or !exists( $somatic{$options{'sampleName'}} ) ) {
     my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp, $options{'chrProcessRegion'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
