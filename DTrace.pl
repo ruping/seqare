@@ -942,11 +942,18 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrOuts 2 >$muTectOut";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
+  if (-s "$muTectOut" and -s "$mutectChrOuts[0]") {
+    my $cmd = "rm ".join(" ", @mutectChrOuts).' -rf';
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
   unless (-s "$vcfMultiAnnoMod") {
     my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrVcfs >$vcfMultiAnnoMod";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-
+  if (-s "$vcfMultiAnnoMod" and -s "$mutectChrVcfs[0]"){
+    my $cmd = "rm ".join(" ", @mutectChrVcfs).' -rf';
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
 
