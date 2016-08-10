@@ -799,7 +799,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
   my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
 
-  if (exists($runTask{'mergeMutect'})) {
+  if (exists($runTask{'mergeMutectChr'})) {
     goto MERGE;
   }
 
