@@ -764,6 +764,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
 
+  if (exists($runTask{'mergeMutect'})) {
+    goto MERGE;
+  }
+
   #my $finalBam = ($options{'splitChr'})?"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.$chrs[0]\.rmDup\.bam":"$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.rmDup\.bam";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   my $normalBam;
@@ -923,6 +927,21 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $recheckBasename = basename($options{'recheck'});
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
     my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'});
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+ MERGE:
+
+  my @mutectChrOuts = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect");
+  my $mutectChrOuts = join(',', @mutectChrOuts);
+  my @mutectChrVcfs = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect.genome.sorted.vcf.hg19_multianno.mod.vcf");
+  my $mutectChrVcfs = join(',', @mutectChrVcfs);
+  unless (-s "$muTectOut") {
+    my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrOuts 2 >$muTectOut";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+  unless (-s "$vcfMultiAnnoMod") {
+    my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrVcfs >$vcfMultiAnnoMod";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
