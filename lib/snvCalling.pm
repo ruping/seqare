@@ -36,7 +36,7 @@ sub samtoolsCalling {
     $regionOpt = '--region '.$chrProcess;
   }
 
-  my $sensOpt = '-P $sensitivity';
+  my $sensOpt = '-P '.$sensitivity;
 
   my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
 
