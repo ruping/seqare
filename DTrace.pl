@@ -930,6 +930,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
     my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    goto END4;
   }
 
  MERGE:
@@ -954,6 +955,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
+
+ END4:
 
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
