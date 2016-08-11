@@ -24,7 +24,7 @@ sub muTectCalling {
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess, $sensitivity) = @_;
 
   my $ignoreRGopt = '';
   if ($ignoreRG == 1){
@@ -36,7 +36,9 @@ sub samtoolsCalling {
     $regionOpt = '--region '.$chrProcess;
   }
 
-  my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 -P 0.005 -vcf GQ - >$vcfOut";
+  my $sensOpt = '-P $sensitivity';
+
+  my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
 
   return $cmd;
 

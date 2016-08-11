@@ -49,6 +49,7 @@ $options{'tmpDir'}      = '';
 $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
 $options{'skipPileup'}  = "yes";
+$options{'samSens'} = 0.005;
 
 $options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
@@ -122,7 +123,8 @@ GetOptions(
            "maxInsLine=i" => \$options{'maxInsLine'},
            "ignoreRG=i"   => \$options{'ignoreRG'},
            "chrProcess=s" => \$options{'chrProcess'},
-           "skipPileup=s" => \$options{'skipPileup'}
+           "skipPileup=s" => \$options{'skipPileup'},
+           "samSens=i"    => \$options{'samSens'}
           );
 
 #print help
@@ -869,7 +871,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $vcfMultiAnnoModsnv = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.indel";
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'});
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'}, $options{'samSens'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
