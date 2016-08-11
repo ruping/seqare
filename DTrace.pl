@@ -48,6 +48,7 @@ $options{'seqType'}     = 'WXS,paired-end';      #experimental types
 $options{'tmpDir'}      = '';
 $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
+$options{'skipPileup'}  = "yes";
 
 $options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
@@ -120,7 +121,8 @@ GetOptions(
            "germlineLOH=s"=> \$options{'germlineLOH'},
            "maxInsLine=i" => \$options{'maxInsLine'},
            "ignoreRG=i"   => \$options{'ignoreRG'},
-           "chrProcess=s" => \$options{'chrProcess'}
+           "chrProcess=s" => \$options{'chrProcess'},
+           "skipPileup=s" => \$options{'skipPileup'}
           );
 
 #print help
@@ -928,7 +930,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'recheck'} ne 'SRP' and -s "$options{'recheck'}") { #do the recheck
     my $recheckBasename = basename($options{'recheck'});
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
-    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'});
+    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     goto END4;
   }
