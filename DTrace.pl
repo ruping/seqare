@@ -124,7 +124,7 @@ GetOptions(
            "ignoreRG=i"   => \$options{'ignoreRG'},
            "chrProcess=s" => \$options{'chrProcess'},
            "skipPileup=s" => \$options{'skipPileup'},
-           "samSens=i"    => \$options{'samSens'}
+           "samSens=f"    => \$options{'samSens'}
           );
 
 #print help
