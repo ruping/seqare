@@ -857,6 +857,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
+
   #------------------------------------------------------------------------------------
 
  GERMLINE:
@@ -870,6 +871,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
     my $vcfMultiAnnoModsnv = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.snv";
     my $vcfMultiAnnoModindel = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.indel";
+
+    if (exists($runTask{'mergeSamtoolsChr'})) {
+      goto MERGESAMTOOLS;
+    }
+
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
       my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'}, $options{'samSens'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -924,7 +930,34 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
       my $cmd = "rm -rf $vcfMultiAnnoMod";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+
     #------------------------------------------------------------------------------------
+
+  MERGESAMTOOLS:
+
+    if (exists($runTask{'mergeSamtoolsChr'})) {
+      my @samtoolsChrSnvs = bsd_glob("$options{'lanepath'}/04_SNV/*samtools*.mod.vcf.snv");
+      my $samtoolsChrSnvs = join(',', @samtoolsChrSnvs);
+      my @samtoolsChrIndels = bsd_glob("$options{'lanepath'}/04_SNV/*samtools*.mod.vcf.indel");
+      my $samtoolsChrIndels = join(',', @samtoolsChrIndels);
+      unless (-s "$vcfMultiAnnoModsnv") {
+        my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $samtoolsChrSnvs >$vcfMultiAnnoModsnv";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        if (-s "$vcfMultiAnnoModsnv" and -s "$samtoolsChrSnvs[0]") {
+          my $cmd = "rm ".join(" ", @samtoolsChrSnvs).' -rf';
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        }
+      }
+      unless (-s "$vcfMultiAnnoModindel") {
+        my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $samtoolsChrIndels >$vcfMultiAnnoModindel";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        if (-s "$vcfMultiAnnoModindel" and -s "$samtoolsChrIndels[0]") {
+          my $cmd = "rm ".join(" ", @samtoolsChrIndels).' -rf';
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        }
+      }
+    }
+
   } #germline calling with samtools
 
  RECHECK:
@@ -934,33 +967,32 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
     my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    goto END4;
   }
 
  MERGE:
 
-  my @mutectChrOuts = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect");
-  my $mutectChrOuts = join(',', @mutectChrOuts);
-  my @mutectChrVcfs = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect.genome.sorted.vcf.hg19_multianno.mod.vcf");
-  my $mutectChrVcfs = join(',', @mutectChrVcfs);
-  unless (-s "$muTectOut") {
-    my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrOuts 2 >$muTectOut";
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    if (-s "$muTectOut" and -s "$mutectChrOuts[0]") {
-      my $cmd = "rm ".join(" ", @mutectChrOuts).' -rf';
+  if (exists($runTask{'mergeMutectChr'})) {
+    my @mutectChrOuts = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect");
+    my $mutectChrOuts = join(',', @mutectChrOuts);
+    my @mutectChrVcfs = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect.genome.sorted.vcf.hg19_multianno.mod.vcf");
+    my $mutectChrVcfs = join(',', @mutectChrVcfs);
+    unless (-s "$muTectOut") {
+      my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrOuts 2 >$muTectOut";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$muTectOut" and -s "$mutectChrOuts[0]") {
+        my $cmd = "rm ".join(" ", @mutectChrOuts).' -rf';
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
+    unless (-s "$vcfMultiAnnoMod") {
+      my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrVcfs >$vcfMultiAnnoMod";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$vcfMultiAnnoMod" and -s "$mutectChrVcfs[0]") {
+        my $cmd = "rm ".join(" ", @mutectChrVcfs).' -rf';
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
     }
   }
-  unless (-s "$vcfMultiAnnoMod") {
-    my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrVcfs >$vcfMultiAnnoMod";
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    if (-s "$vcfMultiAnnoMod" and -s "$mutectChrVcfs[0]"){
-      my $cmd = "rm ".join(" ", @mutectChrVcfs).' -rf';
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    }
-  }
-
- END4:
 
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
