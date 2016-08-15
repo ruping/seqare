@@ -69,6 +69,7 @@ $options{'maxInsLine'} = 0;
 $options{'ignoreRG'} = 0;
 
 $options{'chrProcess'} = 'SRP';
+$options{'chrProcessRegion'} = 'SRP';
 
 if (@ARGV == 0) {
   helpm();
