@@ -29,12 +29,12 @@ library(doMC)
 setwd(path)
 
 #run titan
-runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, symmetric, exons) {
+runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, symmetric, exons="SRP") {
 
     #prepare data
     snpData <- loadAlleleCounts(snpFile, symmetric=symmetric)
     cnData <- correctReadDepth(tumWig, normWig, gc, map)
-    if (length(inputpar) == 13) {
+    if (exons != "SRP") {
       cnData <- correctReadDepth(tumWig, normWig, gc, map, targetedSequence = exons)
     }
     logR <- getPositionOverlap(snpData$chr, snpData$posn, cnData)
@@ -80,14 +80,14 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         segmenttmp = titancna2seg(results, convergeParams)
         write.table(segmenttmp, file=paste(sampleName,"_nclones",numClusters,".TitanCNA.segments.txt",sep=""),
                     quote = F, row.names = F, sep = "\t")
-        if (j == 1){
+        if (j == 1) {
             rawTable = titancna2seg(results, convergeParams, raw=TRUE)
             write.table(rawTable, file=paste(sampleName,".TitanCNA.rawTable.txt",sep=""),
                         quote = F, row.names = F, sep = "\t")
         }
         
         #make plots
-        if (length(inputpar) == 12) {
+        if (exons == "SRP") {
           for (chro in 1:22) {
             pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=11.5, height=8)
             if (is.null(titancnaresults[[j]])) next
@@ -113,7 +113,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
             dev.off()
           }
-      } else if (length(inputpar) == 13) { #exon-seq
+      } else if (exons != "SRP") { #exon-seq
           
           pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=11.5, height=8)
           if (is.null(titancnaresults[[j]])) next
@@ -234,9 +234,11 @@ normalc = as.numeric(normalc)
 message(normalc)
 message(normalcm)
 
-targetRegion = read.delim(exons, header=F)
-targetRegion = data.frame(targetRegion[,1:3])
-#targetRegion[,1] = gsub("chr","",targetRegion[,1])
-
-runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,targetRegion)
-
+if (exons != "SRP"){   #WES
+    targetRegion = read.delim(exons, header=F)
+    targetRegion = data.frame(targetRegion[,1:3])
+    #targetRegion[,1] = gsub("chr","",targetRegion[,1])
+    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,targetRegion)
+} else if (exons == "SRP") {  #WGS 
+    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric)
+}

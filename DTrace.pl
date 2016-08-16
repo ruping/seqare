@@ -1029,6 +1029,10 @@ if (exists $runlevel{$runlevels}) {
     $normalWig = (-s "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig")? "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig" : die("$normalSampleName\.wig not found!!!\n");
   }
 
+  if ($options{'seqType'} =~ /WGS/){
+    $confs{'targetRegionTitan'} = "SRP";
+  }
+
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
     my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
