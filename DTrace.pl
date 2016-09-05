@@ -56,6 +56,7 @@ $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
 $options{'samCallmaxDepth'} = 400;
 $options{'recheck'}     = "SRP";
+$options{'recheckBams'} = 'SRP';
 $options{'plpTitan'}    = 2.0;
 $options{'plpeTitan'}   = "TRUE";
 $options{'ncTitan'}     = 0.5;
@@ -112,6 +113,7 @@ GetOptions(
            "germline=s"   => \$options{'germline'},
            "samCallmaxDepth=i" => \$options{'samCallmaxDepth'},
            "recheck=s"    => \$options{'recheck'},
+           "recheckBams=s" => \$options{'recheckBams'},
            "tmpDir=s"     => \$options{'tmpDir'},
            "plpTitan=f"   => \$options{'plpTitan'},
            "plpeTitan=s"  => \$options{'plpeTitan'},
@@ -774,7 +776,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   my $normalBam;
 
-  if (!exists($runlevel{$runlevels}) and exists($runTask{'recheck'})){
+  if (!exists($runlevel{$runlevels}) and exists($runTask{'recheck'})) {
     goto RECHECK;
   }
 
@@ -964,9 +966,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
  RECHECK:
 
   if ($options{'recheck'} ne 'SRP' and -s "$options{'recheck'}") { #do the recheck
+    my $recheckBams = ($options{'recheckBams'} ne 'SRP')? $options{'recheckBams'} : $finalBam;
     my $recheckBasename = basename($options{'recheck'});
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
-    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $finalBam, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
+    my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $recheckBams, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -1364,6 +1367,7 @@ sub helpm {
   print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
   print STDERR "\t--samCallmaxDepth\tthe maximum depth for samtools mpileup to work (default 400, set to the high quantile depth)\n";
   print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
+  print STDERR "\t--recheckBams\trecheck bam file or list of files if not the one under 02_MAPPING\n";
   print STDERR "\t--chrPrefInBam\tthe prefix of chromosome names in the bam file. default is no prefix, set to the actual prefix you have in the bam.\n";
 
   print STDERR "\nrunlevel 5: CNA calling (TitanCNA)\n";

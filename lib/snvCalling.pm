@@ -27,7 +27,7 @@ sub samtoolsCalling {
   my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess, $sensitivity) = @_;
 
   my $ignoreRGopt = '';
-  if ($ignoreRG == 1){
+  if ($ignoreRG == 1) {
     $ignoreRGopt = '--ignore-RG';
   }
 

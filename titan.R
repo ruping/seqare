@@ -87,7 +87,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         }
         
         #make plots
-        if (exons == "SRP") {
+        if (exons == "SRP") {  #WGS
           for (chro in 1:22) {
             pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=11.5, height=8)
             if (is.null(titancnaresults[[j]])) next
@@ -113,7 +113,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
             dev.off()
           }
-      } else if (exons != "SRP") { #exon-seq
+      } else if (exons != "SRP") { #WES
           
           pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=11.5, height=8)
           if (is.null(titancnaresults[[j]])) next
