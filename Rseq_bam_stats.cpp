@@ -249,7 +249,7 @@ int main (int argc, char *argv[]) {
       readlen = bam.Length;
     }
 
-    cerr << bam.Name << "endl";
+    //cerr << bam.Name << "endl";
     
     ++BAMSTATS.num_Reads;
 
