@@ -249,6 +249,8 @@ int main (int argc, char *argv[]) {
       readlen = bam.Length;
     }
 
+    cerr << bam.Name << "endl";
+    
     ++BAMSTATS.num_Reads;
 
     if ( bam.IsMapped() == true || bam.IsMateMapped() == true ) {  // either this mate or the other mate is mapped
