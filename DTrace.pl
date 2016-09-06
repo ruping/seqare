@@ -689,8 +689,9 @@ if (exists $runlevel{$runlevels}) {
   #basic read counting stats:
   my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
+  my $statBam = ($options{'recheckBams'} eq "SRP")? $finalBam : $options{'recheckBams'};
   unless (-s "$mappingStats") {
-    my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $finalBam, $options{'readlen'}, $mappingStats);
+    my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $statBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -699,7 +700,7 @@ if (exists $runlevel{$runlevels}) {
   my $lorenzCover = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.lorenzNoDup";
   unless (-s "$lorenzCover") {
     unless (-s "$bedCover") {
-      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $finalBam, $bedCover);
+      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $statBam, $bedCover);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover);
