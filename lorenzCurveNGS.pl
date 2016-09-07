@@ -1,13 +1,24 @@
 use strict;
 
+
+my $bedcov = shift;
+my $scaleFactor = shift;
+if ($scaleFactor eq '') {
+  $scaleFactor = 1;
+}
+
+
 my $totalb = 0;
 my $totalr = 0;
 
+
 my %lorenz;
-open IN, shift;
+open IN, "$bedcov";
 while ( <IN> ) {
   chomp;
   my ($chr, $start, $end, $depth, $read) = split /\t/;
+  $depth = round($depth*$scaleFactor);
+  $read = round($read*$scaleFactor);
   $lorenz{$depth}{'cov'} += 1;
   $lorenz{$depth}{'read'} += $read;
   $totalr += $read;
@@ -16,6 +27,7 @@ while ( <IN> ) {
 close IN;
 print STDERR "total bases (w) is $totalb\n";
 print STDERR "total reads is $totalr\n";
+
 
 foreach my $depth (sort {$a <=> $b} keys %lorenz){
   my $depc = $lorenz{$depth}{'cov'};
