@@ -51,3 +51,13 @@ foreach my $depth (sort {$a <=> $b} keys %lorenz){
   $cumr2 = sprintf("%.5f", $cumr2/$totalr);
   print "$depth\t$depc\t$depr\t$cumc\t$cumr\t$cumc2\t$cumr2\n";
 }
+
+
+sub round {
+    my $number = shift;
+    my $tmp = int($number);
+    if ($number >= ($tmp+0.5)){
+      $tmp++;
+    }
+    return $tmp;
+}
