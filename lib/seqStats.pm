@@ -40,9 +40,9 @@ sub grepStarts {
 
 sub getLorenz {
 
-  my  ($class, $lorenzCurveBin, $bedCover, $lorenzCover) = @_;
+  my  ($class, $lorenzCurveBin, $bedCover, $lorenzCover, $scaleFactor) = @_;
 
-  my $cmd = "perl $lorenzCurveBin $bedCover >$lorenzCover";
+  my $cmd = "perl $lorenzCurveBin $bedCover $scaleFactor >$lorenzCover";
 
   return $cmd;
 

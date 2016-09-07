@@ -50,6 +50,7 @@ $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
 $options{'skipPileup'}  = "yes";
 $options{'samSens'} = 0.005;
+$options{'lorenzScaleFactor'} = 1.0;
 
 $options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
@@ -112,6 +113,7 @@ GetOptions(
            "somaticInfo=s"=> \$options{'somaticInfo'},
            "germline=s"   => \$options{'germline'},
            "samCallmaxDepth=i" => \$options{'samCallmaxDepth'},
+           "lorenzScaleFactor=f" => \$options{'lorenzScaleFactor'},
            "recheck=s"    => \$options{'recheck'},
            "recheckBams=s" => \$options{'recheckBams'},
            "tmpDir=s"     => \$options{'tmpDir'},
@@ -703,7 +705,7 @@ if (exists $runlevel{$runlevels}) {
       my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $statBam, $bedCover);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover);
+    my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover, $options{'lorenzScaleFactor'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
   if (-s "$bedCover" and -s "$lorenzCover") {
