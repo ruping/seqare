@@ -702,7 +702,7 @@ if (exists $runlevel{$runlevels}) {
   my $lorenzCover = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.lorenzNoDup";
   unless (-s "$lorenzCover") {
     unless (-s "$bedCover") {
-      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $statBam, $bedCover);
+      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'targetRegion'}, $statBam, $bedCover, $options{'chrPrefInBam'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     my $cmd = seqStats->getLorenz("$options{'bin'}/lorenzCurveNGS.pl", $bedCover, $lorenzCover, $options{'lorenzScaleFactor'});

@@ -29,9 +29,12 @@ sub xenoStats {
 
 sub grepStarts {
 
-  my  ($class, $grepStartsBin, $targetRegion, $BAM, $bedCover) = @_;
+  my  ($class, $grepStartsBin, $targetRegion, $BAM, $bedCover, $chrInBam) = @_;
 
   my $cmd = "$grepStartsBin --region $targetRegion --mapping $BAM >$bedCover";
+  if ($chrInBam ne 'SRP') {
+    $cmd = "$grepStartsBin --region $targetRegion --mapping $BAM --chr $chrInBam >$bedCover";
+  }
 
   return $cmd;
 
