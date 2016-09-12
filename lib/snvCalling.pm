@@ -40,6 +40,10 @@ sub samtoolsCalling {
 
   my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
 
+  if ( $BAM eq $NORMALBAM ) {  #only one bam single calling
+    $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
+  }
+
   return $cmd;
 
 }
