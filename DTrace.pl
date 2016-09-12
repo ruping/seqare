@@ -710,7 +710,7 @@ if (exists $runlevel{$runlevels}) {
   }
   if (-s "$bedCover" and -s "$lorenzCover") {
     my $cmd = "rm $bedCover -f";
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
   #for titanCNA
