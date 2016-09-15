@@ -116,7 +116,7 @@ foreach my $file (@list) {
   $samples{$name} = '';
 
   my $openway = $file;
-  if ($file =~ /\.gz$/){
+  if ($file =~ /\.gz$/) {
     $openway = "gzip -dc $file |";
   }
   print STDERR "$openway\n";
@@ -288,7 +288,7 @@ foreach my $file (@list) {
              next;
            }
          } else {   #freq is defined
-           if ($id =~ /^[rR][sS]/) {   #dbSNP ones with reported MAF (with dbSNP id)
+           if ($id =~ /^[rR][sS]/) {                  #dbSNP ones with reported MAF (with dbSNP id)
              next if ($dbsnp eq "no");
            }
            if ($task =~ /rare/i) {
