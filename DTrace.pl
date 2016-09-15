@@ -718,7 +718,7 @@ if (exists $runlevel{$runlevels}) {
   my $wigOut = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig";
   unless (-s "$wigOut"){
     unless (-s "$bedCount") {
-      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'w1kBed'}, $finalBam, $bedCount);
+      my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'w1kBed'}, $finalBam, $bedCount, $options{'chrPrefInBam'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     my $cmd = seqStats->bed2wig("$options{'bin'}/bed2wig.pl", $bedCount, $wigOut);
