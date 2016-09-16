@@ -166,14 +166,14 @@ while ( <IN> ) {
     } elsif ($task eq 'freq') {
       my $freq = 'NA';
       my $function = (exists($colnames{'function'}))? $cols[$colnames{'function'}] : die("no function column.\n");
-      my $id = $cols[$colnames{'id'}];
-      if ($id =~ /1KG=(.+?)$/){
+      #my $id = $cols[$colnames{'id'}];
+      if ($function =~ /PopFreqMax=(.+?)\;/){
         $freq = $1;
-      } elsif ($id =~ /ESP\d+=(.+?)$/){
-        $freq = $1;
-      } elsif ($function =~ /1KG=(.+?)\;/){
+      } elsif ($function =~ /ExAC_ALL=(.+?)\;/){
         $freq = $1;
       } elsif ($function =~ /ESP\d+=(.+?)\;/){
+        $freq = $1;
+      } elsif ($function =~ /1000g2014oct_all=(.+?)\;/){
         $freq = $1;
       }
       print "$_\t$freq\n";
