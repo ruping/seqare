@@ -63,6 +63,7 @@ $options{'plpeTitan'}   = "TRUE";
 $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
 $options{'symmetric'}   = "TRUE";
+$options{'maxMem'} = '4g';
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
@@ -101,6 +102,7 @@ GetOptions(
            "seqType=s"    => \$options{'seqType'},
            "noexecute"    => \$options{'noexecute'},
            "quiet"        => \$options{'quiet'},
+           "maxMem=s"     => \$options{'maxMem'},
            "splitChr"     => \$options{'splitChr'},
            "readlen=i"    => \$options{'readlen'},
            "mapper=s"     => \$options{'mapper'},
@@ -563,10 +565,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
               $irBam =~ s/\.bam/\.$CHR\.bam/;
               my $cmd;
               unless (-s "$indelTargetList") {
-                $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList, $options{'threads'});
+                $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList, $options{'threads'}, $options{'maxMem'});
                 RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
               }
-              $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam, $options{'threads'});
+              $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam, $options{'threads'}, $options{'maxMem'});
               RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
               $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
               RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -579,14 +581,14 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
         } else {
           my $cmd;
           unless (-s "$indelTargetList") {
-            $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList, $options{'threads'});
+            $cmd = bwaMapping->indelRealignment1($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $indelTargetList, $options{'threads'}, $options{'maxMem'});
             RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
             if ($options{'skipTask'} =~ /irStep2/) {
               print STDERR "indel realign list produced. stop now\n";
               exit 0;
             }
           }
-          $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam, $options{'threads'});
+          $cmd = bwaMapping->indelRealignment2($confs{'gatkBin'}, $sortedBam, $confs{'GFASTA'}, $indelTargetList, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $CHR, $irBam, $options{'threads'}, $options{'maxMem'});
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
           $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $irBam); #index it
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -619,10 +621,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       if ($options{'skipTask'} !~ /BaseRecalibration/) {             #if skipped
         my $brTable = $irBam.".baseRecal.table";
         unless (-s "$brTable") {
-          $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable, $options{'threads'});
+          $cmd = bwaMapping->BaseRecalibration($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $confs{'muTectDBSNP'}, $confs{'KNOWNINDEL1'}, $confs{'KNOWNINDEL2'}, $brTable, $options{'threads'}, $options{'maxMem'});
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         }
-        $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam, $options{'threads'});
+        $cmd = bwaMapping->BaseRecalibrationPrint($confs{'gatkBin'}, $irBam, $confs{'GFASTA'}, $brTable, $brBam, $options{'threads'}, $options{'maxMem'});
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       } else {
         $cmd = "mv $irBam $brBam";
@@ -648,7 +650,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
 
     if ((-s "$brBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
       my $rmDupMetric = $brBam.".rmDupMetric";
-      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $brBam, $rmDupBam, $rmDupMetric);
+      my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $brBam, $rmDupBam, $rmDupMetric, $options{'maxMem'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     if (-s "$brBam" and -s "$rmDupBam") {
