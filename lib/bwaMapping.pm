@@ -133,7 +133,7 @@ sub BaseRecalibration {
 
   my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable, $threads, $mem) = @_;
 
-  my $cmd = "java -Xmx$mem -jar $gatkBin -T BaseRecalibrator --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
+  my $cmd = "java -Xmx$mem -jar $gatkBin -T BaseRecalibrator --fix_misencoded_quality_scores -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
 
   return $cmd;
 
@@ -143,7 +143,7 @@ sub BaseRecalibrationPrint {
 
   my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam, $threads, $mem) = @_;
 
-  my $cmd = "java -Xmx$mem -jar $gatkBin -T PrintReads --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
+  my $cmd = "java -Xmx$mem -jar $gatkBin -T PrintReads --fix_misencoded_quality_scores -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
 
   return $cmd;
 
