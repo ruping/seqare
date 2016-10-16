@@ -143,7 +143,7 @@ sub BaseRecalibrationPrint {
 
   my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam, $threads, $mem) = @_;
 
-  my $cmd = "java -Xmx$mem -jar $gatkBin -T PrintReads --fix_misencoded_quality_scores -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
+  my $cmd = "java -Xmx$mem -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
 
   return $cmd;
 
