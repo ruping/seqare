@@ -133,7 +133,9 @@ sub BaseRecalibration {
 
   my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable, $threads, $mem) = @_;
 
-  my $cmd = "java -Xmx$mem -jar $gatkBin -T BaseRecalibrator --fix_misencoded_quality_scores -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
+  #--fix_misencoded_quality_scores
+
+  my $cmd = "java -Xmx$mem -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
 
   return $cmd;
 
