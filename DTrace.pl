@@ -994,7 +994,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'indel'} =~ /strelka/) {                   #do somatic small indel calling by strelka
 
     my $strelkaOutDir = "$options{'lanepath'}/04_SNV/strelka";
-    my $vcfOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.strelka.genome.vcf" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.strelka.genome.vcf";
+    my $vcfOut = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.vcf";
     (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
     my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
     my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
@@ -1008,6 +1008,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
       my $cmd = snvCalling->strelkaCalling($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);     #configure
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "make -C $strelkaOutDir -j $options{'threads'}";                                                                                           #call indel
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "rm $strelkaOutDir/chromosomes/ -rf";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
