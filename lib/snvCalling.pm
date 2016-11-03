@@ -48,11 +48,22 @@ sub samtoolsCalling {
 
 }
 
-sub strelkaCalling {
+sub strelkaCalling1 {
 
   my ($class, $strelkaBin, $NORMALBAM, $BAM, $GFASTA, $CONFIG, $outDir) = @_;
 
   my $cmd = "perl $strelkaBin --normal=$NORMALBAM --tumor=$BAM --ref=$GFASTA --config=$CONFIG --output-dir=$outDir";
+
+  return $cmd;
+
+}
+
+
+sub strelkaCalling2 {
+
+  my ($class, $outDir, $threads) = @_;
+
+  my $cmd = "make -C $outDir -j $threads";
 
   return $cmd;
 
@@ -75,6 +86,17 @@ sub vcfSort {
   my ($class, $vcfSortBin, $inVCF, $outVCF) = @_;
 
   my $cmd = "cat $inVCF | $vcfSortBin >$outVCF";
+
+  return $cmd;
+
+}
+
+
+sub vcfFixGT {
+
+  my ($class, $vcfFixGTbin, $inVCF) = @_;
+
+  my $cmd = "perl $vcfFixGTbin $inVCF";
 
   return $cmd;
 

@@ -994,7 +994,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'indel'} =~ /strelka/) {                   #do somatic small indel calling by strelka
 
     my $strelkaOutDir = "$options{'lanepath'}/04_SNV/strelka";
-    my $vcfOut = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.vcf";
+    my $vcfOutRaw = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.vcf";
+    my $vcfOut = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.gtfix.vcf";
     (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
     my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
     my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
@@ -1005,11 +1006,17 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     #}
 
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod") {
-      my $cmd = snvCalling->strelkaCalling($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);     #configure
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = "make -C $strelkaOutDir -j $options{'threads'}";                                                                                           #call indel
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = "rm $strelkaOutDir/chromosomes/ -rf";
+      unless (-s "$vcfOutRaw") {
+        my $cmd = snvCalling->strelkaCalling1($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);   #configure
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        $cmd = snvCalling->strelkaCalling2($strelkaOutDir, $options{'threads'});
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      if (-s "$vcfOutRaw" and -e "$strelkaOutDir/chromosomes") {
+        my $cmd = "rm $strelkaOutDir/chromosomes/ -rf";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      my $cmd = snvCalling->vcfFixGT("$options{'bin'}/fixVcfGT.pl", $vcfOutRaw);
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
