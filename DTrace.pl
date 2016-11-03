@@ -56,6 +56,7 @@ $options{'chrPrefInBam'} = "SRP";
 $options{'somaticInfo'} = "SRP";
 $options{'germline'}    = "SRP";
 $options{'samCallmaxDepth'} = 400;
+$options{'indel'}       = "SRP";
 $options{'recheck'}     = "SRP";
 $options{'recheckBams'} = 'SRP';
 $options{'plpTitan'}    = 2.0;
@@ -117,6 +118,7 @@ GetOptions(
            "somaticInfo=s"=> \$options{'somaticInfo'},
            "germline=s"   => \$options{'germline'},
            "samCallmaxDepth=i" => \$options{'samCallmaxDepth'},
+           "indel=s"      => \$options{'indel'},
            "lorenzScaleFactor=f" => \$options{'lorenzScaleFactor'},
            "recheck=s"    => \$options{'recheck'},
            "recheckBams=s" => \$options{'recheckBams'},
@@ -271,7 +273,7 @@ if ($options{'chrProcess'} ne 'SRP') {
     if ( $chrWithchr !~ /^chr/ ) {
       $chrWithchr = 'chr'.$chrWithchr;
     }
-    if ($chr eq $chrWithchr){
+    if ($chr eq $chrWithchr) {
       $options{'chrProcessRegion'} = $options{'chrProcess'}.':1-'.$size;
     }
   }
@@ -698,6 +700,11 @@ if (exists $runlevel{$runlevels}) {
   my $mappingStats = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.mapping.stats";
   my $finalBam = "$options{'lanepath'}/02_MAPPING/$options{'sampleName'}\.sorted\.ir\.br\.rmDup\.md\.bam";
   my $statBam = ($options{'recheckBams'} eq "SRP")? $finalBam : $options{'recheckBams'};
+
+  if ( ! -e "$finalBam" ) {
+    $finalBam = $statBam;
+  }
+
   unless (-s "$mappingStats") {
     my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $statBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -722,7 +729,7 @@ if (exists $runlevel{$runlevels}) {
   #for titanCNA
   my $bedCount = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.w1k.count";
   my $wigOut = "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig";
-  unless (-s "$wigOut"){
+  unless (-s "$wigOut") {
     unless (-s "$bedCount") {
       my $cmd = seqStats->grepStarts("$options{'bin'}/grep_starts", $confs{'w1kBed'}, $finalBam, $bedCount, $options{'chrPrefInBam'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -730,21 +737,26 @@ if (exists $runlevel{$runlevels}) {
     my $cmd = seqStats->bed2wig("$options{'bin'}/bed2wig.pl", $bedCount, $wigOut);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
-  if (-s "$bedCount" and -s "$wigOut"){
+  if (-s "$bedCount" and -s "$wigOut") {
     my $cmd = "rm $bedCount -f";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
   #for insert size
-  if ($options{'seqType'} =~ /paired/) {                       #do the insert size only if it is paired-end
+  if ($options{'seqType'} =~ /paired/) { #do the insert size only if it is paired-end
     unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins\.gz") {
       unless (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
-         my $cmd = seqStats->insertSize($confs{'samtoolsBin'}, $finalBam, "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins", $options{'maxInsLine'});
-         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        my $insertBam = $finalBam;
+        if ( $finalBam !~ /\.bam$/ ) {  #likely a file of file names
+          $insertBam = `head -1 $finalBam`;
+          $insertBam =~ s/[\s\n]//;
+        }
+        my $cmd = seqStats->insertSize($confs{'samtoolsBin'}, $insertBam, "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins", $options{'maxInsLine'});
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
       if (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins") {
-         my $cmd = "gzip $options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins";
-         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        my $cmd = "gzip $options{'lanepath'}/03_STATS/$options{'sampleName'}\.ins";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
 
@@ -805,6 +817,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
   if ($options{'germline'} =~ /samtoolsOnly/) {
     goto GERMLINE;
+  }
+
+  if ($options{'indel'} =~ /strelka/) {
+    goto INDEL;
   }
 
   my $muTectOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.mutect" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.mutect";
@@ -971,6 +987,73 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
 
   } #germline calling with samtools
+
+
+ INDEL:
+
+  if ($options{'indel'} =~ /strelka/) {                   #do somatic small indel calling by strelka
+
+    my $strelkaOutDir = "$options{'lanepath'}/04_SNV/";
+    my $vcfOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.strelka.genome.vcf" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.strelka.genome.vcf";
+    (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
+    my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
+    my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
+    my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
+
+    #if (exists($runTask{'mergeStrelkaChr'})) {
+    #  goto MERGESTRELKA;
+    #}
+
+    unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod") {
+      my $cmd = snvCalling->strelkaCalling($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+    #annoVar annotate---------------------------------------------------------------------
+    if (-s "$vcfOut" or -s "$vcfMultiAnnoMod") {
+
+      unless (-s "$vcfMultiAnnoMod") {
+
+        my $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted);      #sort vcf
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+        $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}); #table annovar
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+        $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      }
+
+    }
+
+    #rm temporary files
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfOut") {
+      my $cmd = "rm -rf $vcfOut";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.avinput") {
+      my $cmd = "rm -rf $vcfOutSorted\.avinput";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfOutSorted\.refGene.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.refGene.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfMultiAnno") {
+      my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoMod" and -s "$vcfMultiAnnoMod") {
+      my $cmd = "rm -rf $vcfMultiAnnoMod";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+  }
 
  RECHECK:
 
@@ -1372,10 +1455,11 @@ sub helpm {
 
   print STDERR "\nrunlevel 3: STATS\n";
 
-  print STDERR "\nrunlevel 4: SNV calling (muTect for somatic, samtools for germline)\n";
+  print STDERR "\nrunlevel 4: SNV/INDEL calling (muTect for somatic, samtools for germline, stelka for indel)\n";
   print STDERR "\t--somaticInfo\tsample information for tumor and normal pair (tab delimited)\n";
-  print STDERR "\t--germline\tgermline caller name, specify it to samtools\n";
+  print STDERR "\t--germline\tgermline caller name, specify it to samtools if wanted\n";
   print STDERR "\t--samCallmaxDepth\tthe maximum depth for samtools mpileup to work (default 400, set to the high quantile depth)\n";
+  print STDERR "\t--indel\t\tindel caller name, specify it to strelka if wanted\n";
   print STDERR "\t--recheck\trecheck bam files against a tsv file contains mutations\n";
   print STDERR "\t--recheckBams\trecheck bam file or list of files if not the one under 02_MAPPING\n";
   print STDERR "\t--chrPrefInBam\tthe prefix of chromosome names in the bam file. default is no prefix, set to the actual prefix you have in the bam.\n";

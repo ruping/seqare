@@ -75,6 +75,7 @@ if ($somaticInfo and -s "$somaticInfo") {
 
     $somatic{$tumor} = $normal;
     push(@{$germline{$normal}}, $tumor) if $normal ne 'undef';
+    push(@all, $tumor);
   }
   close IN;
   #print STDERR Dumper (\%somatic);
@@ -126,6 +127,8 @@ while ( <IN> ) {
     }
     if ($task eq 'maf') {
       print "$_\tmaf\n";
+    } elsif ($task eq 'split') {
+      print "$_\n";
     } elsif ($task eq 'freq') {
       print "$_\tfreq\n";
     } elsif ($task eq 'trace') {
@@ -163,6 +166,35 @@ while ( <IN> ) {
       }
       $maf = sprintf("%.6f",$maf/$sampleCounts);
       print "$_\t$maf\n";
+    } elsif ($task eq 'split') {
+      foreach my $sample (@all) {
+        my $sampmaf = $sample.'maf';
+        my $sampd = $sample.'d';
+        my $maf = $cols[$colnames{$sampmaf}];
+        my $endsratio = 0;
+        my $cmean = 0;
+        my $cmedian = 0;
+        my $strandRatio = 0;
+        my $strandRatioRef = 0;
+        my $strandFisherP = 0;
+        my $badQualFrac = 0;
+        my $depth = $cols[$colnames{$sampd}];
+        if ($cols[$colnames{$sampmaf}] =~ /\|/) {
+          my @infos = split(/\|/, $cols[$colnames{$sampmaf}]);
+          $maf = $infos[0];
+          $endsratio = $infos[1];
+          ($cmean, $cmedian) = split(',', $infos[2]);
+          ($strandRatio, $strandRatioRef, $strandFisherP) = split(',', $infos[3]);
+          $badQualFrac = $infos[4];
+        }
+        my $vard = sprintf("%.1f", $maf*$depth);
+        my $refd = $depth-$vard;
+        #unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.2)) {
+        #   $maf = 0;
+        #}
+        $cols[$colnames{$sampmaf}] = $maf;
+      }
+      printf("%s\n", join("\t", @cols));
     } elsif ($task eq 'freq') {
       my $freq = 'NA';
       my $function = (exists($colnames{'function'}))? $cols[$colnames{'function'}] : die("no function column.\n");

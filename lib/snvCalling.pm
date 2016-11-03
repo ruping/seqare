@@ -48,6 +48,16 @@ sub samtoolsCalling {
 
 }
 
+sub strelkaCalling {
+
+  my ($class, $strelkaBin, $NORMALBAM, $BAM, $GFASTA, $CONFIG, $outDir) = @_;
+
+  my $cmd = "perl $strelkaBin --normal=$NORMALBAM --tumor=$BAM --ref=$GFASTA --config=$CONFIG --output-dir=$outDir";
+
+  return $cmd;
+
+}
+
 
 sub muTect2vcf {
 
