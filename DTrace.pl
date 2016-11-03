@@ -1059,10 +1059,6 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
       my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
-    if (-s "$vcfMultiAnnoMod" and -s "$vcfMultiAnnoMod") {
-      my $cmd = "rm -rf $vcfMultiAnnoMod";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    }
 
   }
 
