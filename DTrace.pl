@@ -804,7 +804,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'somaticInfo'} eq "SRP"){
     print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
     exit 22;
-  } elsif ( !exists( $somatic{$options{'sampleName'}} ) ){
+  } elsif ( !exists( $somatic{$options{'sampleName'}} ) ) {
     print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
@@ -819,7 +819,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     goto GERMLINE;
   }
 
-  if ($options{'indel'} =~ /strelka/) {
+  if ($options{'indel'} =~ /strelkaOnly/) {
     goto INDEL;
   }
 
