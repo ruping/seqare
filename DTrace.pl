@@ -993,7 +993,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
   if ($options{'indel'} =~ /strelka/) {                   #do somatic small indel calling by strelka
 
-    my $strelkaOutDir = "$options{'lanepath'}/04_SNV/";
+    my $strelkaOutDir = "$options{'lanepath'}/04_SNV/strelka";
     my $vcfOut = ($options{'chrProcess'} eq 'SRP')? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.strelka.genome.vcf" : "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$options{'chrProcess'}\.strelka.genome.vcf";
     (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
     my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
