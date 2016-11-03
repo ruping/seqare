@@ -1005,7 +1005,11 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     #}
 
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod") {
-      my $cmd = snvCalling->strelkaCalling($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);
+      my $cmd = snvCalling->strelkaCalling($confs{'strelkaBin'}, $normalBam, $finalBam, $confs{'GFASTA'}, $confs{'strelkaConfig'}, $strelkaOutDir);     #configure
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "cd $strelkaOutDir";                                                                                                                       #change dir
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "make -j $options{'threads'}";                                                                                                             #call indel
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
