@@ -25,6 +25,7 @@ $options{'runTask'}     = undef;
 $options{'readlen'}     = 0;
 $options{'mapper'}      = "bwa";
 $options{'sampleName'}  = 'SRP';
+$options{'samplePairNames'} = "SRP";
 $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
@@ -86,6 +87,7 @@ if (@ARGV == 0) {
 
 GetOptions(
            "sampleName=s" => \$options{'sampleName'},
+           "samplePairNames" => \$options{'samplePairNames'},
            "FASTQ1=s"     => \$options{'FASTQ1'},
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
@@ -808,6 +810,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
+    if ($options{'samplePairNames'} eq 'redefine') {
+       $options{'samplePairNames'} = $options{'sampleName'}.','.$normalSampleName;                   #redefine sample pair name, default SRP not redefine
+    }
     $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.br\.rmDup\.md\.bam";
     unless (-s "$normalBam") {
       print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
@@ -843,9 +848,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   #annoVar annotate---------------------------------------------------------------------
   if ((-s "$muTectOut" or -s "$muTectOut\.gz") and !-s "$vcfMultiAnnoMod" and exists( $somatic{$options{'sampleName'}} ) ) {
 
-    my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut);                                                #convert mutect 2 vcf
-    if (-s "$muTectOut\.gz"){
-      $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut.".gz", $vcfOut);
+    my $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut, $vcfOut, $options{'samplePairNames'});                                                #convert mutect 2 vcf
+    if (-s "$muTectOut\.gz") {
+      $cmd = snvCalling->muTect2vcf("$options{'bin'}/mutect2vcf.pl", $muTectOut.".gz", $vcfOut, $options{'samplePairNames'});
     }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 

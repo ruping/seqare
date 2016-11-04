@@ -72,9 +72,13 @@ sub strelkaCalling2 {
 
 sub muTect2vcf {
 
-  my ($class, $mutect2vcfBin, $inMutect, $outVCF) = @_;
+  my ($class, $mutect2vcfBin, $inMutect, $outVCF, $samplePairNames) = @_;
 
   my $cmd = "perl $mutect2vcfBin $inMutect >$outVCF";
+
+  if ($samplePairNames ne 'SRP') {       #redefined
+    $cmd = "perl $mutect2vcfBin $inMutect $samplePairNames >$outVCF";
+  }
 
   return $cmd;
 
