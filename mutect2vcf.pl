@@ -1,6 +1,7 @@
 use strict;
 
 my $mutect = shift;
+my $realSamples = shift;
 
 my $vcfheader .= '##fileformat=VCFv4.1'."\n";
 $vcfheader .= '##FILTER=<ID=PASS,Description="Accept as a confident somatic mutation">'."\n";
@@ -41,7 +42,11 @@ while ( <MU> ) {
     $vcfheader .= "\#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
     my $tumor_name = $cols[$colindex{'tumor_name'}];
     my $normal_name = $cols[$colindex{'normal_name'}];
-    if ($tumor_name ne '' and $normal_name ne ''){
+    if ($realSamples ne '') {
+      my @realSamples = split (/\,/, $realSamples);
+      $samples = join("\t", @realSamples);
+      $vcfheader .= "\t$samples\n";
+    } elsif ($tumor_name ne '' and $normal_name ne ''){
       $vcfheader .= "\t$tumor_name\t$normal_name\n";
       $samples = "$tumor_name\t$normal_name";
     }
