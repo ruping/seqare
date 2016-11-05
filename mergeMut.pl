@@ -98,9 +98,11 @@ foreach my $normalControl (split(',', $normal)){
 }
 print STDERR Dumper(\%normals);
 
+my $taskOri = $task;
 my %somatic;
 my %samples;
 foreach my $file (@list) {
+  $task = $taskOri;
   my $name;
   my $filebase = basename($file);
   if ($prefixReg ne '' and $filebase =~ /(($prefixReg)([a-zA-Z0-9\-\_]+)?)[^a-zA-Z0-9\-\_]/) {     #changed to adapt to lowGI data
