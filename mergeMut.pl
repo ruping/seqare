@@ -149,9 +149,13 @@ foreach my $file (@list) {
            $revertornot = "yes";
          } elsif ( $cols[$#cols - $minusI] eq 'FORMAT' ) {
            $singlecalling = "yes";
+           if ( ! exists($normals{$cols[$#cols]}) ) {  #it is not normal, then start db hetero germline guessing
+             $task .= ",guessNormal";
+           }
          }
          print STDERR "revert or not: $revertornot\n";
          print STDERR "singlecalling: $singlecalling\n";
+         print STDERR "taskNow: $task\n";
          next;
        } else {
          next;
@@ -239,6 +243,7 @@ foreach my $file (@list) {
      }
 
 
+     my $popFreqMax = -1;
      if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
 
        my $freq = -1;
@@ -277,6 +282,8 @@ foreach my $file (@list) {
            $id = $kid;
          }
        }
+
+       $popFreqMax = $freq;
 
        if ( $info =~ /clinvar/ ) {                    #if clinvar, skip normal filter
          goto PRODUCE;
@@ -441,7 +448,15 @@ foreach my $file (@list) {
          my @sampleInfo = split(":", $sample);
          $GTblood = $sampleInfo[$formindex{'GT'}];
          $DPblood = $sampleInfo[$formindex{'DP'}];
-         next if ($maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
+         if ($task =~ /guessNormal/){
+           if ($popFreqMax != -1 & $popFreqMax < 0.7) {
+             $GTblood = '0/1';
+           } else {
+             next;
+           }
+         } else {
+           next if ($maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
+         }
        }
      }
      #for titan purpose
