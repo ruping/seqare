@@ -451,7 +451,7 @@ foreach my $file (@list) {
          $GTblood = $sampleInfo[$formindex{'GT'}];
          $DPblood = $sampleInfo[$formindex{'DP'}];
          if ($task =~ /guessNormal/) {
-           if ($popFreqMax != -1 and $popFreqMax > 0.005 and $popFreqMax < 0.7) {
+           if ($popFreqMax != -1 and $popFreqMax > 0.005 and $popFreqMax < 0.5) {
              $GTblood = '0/1';
            } else {
              next;
