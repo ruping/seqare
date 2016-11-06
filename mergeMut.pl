@@ -246,7 +246,7 @@ foreach my $file (@list) {
 
 
      my $popFreqMax = -1;
-     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
+     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /ExAC\_ALL\=/ or  $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
 
        my $freq = -1;
        if ($info =~ /(1KG=(.+?));/) {
@@ -279,8 +279,8 @@ foreach my $file (@list) {
        }
        if ($info =~ /(PopFreqMax=(.+?));/) {
          my $kid = $1;                                 #re define $id to PopFreqMax when TOTALLY absent
-         if ($freq == -1 and $id eq '.') {
-           $freq = $2;
+         $freq = $2;
+         if ($id eq '.') {
            $id = $kid;
          }
        }
@@ -450,7 +450,7 @@ foreach my $file (@list) {
          my @sampleInfo = split(":", $sample);
          $GTblood = $sampleInfo[$formindex{'GT'}];
          $DPblood = $sampleInfo[$formindex{'DP'}];
-         if ($task =~ /guessNormal/){
+         if ($task =~ /guessNormal/) {
            if ($popFreqMax != -1 and $popFreqMax > 0.005 and $popFreqMax < 0.7) {
              $GTblood = '0/1';
            } else {
