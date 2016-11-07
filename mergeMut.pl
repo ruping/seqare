@@ -151,8 +151,12 @@ foreach my $file (@list) {
            $revertornot = "yes";
          } elsif ( $cols[$#cols - $minusI] eq 'FORMAT' ) {
            $singlecalling = "yes";
-           if ( ! exists($normals{$cols[$#cols]}) ) {  #it is not normal, then start db hetero germline guessing
-             $task .= ",guessNormal";
+           if ( ! exists($normals{$cols[$#cols]}) ) {  #it is not normal, then start db hetero germline guessing or collecting rare variants only
+             if ($task =~ /titan/) {
+               $task .= ",guessNormal";
+             } elsif ($task =~ /muTect/) {
+               $task = "rare";
+             }
            }
          }
          print STDERR "revert or not: $revertornot\n";
@@ -483,7 +487,7 @@ foreach my $file (@list) {
 
      #now start to store data
      $somatic{$coor}{$name} = ($task =~ /muTect/)? $maf.'|'.$tdp.'|'.$muTectLod : $maf.'|'.$qual;
-     if ($task =~ /titan/){
+     if ($task =~ /titan/) {
        $somatic{$coor}{$name} .= '|'.$GTblood;
      }
 
