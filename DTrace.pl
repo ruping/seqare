@@ -811,7 +811,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
     if ($options{'samplePairNames'} eq 'redefine') {
-       $options{'samplePairNames'} = $options{'sampleName'}.','.$normalSampleName;                   #redefine sample pair name, default SRP not redefine
+      $options{'samplePairNames'} = $options{'sampleName'}.','.$normalSampleName;                   #redefine sample pair name, default SRP not redefine
+      print STDERR "samplePairNames: $options{'samplePairNames'}\n";
     }
     $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.br\.rmDup\.md\.bam";
     unless (-s "$normalBam") {
