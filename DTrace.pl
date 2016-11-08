@@ -87,7 +87,7 @@ if (@ARGV == 0) {
 
 GetOptions(
            "sampleName=s" => \$options{'sampleName'},
-           "samplePairNames" => \$options{'samplePairNames'},
+           "samplePairNames=s" => \$options{'samplePairNames'},
            "FASTQ1=s"     => \$options{'FASTQ1'},
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
