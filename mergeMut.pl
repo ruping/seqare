@@ -461,7 +461,7 @@ foreach my $file (@list) {
              next;
            }
          } else {
-           next if ($maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
+           next if ( $maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
          }
        }
      }

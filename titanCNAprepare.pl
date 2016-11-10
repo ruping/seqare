@@ -74,11 +74,12 @@ if ($split == 1) {
       my $ref = $cols[$colindex{'ref'}];
       my $alt = $cols[$colindex{'alt'}];
       for (my $i = 0; $i <= $#cols; $i++) {
-        if ($colnames{$i} =~ /^(.+?)maf$/){  #now it is sample maf
+        if ($colnames{$i} =~ /^(.+?)maf$/) {  #now it is sample maf
 
           my $sample = $1;
           my $lohSamplePos = 'no';
           if ($lohRegion ne '') {
+            print STDERR "yes\n";
             foreach my $lsamp (keys %lohr) {
               if ($sample =~ /$lsamp/) {   #now the sample is found with germline LOH, take action
                 if ($lohr{$lsamp}{$chr} ne '') {  #now the chr is found
@@ -94,10 +95,9 @@ if ($split == 1) {
               } #sample found
             } #loop all loh samples
           } #check germline loh
-          if ($lohSamplePos eq 'yes'){
+          if ($lohSamplePos eq 'yes') {
             print STDERR "GLOH: $sample\t$chr\t$pos\n";
           }
-
 
           if (exists($germline{$sample})) {                                             #it is a blood
             my $calledBlood = $cols[$i-1];
