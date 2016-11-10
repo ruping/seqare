@@ -109,6 +109,7 @@ if ($split == 1) {
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
               my @calledBloodRecheck = split(/\|/, $cols[$i]);
               unless ($lohRegion ne '') {
+                print STDERR "yes2\n";
                 next if ($calledBloodRecheck[0] > 0.85);        #if blood has greater than 0.85 VAF, indicating wrong genotyping
               }
 
