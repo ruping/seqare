@@ -79,7 +79,6 @@ if ($split == 1) {
           my $sample = $1;
           my $lohSamplePos = 'no';
           if ($lohRegion ne '') {
-            print STDERR "yes\n";
             foreach my $lsamp (keys %lohr) {
               if ($sample =~ /$lsamp/) {   #now the sample is found with germline LOH, take action
                 if ($lohr{$lsamp}{$chr} ne '') {  #now the chr is found
@@ -107,10 +106,9 @@ if ($split == 1) {
             if ($calledBlood =~ /\|/) {                                                 #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
-              my @calledBloodRecheck = split(/\|/, $cols[$i]);
-              unless ($lohRegion ne '') {
-                print STDERR "yes2\n";
-                next if ($calledBloodRecheck[0] > 0.85);        #if blood has greater than 0.85 VAF, indicating wrong genotyping
+              my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the blood but rechecked
+              unless ($lohRegion ne '' or exists($somatic{$sample})) {                  #either loh region or it is both a normal and tumor (so ignore the subsequent filter)
+                next if ($calledBloodRecheck[0] > 0.85);                                #if blood has greater than 0.85 VAF, indicating wrong genotyping
               }
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
