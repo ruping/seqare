@@ -766,7 +766,7 @@ inline void var_processing(struct var &variant) {
     localEr = ((float)numncMis)/totalBases;
   }
 
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
 }
 
