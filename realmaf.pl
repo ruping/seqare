@@ -183,7 +183,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
 
       } elsif ($type =~ /snv/) {    #snv
 
-        my ($chr, $pos, $depth, $pstrand, $nstrand, $vard, $A, $An, $C, $Cn, $G, $Gn, $T, $Tn, $vends, $junction, $badqual, $cmean, $cmedian, $localEr, $phred) = split /\t/;
+        my ($chr, $pos, $depth, $pstrand, $nstrand, $F1R2all, $F2R1all, $F1R2alt, $F2R1alt, $vard, $A, $An, $C, $Cn, $G, $Gn, $T, $Tn, $vends, $junction, $badqual, $cmean, $cmedian, $localEr, $phred) = split /\t/;
 
         if ($cmean =~ /e/) {
           $cmean = 0;
