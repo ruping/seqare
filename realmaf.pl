@@ -244,7 +244,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
             if ($altd > 0) {
 
               #prepare ToxoG
-              $ToxoG = join(',', $F1R2all, $F2R1all, $F1R2alt, $F2R1alt);
+              my $ToxoG = join(',', $F1R2all, $F2R1all, $F1R2alt, $F2R1alt);
 
               #prepare LODs
               if ( $depth < 5000/$readlen ) {
