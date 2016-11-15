@@ -242,6 +242,10 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
             }
             $stranFisherP = sprintf("%.5f", $stranFisherP);   #keep precision 5
             if ($altd > 0) {
+
+              #prepare ToxoG
+              $ToxoG = join(',', $F1R2all, $F2R1all, $F1R2alt, $F2R1alt);
+
               #prepare LODs
               if ( $depth < 5000/$readlen ) {
                 $localEr = 0.001;
@@ -253,7 +257,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                 ########################### NLOD ###########################
                 my $nlod = snvCalling->calNormalLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                 ############################################################
-                $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$nlod;
+                $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$nlod.'|'.$ToxoG;
               } else {  #it is tumor
                 my $endratio = sprintf("%.4f", $vends/$vard);
                 if (($endratio <= 0.8 or ($altd - $vends) >= 2) and (($cmean+$cmedian) < 6 or $cmedian <= 2)) {  #limiting endsratio and mismatch stuff
@@ -261,13 +265,13 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                   ########################### TLOD ###########################
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################
-                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod;
+                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod.'|'.$ToxoG;
                 } else {  #looks like artifact
                   $somatic{$coor}{$djindex}{$name} = sprintf("%.4f", $altd/$depth);                   #now accept everything for further filtration!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                   ########################### TLOD ###########################
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################
-                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod;
+                  $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod.'|'.$ToxoG;
                   $cmean = 0; #reset for artifact like stuff
                   $cmedian = 0; #reset
                 }
