@@ -116,7 +116,7 @@ if ($split == 1) {
                 my $bmaf = $infos[0];
                 my $bendsratio = $infos[1];
                 my ($bcmean, $bcmedian) = split(',', $infos[2]);
-                my $strandRatio = $infos[3];
+                my ($strandRatio, $strandRatioRef, $strandFisherP) = split(',', $infos[3]);
                 my $badQualFrac = $infos[4];
                 if ($bendsratio <= 0.9 and ($strandRatio != 0 and $strandRatio != 1) and $badQualFrac < 0.6 and (($bcmean+$bcmedian) < 5.5 or $bcmedian <= 2)) { #likely true event
 
