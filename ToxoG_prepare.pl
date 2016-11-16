@@ -100,7 +100,7 @@ if ($split == 1) {
                 my $lod = $infos[5];
                 my ($F1R2all, $F2R1all, $F1R2alt, $F2R1alt) = split(',', $infos[6]);
 
-                my $fh = $sample;
+                #my $fh = $sample;
                 unless (-e "$outdir/$sample\_toxog") {
                   open ( my $fh, ">>", "$outdir/$sample\_toxog" )  || die $!;
                   $fhs{$sample} = $fh;
