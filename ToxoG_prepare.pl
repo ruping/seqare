@@ -104,7 +104,7 @@ if ($split == 1) {
                 unless (-e "$outdir/$sample\_toxog") {
                   open ( my $fh, ">>", "$outdir/$sample\_toxog" )  || die $!;
                   $fhs{$sample} = $fh;
-                  print {$fhs{$sample}} "Chromosome\tStart_position\tEnd_position\tReference_Allele\tTumor_Seq_Allele1\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tref_context\ti_t_ALT_F1R2\ti_t_ALT_F2R1\ti_t_REF_F1R2\ti_t_REF_F2R1\ti_t_Foxog\tVariant_Type\n";
+                  print {$fhs{$sample}} "Chromosome\tStart_position\tEnd_position\tReference_Allele\tTumor_Seq_Allele2\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tref_context\ti_t_ALT_F1R2\ti_t_ALT_F2R1\ti_t_REF_F1R2\ti_t_REF_F2R1\ti_t_Foxog\tVariant_Type\n";
                 }
                 my $F1R2ref = $F1R2all - $F1R2alt;
                 my $F2R1ref = $F2R1all - $F2R1alt;
