@@ -108,7 +108,10 @@ if ($split == 1) {
                 }
                 my $F1R2ref = $F1R2all - $F1R2alt;
                 my $F2R1ref = $F2R1all - $F2R1alt;
-                my $Foxog = ($ref =~ /[CA]/)? $F2R1alt/($F2R1alt + $F1R2alt) : $F1R2alt/($F2R1alt + $F1R2alt);
+                my $Foxog = 0;
+                if (($F2R1alt + $F1R2alt) > 0) {
+                  $Foxog = ($ref =~ /[CA]/)? $F2R1alt/($F2R1alt + $F1R2alt) : $F1R2alt/($F2R1alt + $F1R2alt);
+                }
                 my $printout = join("\t", $chr, $pos, $pos, $ref, $alt, $sample, $normalsample, $refcontext, $F1R2alt, $F2R1alt, $F1R2ref, $F2R1ref, $Foxog, 'SNP');
                 print {$fhs{$sample}} "$printout\n";
 
