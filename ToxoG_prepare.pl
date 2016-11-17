@@ -6,7 +6,7 @@ use File::Basename;
 my $data = shift;
 my $somaticInfo = shift;
 my $genome = shift;
-my $refcontextlength = 5;
+my $refcontextlength = 10;
 my $split = 1;
 
 my %somatic;
