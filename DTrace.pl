@@ -1075,6 +1075,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     my $recheckBasename = basename($options{'recheck'});
     my $recheckOut = "$options{'lanepath'}/04_SNV/$options{'sampleName'}\.$recheckBasename\.rechecked";
     my $cmd = snvCalling->rechecksnv("$options{'bin'}/novelSnvFilter_ACGT", $options{'recheck'}, $recheckBams, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
+    if ($options{'recheck'} =~ /indel/) {
+      $cmd = snvCalling->rechecksnv("$options{'bin'}/novelIndelFilter", $options{'recheck'}, $recheckBams, $recheckOut, $options{'chrPrefInBam'}, $options{'skipPileup'});
+    }
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
@@ -1159,7 +1162,7 @@ if (exists $runlevel{$runlevels}) {
 ###
 
 $runlevels = 8;
-if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($runTask{'mergeSamtools'})) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($runTask{'mergeSamtools'}) or exists($runTask{'mergeStrelka'})) {
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
@@ -1171,6 +1174,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   my $vcflist_samtools = "$options{'root'}/samtools.vcf.list";
   my $vcftable_samtools = "$options{'root'}/samtools.snv.table";
   my $originaltable_samtools = "$options{'root'}/samtools.snv.table.annotated";
+
+  my $vcflist_strelka = "$options{'root'}/strelka.vcf.list";
+  my $vcftable_strelka = "$options{'root'}/strelka.indel.table";
+  my $originaltable_strelka = "$options{'root'}/strelka.indel.table.annotated";
 
   my $PREF;
   my $BLOOD;
@@ -1188,7 +1195,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   print STDERR "BLOOD: $BLOOD\n";
 
   #mutect merge
-  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeMutectOnly'})) and !exists($runTask{'mergeSamtoolsOnly'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeMutectOnly'})) and !exists($runTask{'mergeSamtoolsOnly'}) and !exists($runTask{'mergeStrelkaOnly'})) {
     unless (-s "$vcflist_mutect") {
       for my $eatumor (keys %somatic) {
         my $eavcfmutect = "$options{'root'}/$eatumor/04_SNV/$eatumor\.mutect.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
@@ -1216,7 +1223,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   }
 
   #samtools merge
-  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtoolsOnly'})) and !exists($runTask{'mergeMutectOnly'})) {
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeSamtoolsOnly'})) and !exists($runTask{'mergeMutectOnly'}) and !exists($runTask{'mergeStrelkaOnly'})) {
     unless (-s "$vcflist_samtools") {
       for my $eatumor (keys %somatic) {
         my $eavcfsamtools = "$options{'root'}/$eatumor/04_SNV/$eatumor\.samtools.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
@@ -1236,6 +1243,32 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
       }
       if (-s "$vcftable_samtools") {
         my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_samtools >$originaltable_samtools";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
+  }
+
+  #strelka merge
+  if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeStrelkaOnly'})) and !exists($runTask{'mergeMutectOnly'}) and !exists($runTask{'mergeSamtoolsOnly'})) {
+    unless (-s "$vcflist_strelka") {
+      for my $eatumor (keys %somatic) {
+        my $eavcfstrelka = "$options{'root'}/$eatumor/04_SNV/$eatumor\.strelka.indel.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+        if (-s "$eavcfstrelka") {
+          my $cmd = "echo $eavcfstrelka >>$vcflist_strelka";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } else {
+          print STDERR "warning: $eavcfstrelka is not found!\n";
+        }
+      }
+    }
+    unless (-s "$originaltable_strelka") {
+      unless (-s "$vcftable_strelka") {
+        my $optionTask = ( $options{'rareVariants'} )? 'rare,strelka':'strelka';
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_strelka --prefix $PREF --normal $BLOOD --type indel --task $optionTask --dbsnp yes --nonsegdup >$vcftable_strelka";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      if (-s "$vcftable_strelka") {
+        my $cmd = "perl $options{'bin'}/junkAnnotate.pl --nonrepeat $confs{'repeatMasker'} --nonselfchain $confs{'selfChain'} --file $vcftable_strelka >$originaltable_strelka";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }

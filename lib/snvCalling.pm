@@ -150,18 +150,17 @@ sub grepINDELvcf {
 
 sub rechecksnv {
 
-  my ($class, $rechecsnvBin, $recheckTable, $BAM, $recheckOut, $chrPref, $skipPileup) = @_;
+  my ($class, $rechecksnvBin, $recheckTable, $BAM, $recheckOut, $chrPref, $skipPileup) = @_;
 
   my $skipPileupOpt = ($skipPileup eq 'yes')? '--skipPileup' : '';
-  my $cmd = "$rechecsnvBin --var $recheckTable --mapping $BAM $skipPileupOpt >$recheckOut";
+  my $cmd = "$rechecksnvBin --var $recheckTable --mapping $BAM $skipPileupOpt >$recheckOut";
   if ($chrPref ne 'SRP'){
-    $cmd = "$rechecsnvBin --var $recheckTable --mapping $BAM $skipPileupOpt --chr $chrPref >$recheckOut";
+    $cmd = "$rechecksnvBin --var $recheckTable --mapping $BAM $skipPileupOpt --chr $chrPref >$recheckOut";
   }
 
   return $cmd;
 
 }
-
 
 sub calTumorLOD {
   my ($class, $e, $le, $eg, $f, $v, $d) = @_;

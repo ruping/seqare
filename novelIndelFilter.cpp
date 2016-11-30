@@ -243,6 +243,24 @@ int main ( int argc, char *argv[] ) {
       string chrom = refs.at(bam.RefID).RefName;
       string strand = "+";
       if (bam.IsReverseStrand()) strand = "-";
+
+      string FxRx = "FxRx";
+      if (bam.IsProperPair()) {
+        if (bam.IsFirstMate()) {   //first mate
+          if (strand == "+") {
+            FxRx = "F1R2";
+          } else {
+            FxRx = "F2R1";
+          }
+        } else {                   //second mate
+          if (strand == "+") {
+            FxRx = "F2R1";
+          } else {
+            FxRx = "F1R2";
+          }
+        }
+      }
+      
       unsigned int mappingQuality = bam.MapQuality;
 
       unsigned int alignmentStart =  bam.Position+1;
