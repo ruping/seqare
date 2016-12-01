@@ -1000,8 +1000,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if ($options{'indel'} =~ /strelka/) {                   #do somatic small indel calling by strelka
 
     my $strelkaOutDir = "$options{'lanepath'}/04_SNV/strelka";
-    my $vcfOutRaw = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.vcf";
-    my $vcfOut = "$options{'lanepath'}/04_SNV/strelka/results/passed.somatic.indels.gtfix.vcf";
+    my $vcfOutRaw = "$options{'lanepath'}/04_SNV/strelka/results/all.somatic.indels.vcf";
+    my $vcfOut = "$options{'lanepath'}/04_SNV/strelka/results/all.somatic.indels.gtfix.vcf";
     (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
     my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
     my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
