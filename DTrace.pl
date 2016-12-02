@@ -655,6 +655,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     if ((-s "$brBam" and !(-s "$rmDupBam")) or exists($runTask{'MarkDuplicates'})) {  #rmDup
       my $rmDupMetric = $brBam.".rmDupMetric";
       my $cmd = bwaMapping->MarkDuplicates($confs{'MarkDuplicatesBin'}, $brBam, $rmDupBam, $rmDupMetric, $options{'maxMem'});
+      if ($options{'skipTask'} =~ /MarkDuplicates/) {
+        $cmd = "mv $brBam $rmDupBam";
+      }
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     if (-s "$brBam" and -s "$rmDupBam") {
