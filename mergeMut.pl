@@ -23,6 +23,7 @@ my $tailDisBiasTh = 0.005;
 my $nonsegdup;
 my $exonic;
 my $qualTitan = 50;
+my $titanVAFthred = 0.15;
 
 GetOptions (
             "list|l=s"       => \$list,             #filename of all vcfs
@@ -40,6 +41,7 @@ GetOptions (
             "nonsegdup"      => \$nonsegdup,
             "exonic"         => \$exonic,
             "qualTitan=i"    => \$qualTitan,
+            "titanVAFthred=i"=> \$titanVAFthred,
             "help|h"         => sub{
                                print "usage: $0 get all somatic and rare variants from a bunch of vcf files\n\nOptions:\n\t--list\t\tthe filename of all vcfs\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
@@ -56,6 +58,7 @@ GetOptions (
                                print "\t--nonsegdup\tdo not collect segdup ones\n";
                                print "\t--exonic\tonly collect exonic ones (including UTR and splicing)\n";
                                print "\t--qualTitan\tmin qual for titan selection of heteroSNPs\n";
+                               print "\t--titanVAFthred\tmin VAF for titan selection of heteroSNPs\n";
                                print "\t--help\t\tprint this help message\n";
                                print "\n";
                                exit 0;
@@ -214,7 +217,7 @@ foreach my $file (@list) {
      if ($singlecalling eq 'no') {      #if it is paired calling
        if ($type eq 'snv') {            #for snp
          if ($task =~ /muTect/) {       #if mutect
-           if ($info =~ /SOMATIC/ or $pass eq 'PASS') {
+           if ($pass eq 'QSI_ref' or $pass eq 'PASS') {
              $somatic = 1;
            }
          } else {
@@ -295,7 +298,7 @@ foreach my $file (@list) {
          goto PRODUCE;
        }
 
-       if ( $somatic == 0 ) {                          #if it is not somatic, then only rare ones should be kept
+       if ( $somatic == 0 ) {                         #if it is not somatic, then only rare ones should be kept
          if ($freq == -1) {
            if ($dbsnp eq "no" or $task =~ /rare/i) {
              next;
@@ -376,7 +379,7 @@ foreach my $file (@list) {
          die ("strelka vcf record without QSI, $_\n");
        }
 
-       $maf = sprintf("%.3f", $altd/$tdp);
+       $maf = ($tdp > 0)? sprintf("%.3f", $altd/$tdp) : 0.;
 
      } else {  #non strelka indel
 
@@ -461,7 +464,7 @@ foreach my $file (@list) {
              next;
            }
          } else {
-           next if ( $maf < 0.2 or $DPblood == 0 );           #retain only with high frequency
+           next if ( $maf < $titanVAFthred or $DPblood == 0 );           #retain only with high frequency
          }
        }
      }
