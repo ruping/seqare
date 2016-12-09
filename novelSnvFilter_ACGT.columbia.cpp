@@ -66,6 +66,10 @@ struct var {  // a bed file containing gene annotations
   unsigned int countNegative;
   unsigned int inends;
   unsigned int countJump;
+  unsigned int F1R2_alt;
+  unsigned int F1R2_all;
+  unsigned int F2R1_alt;
+  unsigned int F2R1_all;
   unsigned int readlen;
   vector <unsigned int> surrounding;
   map <unsigned int, unsigned int> conMis;
@@ -258,6 +262,22 @@ int main ( int argc, char *argv[] ) {
       string chrom = refs.at(bam.RefID).RefName;
       string strand = "+";
       if (bam.IsReverseStrand()) strand = "-";
+      string FxRx = "FxRx";
+      if (bam.IsProperPair()) {
+        if (bam.IsFirstMate()) {   //first mate
+          if (strand == "+") {
+            FxRx = "F1R2";
+          } else {
+            FxRx = "F2R1";
+          }
+        } else {                   //second mate
+          if (strand == "+") {
+            FxRx = "F2R1";
+          } else {
+            FxRx = "F1R2";
+          }
+        }
+      }
       unsigned int mappingQuality = bam.MapQuality;
 
       unsigned int alignmentStart =  bam.Position+1;
@@ -343,6 +363,11 @@ int main ( int argc, char *argv[] ) {
                iter->countPositive += 1;
              } else {
                iter->countNegative += 1;
+             }
+             if (FxRx == "F1R2") {
+               iter->F1R2_all += 1;
+             } else if (FxRx == "F2R1") {
+               iter->F2R1_all += 1;
              }
           }
           else
@@ -442,6 +467,11 @@ int main ( int argc, char *argv[] ) {
                 string baseInRead = (bam.QueryBases).substr( cuPosRead-1, 1 );
                 if (baseInRead == iter->alt) {           // it is exactly the same alt base
                   iter->qualities += (bam.Qualities).substr( cuPosRead-1, 1 );   //base quality
+                  if (FxRx == "F1R2") {
+                    iter->F1R2_alt += 1;
+                  } else if (FxRx == "F2R1") {
+                    iter->F2R1_alt += 1;
+                  }
                 }
                 
                 iter->countAlt += 1;
@@ -597,6 +627,10 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
   tmp.countNegative = 0;
   tmp.inends = 0;
   tmp.countJump = 0;
+  tmp.F1R2_alt = 0;
+  tmp.F1R2_all = 0;
+  tmp.F2R1_alt = 0;
+  tmp.F2R1_all = 0;
   tmp.readlen = 0;
   
   for(i = 1; iter != line_content.end(); iter++, i++) {
@@ -732,7 +766,7 @@ inline void var_processing(struct var &variant) {
     localEr = ((float)numncMis)/totalBases;
   }
 
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
 }
 
