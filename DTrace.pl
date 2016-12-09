@@ -1243,8 +1243,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
     unless (-s "$originaltable_samtools") {
       unless (-s "$vcftable_samtools") {
         my $optionTask = ( $options{'rareVariants'} )? 'rare,titan':'titan';
-        my $optionVAF = ( $options{'titanVAFthred'} == 0.15)? '':"--titanVAFthred $options{'titanVAFthred'}";
-        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --normal $BLOOD --type snv --task $optionTask --dbsnp yes --qualTitan $options{'qualTitan'} $optionVAF --nonsegdup >$vcftable_samtools";
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --normal $BLOOD --type snv --task $optionTask --dbsnp yes --qualTitan $options{'qualTitan'} --titanVAFthred $options{'titanVAFthred'} --nonsegdup >$vcftable_samtools";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
       if (-s "$vcftable_samtools") {
