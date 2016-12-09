@@ -23,7 +23,7 @@ my $tailDisBiasTh = 0.005;
 my $nonsegdup;
 my $exonic;
 my $qualTitan = 50;
-my $titanVAFthred = 0.15;
+my $vafTitan = 0.15;
 
 GetOptions (
             "list|l=s"       => \$list,             #filename of all vcfs
@@ -41,7 +41,7 @@ GetOptions (
             "nonsegdup"      => \$nonsegdup,
             "exonic"         => \$exonic,
             "qualTitan=i"    => \$qualTitan,
-            "titanVAFthred=i"=> \$titanVAFthred,
+            "vafTitan=f"     => \$vafTitan,
             "help|h"         => sub{
                                print "usage: $0 get all somatic and rare variants from a bunch of vcf files\n\nOptions:\n\t--list\t\tthe filename of all vcfs\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
@@ -58,7 +58,7 @@ GetOptions (
                                print "\t--nonsegdup\tdo not collect segdup ones\n";
                                print "\t--exonic\tonly collect exonic ones (including UTR and splicing)\n";
                                print "\t--qualTitan\tmin qual for titan selection of heteroSNPs\n";
-                               print "\t--titanVAFthred\tmin VAF for titan selection of heteroSNPs\n";
+                               print "\t--vafTitan\tmin VAF for titan selection of heteroSNPs\n";
                                print "\t--help\t\tprint this help message\n";
                                print "\n";
                                exit 0;
@@ -464,7 +464,7 @@ foreach my $file (@list) {
              next;
            }
          } else {
-           next if ( $maf < $titanVAFthred or $DPblood == 0 );           #retain only with high frequency
+           next if ( $maf < $vafTitan or $DPblood == 0 );           #retain only with high frequency
          }
        }
      }

@@ -70,7 +70,7 @@ $options{'maxMem'} = '4g';
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
 $options{'qualTitan'}   = 50;
-$options{'titanVAFthred'} = 0.15;
+$options{'vafTitan'}  = 0.15;
 $options{'rareVariants'} = undef;
 $options{'germlineLOH'} = '';
 $options{'maxInsLine'} = 0;
@@ -127,7 +127,7 @@ GetOptions(
            "recheckBams=s" => \$options{'recheckBams'},
            "tmpDir=s"     => \$options{'tmpDir'},
            "qualTitan=i"  => \$options{'qualTitan'},
-           "titanVAFthred=i" => \$options{'titanVAFthred'},
+           "vafTitan=f" => \$options{'vafTitan'},
            "rareVariants" => \$options{'rareVariants'},
            "plpTitan=f"   => \$options{'plpTitan'},
            "plpeTitan=s"  => \$options{'plpeTitan'},
@@ -1243,7 +1243,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
     unless (-s "$originaltable_samtools") {
       unless (-s "$vcftable_samtools") {
         my $optionTask = ( $options{'rareVariants'} )? 'rare,titan':'titan';
-        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --normal $BLOOD --type snv --task $optionTask --dbsnp yes --qualTitan $options{'qualTitan'} --titanVAFthred $options{'titanVAFthred'} --nonsegdup >$vcftable_samtools";
+        my $cmd = "perl $options{'bin'}/mergeMut.pl --list $vcflist_samtools --prefix $PREF --normal $BLOOD --type snv --task $optionTask --dbsnp yes --qualTitan $options{'qualTitan'} --vafTitan $options{'vafTitan'} --nonsegdup >$vcftable_samtools";
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
       if (-s "$vcftable_samtools") {
