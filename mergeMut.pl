@@ -289,7 +289,7 @@ foreach my $file (@list) {
        if ($info =~ /(PopFreqMax=(.+?));/) {
          my $kid = $1;                                 #re define $id to PopFreqMax when TOTALLY absent
          my $popmax = $2;
-         if ( $popmax <= 0.022 and $freq_eac != -1 and $freq_eac < 0.005 ) {                         #save some with rare EAC
+         if ( $popmax > 0.005 and $popmax <= 0.022 and $freq_eac != -1 and $freq_eac < 0.005 ) {                         #save some with rare EAC
            $info =~ s/PopFreqMax\=$popmax\;/PopFreqMax\=$freq_eac\;/;
          } else {
            $freq = $popmax;
