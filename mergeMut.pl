@@ -256,6 +256,7 @@ foreach my $file (@list) {
      if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /ExAC\_ALL\=/ or  $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
 
        my $freq = -1;
+       my $freq_eac = -1;
        if ($info =~ /(1KG=(.+?));/) {
          my $kid = $1;                                 #re define $id to 1KG when absent
          $freq = $2;
@@ -280,13 +281,19 @@ foreach my $file (@list) {
        if ($info =~ /(ExAC\_ALL=(.+?));/) {
          my $kid = $1;                                 #re define $id to ExAC when absent
          $freq = $2;
+         $freq_eac = $2;
          if ($id !~ /^[rR][sS]/) {
            $id = $kid;
          }
        }
        if ($info =~ /(PopFreqMax=(.+?));/) {
          my $kid = $1;                                 #re define $id to PopFreqMax when TOTALLY absent
-         $freq = $2;
+         my $popmax = $2;
+         if ( $popmax <= 0.022 and $freq_eac != -1 and $freq_eac < 0.005 ) {                         #save some with rare EAC
+           $info =~ s/PopFreqMax\=$popmax\;/PopFreqMax\=$freq_eac\;/;
+         } else {
+           $freq = $popmax;
+         }
          if ($id eq '.') {
            $id = $kid;
          }

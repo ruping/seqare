@@ -26,6 +26,7 @@ g++ novelSnvFilter_ACGT.cpp
 using namespace BamTools;
 
 #include <iostream>
+
 #include <fstream>
 #include <cstdlib>
 #include <vector>
