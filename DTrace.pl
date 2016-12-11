@@ -1443,8 +1443,29 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_samtools --type snv --task filter >$varout_samtools\.filtered";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+    unless (-s "$varout_samtools\.filtered\.nopara") {
+      my $cmd = "perl $options{'bin'}/readsFlankingVariants.pl $confs{'GFASTA'} $varout_samtools\.filtered snv >$varout_samtools\.filtered.flanking.fa";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_samtools\.filtered.flanking.fa", "$varout_samtools\.filtered.flanking.sam", $options{'threads'});
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_samtools\.filtered.flanking.sam", "$varout_samtools\.filtered.flanking.bam");
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_samtools\.filtered.flanking.bam --readlength $options{'readlen'} --type s >$varout_samtools\.filtered.flanking.bam.out";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/badvariantmapping.pl $varout_samtools\.filtered.flanking.bam.out >$varout_samtools\.filtered.flanking.bam.out.bad";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      $cmd = "perl $options{'bin'}/intersectFiles.pl -o $varout_samtools\.filtered -m $varout_samtools\.filtered.flanking.bam.out.bad -count >$varout_samtools\.filtered\.1";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      my $PRC = `head -1 $varout_samtools\.filtered\.1 |awk '{print \$NF}'`;
+      $PRC =~ s/\n$//;
+      my $PRCI = `perl $options{'bin'}/columnIndex.pl $PRC $varout_samtools\.filtered\.1`;
+      $PRCI =~ s/\n$//;
+      $PRCI += 1;
+      $cmd = "awk -F\"\\t\" \'\$$PRCI \!\= 1\' $varout_samtools\.filtered\.1 >$varout_samtools\.filtered\.nopara";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
     unless (-e "$options{'root'}/titan") {
-      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered $options{'somaticInfo'} 1 $options{'germlineLOH'}";
+      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered\.nopara $options{'somaticInfo'} 1 $options{'germlineLOH'}";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/redistributeTitan.pl $options{'root'}/titan/ $options{'root'}";                #distribute allele counts for titan
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
