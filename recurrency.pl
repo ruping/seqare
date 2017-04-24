@@ -154,18 +154,39 @@ while ( <IN> ) {
   } else {
     my @cols = split /\t/;
     if ($task eq 'maf') {    #get real maf
-      my $maf = 0;
+      my $smaf = 0;
       my $sampleCounts = scalar(@all);
       foreach my $sample (@all) {
-        if ($cols[$colnames{$sample}] >= 0.1) {
-          my $vard = sprintf("%.1f", $cols[$colnames{$sample}]*$cols[$colnames{$sample}+1]);
-          if ($vard >= 2) {
-            $maf += $cols[$colnames{$sample}];
-          }
+        my $sampmaf = $sample.'maf';
+        my $sampd = $sample.'d';
+        my $maf = $cols[$colnames{$sampmaf}];
+        my $endsratio = 0;
+        my $cmean = 0;
+        my $cmedian = 0;
+        my $strandRatio = 0;
+        my $strandRatioRef = 0;
+        my $strandFisherP = 0;
+        my $badQualFrac = 0;
+        my $depth = $cols[$colnames{$sampd}];
+        if ($cols[$colnames{$sampmaf}] =~ /\|/) {
+          my @infos = split(/\|/, $cols[$colnames{$sampmaf}]);
+          $maf = $infos[0];
+          $endsratio = $infos[1];
+          ($cmean, $cmedian) = split(',', $infos[2]);
+          ($strandRatio, $strandRatioRef, $strandFisherP) = split(',', $infos[3]);
+          $badQualFrac = $infos[4];
+        }
+        my $vard = sprintf("%.1f", $maf*$depth);
+        my $refd = $depth-$vard;
+        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+           $maf = 0;
+        }
+        if ($maf >= 0.1 and $vard >= 2) {
+            $smaf += $maf;
         }
       }
-      $maf = sprintf("%.6f",$maf/$sampleCounts);
-      print "$_\t$maf\n";
+      $smaf = sprintf("%.6f",$smaf/$sampleCounts);
+      print "$_\t$smaf\n";
     } elsif ($task eq 'split') {
       foreach my $sample (@all) {
         my $sampmaf = $sample.'maf';
