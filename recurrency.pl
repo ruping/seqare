@@ -80,7 +80,7 @@ if ($somaticInfo and -s "$somaticInfo") {
       push(@all, $tumor);
       $all{$tumor} = '';
     }
-    if (!exists($all{$normal})){
+    if (!exists($all{$normal}) and $normal ne 'undef') {
       push(@all, $normal);
       $all{$normal} = '';
     }
