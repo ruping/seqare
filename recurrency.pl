@@ -61,12 +61,13 @@ print STDERR "Th_cmedian: $Th_cmedian\n";
 
 
 my @all;
+my %all;
 my %somatic;
 my %germline;  #may have multiple tumors
 if ($somaticInfo and -s "$somaticInfo") {
 
   open IN, "$somaticInfo";
-  while ( <IN> ){
+  while ( <IN> ) {
     chomp;
     s/[\s\n]$//;
     my @columns = split /\t/;
@@ -75,7 +76,14 @@ if ($somaticInfo and -s "$somaticInfo") {
 
     $somatic{$tumor} = $normal;
     push(@{$germline{$normal}}, $tumor) if $normal ne 'undef';
-    push(@all, $tumor);
+    if (!exists($all{$tumor})){
+      push(@all, $tumor);
+      $all{$tumor} = '';
+    }
+    if (!exists($all{$normal})){
+      push(@all, $normal);
+      $all{$normal} = '';
+    }
   }
   close IN;
   #print STDERR Dumper (\%somatic);
