@@ -944,7 +944,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
     }
 
-    if ( $options{'samplePairNames'} =~ /\,/ ) {  #rename samples in vcf
+    if ( $options{'samplePairNames'} =~ /\,/ ) { #rename samples in vcf
       my @samplePariNames = split( ',', $options{'samplePairNames'} );
       my $snsreplacement = join("\t", @samplePariNames);
       foreach my $vcfsamresult (($vcfMultiAnnoModsnv,$vcfMultiAnnoModindel)) {
@@ -958,9 +958,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
           print OUT "$_\n";
         }
         close IN;
-      }
-      my $cmd = "mv $vcfsamresult\.2 $vcfsamresult -f";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        my $cmd = "mv $vcfsamresult\.2 $vcfsamresult -f";
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }  #snv and indel files
     }
 
     #rm temporary files
