@@ -944,6 +944,23 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
     }
 
+    if ( $options{'samplePairNames'} =~ /\,/ ) {  #rename samples in vcf
+      my @samplePariNames = split( ',', $options{'samplePairNames'} );
+      my $snsreplacement = join("\t", @samplePariNames);
+      foreach my $vcfsamresult (($vcfMultiAnnoModsnv,$vcfMultiAnnoModindel)) {
+        open IN, "$vcfsamresult";
+        open OUT, ">$vcfsamresult\.2";
+        while ( <IN> ) {
+          chomp;
+          if (/^#CHROM\t/) {
+            s/[A-Za-z0-9\-\_]+\t[A-Za-z0-9\-\_]+$/$snsreplacement/;
+          }
+          print OUT "$_\n";
+        }
+        close IN;
+      }
+    }
+
     #rm temporary files
     if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOut") {
       my $cmd = "rm -rf $vcfOut";
