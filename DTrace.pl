@@ -959,6 +959,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
         }
         close IN;
       }
+      my $cmd = "mv $vcfsamresult\.2 $vcfsamresult -f";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
     #rm temporary files
