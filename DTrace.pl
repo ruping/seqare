@@ -40,6 +40,7 @@ $options{'threads'}     = 1;
 $options{'splitChr'}    = undef;
 $options{'help'}        = undef;
 $options{'qcOFF'}       = undef;
+$options{'keepBedCount'}= undef;
 $options{'root'}        = "$RealBin/../PIPELINE";
 $options{'readpool'}    = 'SRP';
 $options{'gf'}          = "png";                 #the format used in html report
@@ -99,6 +100,7 @@ GetOptions(
            "chrPrefInBam=s" => \$options{'chrPrefInBam'},
            "mutectCall=s" => \$options{'mutectCall'},      #already called -> halfway enter the pipe
            "qcOFF"        => \$options{'qcOFF'},
+           "keepBedCount" => \$options{'keepBedCount'},
            "runID=s"      => \$options{'runID'},
            "runlevel=s"   => \$options{'runlevels'},
            "runTask=s"    => \$options{'runTask'},
@@ -746,7 +748,7 @@ if (exists $runlevel{$runlevels}) {
   }
   if (-s "$bedCount" and -s "$wigOut") {
     my $cmd = "rm $bedCount -f";
-    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'}) unless ($options{'keepBedCount'});
   }
 
   #for insert size
