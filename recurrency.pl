@@ -218,8 +218,10 @@ while ( <IN> ) {
         }
         my $vard = sprintf("%.1f", $maf*$depth);
         my $refd = $depth-$vard;
-        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
-           $maf = 0;
+        if (exists($somatic{$sample})) { #do this only for tumorsample
+          unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+            $maf = 0;
+          }
         }
         $cols[$colnames{$sampmaf}] = $maf;
       }
