@@ -123,6 +123,7 @@ if ($rna) {
 open IN, "$file";
 my %colnames;
 my %colindex;
+my $header;
 while ( <IN> ) {
   chomp;
   if (/^[\#]?chr\t/) {
@@ -136,7 +137,8 @@ while ( <IN> ) {
     if ($task eq 'maf') {
       print "$_\tmaf\n";
     } elsif ($task eq 'split') {
-      print "$_\n";
+      #print "$_\n";
+      $header = $_;
     } elsif ($task eq 'freq') {
       print "$_\tfreq\n";
     } elsif ($task eq 'trace') {
@@ -196,7 +198,9 @@ while ( <IN> ) {
       $smaf = sprintf("%.6f",$smaf/$sampleCounts);
       print "$_\t$smaf\n";
     } elsif ($task eq 'split') {
+      my @spliceIndexes;
       foreach my $sample (@all) {
+        push(@spliceIndexes,$colnames{$sample});
         my $sampmaf = $sample.'maf';
         my $sampd = $sample.'d';
         my $maf = $cols[$colnames{$sampmaf}];
@@ -224,6 +228,13 @@ while ( <IN> ) {
           }
         }
         $cols[$colnames{$sampmaf}] = $maf;
+      }
+      @cols = &splice_entry(\@cols, \@spliceIndexes);
+      if ($header ne ''){    #print header cut
+        my @headercols = split("\t", $header);
+        @headercols = &splice_entry(\@headercols, \@spliceIndexes);
+        printf("%s\n", join("\t", @headercols));
+        $header = '';
       }
       printf("%s\n", join("\t", @cols));
     } elsif ($task eq 'freq') {
@@ -579,4 +590,16 @@ sub round {
       $tmp++;
     }
     return $tmp;
+}
+
+sub splice_entry {
+  my $cols = shift;
+  my @newcols = @{$cols};
+  my $spliceIndexes = shift;
+  my $decr = 0;
+  for (@{$spliceIndexes}) {
+    splice(@newcols, $_+$decr, 1);
+    --$decr;
+  }
+  return(@newcols);
 }
