@@ -229,6 +229,7 @@ while ( <IN> ) {
         }
         $cols[$colnames{$sampmaf}] = $maf;
       }
+      print STDERR Dumper(\@spliceIndexes);
       @cols = &splice_entry(\@cols, \@spliceIndexes);
       if ($header ne '') {    #print header cut
         my @headercols = split("\t", $header);
