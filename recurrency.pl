@@ -200,7 +200,7 @@ while ( <IN> ) {
     } elsif ($task eq 'split') {
       my @spliceIndexes;
       foreach my $sample (@all) {
-        push(@spliceIndexes,$colnames{$sample});
+        push(@spliceIndexes,$colnames{$sample}) if ( exists($colnames{$sample}) );
         my $sampmaf = $sample.'maf';
         my $sampd = $sample.'d';
         my $maf = $cols[$colnames{$sampmaf}];
