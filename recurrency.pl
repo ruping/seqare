@@ -230,7 +230,7 @@ while ( <IN> ) {
         $cols[$colnames{$sampmaf}] = $maf;
       }
       @cols = &splice_entry(\@cols, \@spliceIndexes);
-      if ($header ne ''){    #print header cut
+      if ($header ne '') {    #print header cut
         my @headercols = split("\t", $header);
         @headercols = &splice_entry(\@headercols, \@spliceIndexes);
         printf("%s\n", join("\t", @headercols));
@@ -597,7 +597,7 @@ sub splice_entry {
   my @newcols = @{$cols};
   my $spliceIndexes = shift;
   my $decr = 0;
-  for (@{$spliceIndexes}) {
+  for (sort {$a <=> $b} @{$spliceIndexes}) {
     splice(@newcols, $_+$decr, 1);
     --$decr;
   }
