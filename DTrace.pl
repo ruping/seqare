@@ -1422,7 +1422,8 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified") {
-     my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table --type snv --task split --somaticInfo $options{'somaticInfo'} >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified";
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table --type snv --task split --somaticInfo $options{'somaticInfo'} >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }
 
