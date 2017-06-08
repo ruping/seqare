@@ -129,7 +129,7 @@ if ($split == 1) {
                       my $tsendsratio = $tsinfo[1];
                       my ($tscmean, $tscmedian) = split(',', $tsinfo[2]);
                       my $tsd = $cols[$indexts+1];
-                      if (($tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or $cols[$indexts] == 0) {  #likely true event, start printing
+                      if (($cols[$indexts] =~ /\|/ and $tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or $cols[$indexts] == 0) {  #likely true event, start printing
                         my $fh = $tumorSamp;
                         unless (-e "$outdir/$tumorSamp\_titan") {
                           open ( my $fh, ">>", "$outdir/$tumorSamp\_titan" )  || die $!;
