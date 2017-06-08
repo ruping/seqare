@@ -123,13 +123,13 @@ if ($split == 1) {
                   foreach my $tumorSamp (@{$germline{$sample}}) {   ##now should start checking for each tumor samples
 
                     my $indexts = $colindex{$tumorSamp.'maf'};
-                    if ($cols[$indexts] =~ /\|/) { #split the var surrounding information
+                    if ($cols[$indexts] =~ /\|/ or $cols[$indexts] == 0) { #split the var surrounding information
                       my @tsinfo = split(/\|/, $cols[$indexts]);
                       my $tsmaf = $tsinfo[0];
                       my $tsendsratio = $tsinfo[1];
                       my ($tscmean, $tscmedian) = split(',', $tsinfo[2]);
                       my $tsd = $cols[$indexts+1];
-                      if ($tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) {  #likely true event, start printing
+                      if (($tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or $cols[$indexts] == 0) {  #likely true event, start printing
                         my $fh = $tumorSamp;
                         unless (-e "$outdir/$tumorSamp\_titan") {
                           open ( my $fh, ">>", "$outdir/$tumorSamp\_titan" )  || die $!;
