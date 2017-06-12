@@ -62,6 +62,15 @@ muTectCOSMIC	$anno/hg19.other/hg19_cosmic_v54_120711.nochr.vcf
 muTectDBSNP	$anno/hg19.other/dbsnp_132_b37.leftAligned.nochr.vcf
 ####################
 #                  #
+#strelka indel call#
+#                  #
+####################
+#strelka Bin
+strelkaBin	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1.0.14/bin/configureStrelkaWorkflow.pl
+#strelka config file
+strelkaConfig	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1.0.14/etc/strelka_config_bwa_default_wes.ini
+####################
+#                  #
 #variant annotation#
 #                  #
 ####################
