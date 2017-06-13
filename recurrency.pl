@@ -229,11 +229,10 @@ while ( <IN> ) {
         }
         $cols[$colnames{$sampmaf}] = $maf;
       }
-      #print STDERR Dumper(\@spliceIndexes);
-      @cols = &splice_entry(\@cols, \@spliceIndexes);
+      @cols = &splice_entry(\@cols, \@spliceIndexes) if ($#spliceIndexes > 0);
       if ($header ne '') {    #print header cut
         my @headercols = split("\t", $header);
-        @headercols = &splice_entry(\@headercols, \@spliceIndexes);
+        @headercols = &splice_entry(\@headercols, \@spliceIndexes) if ($#spliceIndexes > 0);
         printf("%s\n", join("\t", @headercols));
         $header = '';
       }
