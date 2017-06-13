@@ -199,6 +199,7 @@ while ( <IN> ) {
       print "$_\t$smaf\n";
     } elsif ($task eq 'split') {
       my @spliceIndexes;
+      print STDERR Dumper(\@all);
       foreach my $sample (@all) {
         push(@spliceIndexes,$colnames{$sample}) if ( exists($colnames{$sample}) );
         my $sampmaf = $sample.'maf';
