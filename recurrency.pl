@@ -204,6 +204,9 @@ while ( <IN> ) {
         my $sampmaf = $sample.'maf';
         my $sampd = $sample.'d';
         my $maf = $cols[$colnames{$sampmaf}];
+        if (!exists($colnames{$sampmaf})) {   #sample realmaf not present, skip
+          next;
+        }
         my $endsratio = 0;
         my $cmean = 0;
         my $cmedian = 0;
@@ -229,7 +232,7 @@ while ( <IN> ) {
         }
         $cols[$colnames{$sampmaf}] = $maf;
       }
-      print STDERR Dumper(\@spliceIndexes);
+      #print STDERR Dumper(\@spliceIndexes);
       @cols = &splice_entry(\@cols, \@spliceIndexes) if ($#spliceIndexes > 0);
       if ($header ne '') {    #print header cut
         my @headercols = split("\t", $header);
