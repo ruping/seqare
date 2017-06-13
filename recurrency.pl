@@ -199,7 +199,6 @@ while ( <IN> ) {
       print "$_\t$smaf\n";
     } elsif ($task eq 'split') {
       my @spliceIndexes;
-      print STDERR Dumper(\@all);
       foreach my $sample (@all) {
         push(@spliceIndexes,$colnames{$sample}) if ( exists($colnames{$sample}) );
         my $sampmaf = $sample.'maf';
@@ -230,6 +229,7 @@ while ( <IN> ) {
         }
         $cols[$colnames{$sampmaf}] = $maf;
       }
+      print STDERR Dumper(\@spliceIndexes);
       @cols = &splice_entry(\@cols, \@spliceIndexes) if ($#spliceIndexes > 0);
       if ($header ne '') {    #print header cut
         my @headercols = split("\t", $header);
