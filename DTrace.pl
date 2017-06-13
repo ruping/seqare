@@ -67,6 +67,7 @@ $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
 $options{'symmetric'}   = "TRUE";
 $options{'maxMem'} = '4g';
+$options{'nwigString'}  = 'SRP';
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
@@ -136,6 +137,7 @@ GetOptions(
            "ncTitan=f"    => \$options{'ncTitan'},
            "ncmTitan=s"    => \$options{'ncmTitan'},
            "symmetric=s"  => \$options{'symmetric'},
+           "nwigString=s" => \$options{'nwigString'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'},
@@ -1164,6 +1166,9 @@ if (exists $runlevel{$runlevels}) {
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
     $normalWig = (-s "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig")? "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig" : die("$normalSampleName\.wig not found!!!\n");
+    if ($options{'nwigString'} ne 'SRP') {  #specific wiggle file
+      $normalWig =~ s/\.wig/\.$options{'nwigString'}\.wig/;
+    }
   }
 
   if ($options{'seqType'} =~ /WGS/){
