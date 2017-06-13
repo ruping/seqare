@@ -1165,10 +1165,11 @@ if (exists $runlevel{$runlevels}) {
     print STDERR "ERROR: $options{'sampleName'} is not in the somatic hash table!\n";
   } else { #get normal bam
     my $normalSampleName = $somatic{$options{'sampleName'}};
-    $normalWig = (-s "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig")? "$options{'root'}/$normalSampleName/03_STATS/$normalSampleName\.wig" : die("$normalSampleName\.wig not found!!!\n");
+    my $aimedNormalWig = $normalSampleName.'.wig';
     if ($options{'nwigString'} ne 'SRP') {  #specific wiggle file
-      $normalWig =~ s/\.wig/\.$options{'nwigString'}\.wig/;
+      $aimedNormalWig =~ s/\.wig/\.$options{'nwigString'}\.wig/;
     }
+    $normalWig = (-s "$options{'root'}/$normalSampleName/03_STATS/$aimedNormalWig")? "$options{'root'}/$normalSampleName/03_STATS/$aimedNormalWig" : die("aimedNormalWig not found!!!\n");
   }
 
   if ($options{'seqType'} =~ /WGS/){
