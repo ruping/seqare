@@ -6,7 +6,6 @@ inputpar <- commandArgs(TRUE)
 if (length(inputpar) < 12) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric exons(if WXS)'")
 
 
-
 path <- inputpar[1]
 sampleName <- inputpar[2]
 alleleCount <- inputpar[3]
@@ -25,6 +24,7 @@ exons <- inputpar[13]
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
+source("smkey.R")
 
 setwd(path)
 
@@ -112,10 +112,6 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           }
       } else if (exons != "SRP") { #WES
           
-          pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=12, height=6)
-          layout(matrix(c(1,2,3,3),nrow=2))
-          par(pty="m")
-          par(mar=c(4,4,2,1))
           if (is.null(titancnaresults[[j]])) next
           SD <- round(titancnaresults[[j]]$S_DbwIndex,3)
           nclones <- nrow(convergeParams$s)
@@ -124,14 +120,15 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           meandepth <- round(mean(as.numeric(results$Depth)),2)
           npoints <- nrow(results)
           s <- round(convergeParams$s[1,ncol(convergeParams$s)],2)
-          
-          par(mfrow=c(2,1))
+
+          pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=12, height=6)
+          layout(matrix(c(1,2,3,3),nrow=2))
+          par(pty="m")
           par(mar=c(4,4,2,1))
           plotCNlogRByChr(results, chr = NULL, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
                           main=paste(sampleName, " nc=", numClusters, sep=""),
                           xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
                               " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
-          par(mar=c(4,4,2,1))
           plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25,xlab = "Chromosomes", main = "", cex.lab=0.8)
 
           #plot bubble like
