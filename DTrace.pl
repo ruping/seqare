@@ -68,6 +68,7 @@ $options{'ncmTitan'}    = "map";
 $options{'symmetric'}   = "TRUE";
 $options{'maxMem'} = '4g';
 $options{'nwigString'}  = 'SRP';
+$options{'homoThred'}   = 0.85;
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
@@ -138,6 +139,7 @@ GetOptions(
            "ncmTitan=s"    => \$options{'ncmTitan'},
            "symmetric=s"  => \$options{'symmetric'},
            "nwigString=s" => \$options{'nwigString'},
+           "homoThred=f"  => \$options{'homoThred'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'},
@@ -1496,7 +1498,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-e "$options{'root'}/titan") {
-      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered\.nopara $options{'somaticInfo'} 1 $options{'germlineLOH'}";
+      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered\.nopara $options{'somaticInfo'} 1 $options{'homoThred'} $options{'germlineLOH'}";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/redistributeTitan.pl $options{'root'}/titan/ $options{'root'}";                #distribute allele counts for titan
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});

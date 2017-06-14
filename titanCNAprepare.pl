@@ -6,8 +6,8 @@ use File::Basename;
 my $data = shift;
 my $somaticInfo = shift;
 my $pairedCall = shift;
-my $lohRegion = shift;
 my $homoThred = shift;
+my $lohRegion = shift;
 if ($homoThred eq ''){
   $homoThred = 0.85;
 }
