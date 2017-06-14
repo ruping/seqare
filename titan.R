@@ -24,7 +24,9 @@ exons <- inputpar[13]
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
-source("smkey.R", chdir=T)
+srcdir = getSrcDirectory(function(x) {x})
+message(srcdir)
+source(paste(srcdir, "smkey.R", sep="/"))
 
 setwd(path)
 
