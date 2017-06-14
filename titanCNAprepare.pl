@@ -7,6 +7,10 @@ my $data = shift;
 my $somaticInfo = shift;
 my $pairedCall = shift;
 my $lohRegion = shift;
+my $homoThred = shift;
+if ($homoThred eq ''){
+  $homoThred = 0.85;
+}
 my $split = 1;
 
 my %somatic;
@@ -108,7 +112,7 @@ if ($split == 1) {
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
               my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the blood but rechecked
               unless ($lohRegion ne '' or exists($somatic{$sample})) {                  #either loh region or it is both a normal and tumor (so ignore the subsequent filter)
-                next if ($calledBloodRecheck[0] > 0.85);                                #if blood has greater than 0.85 VAF, indicating wrong genotyping
+                next if ($calledBloodRecheck[0] > $homoThred);                                #if blood has greater than 0.85 VAF, indicating wrong genotyping
               }
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information

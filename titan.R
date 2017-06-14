@@ -108,18 +108,19 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
             par(mar=c(4,4,2,1))
             plotAllelicRatio(results, chr = chro, ylim = c(0, 1), cex = 0.25, xlab = paste("Chromosomes", chro, sep=" "), main = "", cex.lab=0.8)
 
-            #par(mar=c(4,4,2,1))
-            #plotClonalFrequency(results, chr = NULL, normal = norm, ylim = c(0, 1), cex = 0.25, xlab = "", main = "", cex.lab=.8)
-
             dev.off()
           }
       } else if (exons != "SRP") { #WES
           
-          pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=11.5, height=8)
+          pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=12, height=6)
+          layout(matrix(c(1,2,3,3),nrow=2))
+          par(pty="m")
+          par(mar=c(4,4,2,1))
           if (is.null(titancnaresults[[j]])) next
           SD <- round(titancnaresults[[j]]$S_DbwIndex,3)
           nclones <- nrow(convergeParams$s)
           ploidy <- round(tail(convergeParams$phi, 1),2)
+          ploidy2 <- ploidy * (1 - norm) + 2 * norm
           meandepth <- round(mean(as.numeric(results$Depth)),2)
           npoints <- nrow(results)
           s <- round(convergeParams$s[1,ncol(convergeParams$s)],2)
@@ -133,14 +134,35 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           par(mar=c(4,4,2,1))
           plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25,xlab = "Chromosomes", main = "", cex.lab=0.8)
 
-          #par(mar=c(4,4,2,1))
-          #plotClonalFrequency(results, chr = NULL, normal = norm, ylim = c(0, 1), cex = 0.25, xlab = "", main = "", cex.lab=.8)
-          dev.off()
-
+          #plot bubble like
+          allstate <- paste(results$Chr,results$TITANstate,results$ClonalCluster)
+          changepoints <- c(1,which(allstate[-1] != allstate[-length(allstate)])+1)
+          segments <- results[changepoints,c("Chr",rep("Position",2),"AllelicRatio","LogRatio")]
+          names(segments)[2:3] <- c("Position1","Position2")
+          segments$Position2 <- results$Position[c(changepoints[-1]-1,length(allstate))]
+          segments[[2]] <- as.numeric(segments[[2]])
+          segments[[3]] <- as.numeric(segments[[3]])
+          segments[[4]] <- as.numeric(segments[[4]])
+          segments[[5]] <- as.numeric(segments[[5]])
+          segments$NumMarker <- diff(c(changepoints,length(allstate)+1))
+          for (k in 1:nrow(segments)) {
+              af <- as.numeric(results$AllelicRatio[changepoints[k]:(changepoints[k]+segments$NumMarker[k]-1)])
+              segments$AllelicRatio[k] <- mean(pmax(af,1-af))
+              lr <- as.numeric(results$LogRatio[changepoints[k]:(changepoints[k]+segments$NumMarker[k]-1)])
+              segments$LogRatio[k] <- mean(lr)
+          }
+          ylim1 <- quantile(rep(segments$LogRatio,segments$NumMarker),c(0.0001,0.9999))
+          par(pty="s")
+          smkey(rep(segments$AllelicRatio,segments$NumMarker),
+                rep(segments$LogRatio,segments$NumMarker),
+                xlim=c(0.5,1),ylim=ylim1,
+                main = "test", xlab="Allelic ratio",ylab="Log ratio",hline=log2(2/ploidy2))
+          dev.off()          
+          
       }
         
-    }
-    #save(titancnaresults,file=paste("./results/",sampleName,".TitanCNA.RData",sep=""))
+    } #how many clones
+    save(titancnaresults,file=paste(sampleName,".TitanCNA.RData",sep=""))
 }
 
 
