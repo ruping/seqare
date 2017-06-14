@@ -1180,7 +1180,7 @@ if (exists $runlevel{$runlevels}) {
 
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
-    my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
+    my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", "$options{'bin'}", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
                                    $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $options{'symmetric'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }

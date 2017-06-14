@@ -3,30 +3,29 @@
 ## this is for WGS or WXS titan run
 
 inputpar <- commandArgs(TRUE)
-if (length(inputpar) < 12) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric exons(if WXS)'")
+if (length(inputpar) < 13) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric exons(if WXS)'")
 
 
 path <- inputpar[1]
-sampleName <- inputpar[2]
-alleleCount <- inputpar[3]
-tumorWig <- inputpar[4]
-normalWig <- inputpar[5]
-gcWig <- inputpar[6]
-mapWig <- inputpar[7]
-plp <- inputpar[8]
-plpe <- inputpar[9]
-normalc <- inputpar[10]
-normalcm <- inputpar[11]
-symmetric <- inputpar[12]
-exons <- inputpar[13]
+src <- inputpar[2]
+sampleName <- inputpar[3]
+alleleCount <- inputpar[4]
+tumorWig <- inputpar[5]
+normalWig <- inputpar[6]
+gcWig <- inputpar[7]
+mapWig <- inputpar[8]
+plp <- inputpar[9]
+plpe <- inputpar[10]
+normalc <- inputpar[11]
+normalcm <- inputpar[12]
+symmetric <- inputpar[13]
+exons <- inputpar[14]
 
 
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
-srcdir = getSrcDirectory(function(x) {x})
-message(srcdir)
-source(paste(srcdir, "smkey.R", sep="/"))
+source(paste(src, "smkey.R", sep="/"))
 
 setwd(path)
 
