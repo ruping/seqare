@@ -156,7 +156,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           smkey(rep(segments$AllelicRatio,segments$NumMarker),
                 rep(segments$LogRatio,segments$NumMarker),
                 xlim=c(0.5,1),ylim=ylim1,
-                main = "test", xlab="Allelic ratio",ylab="Log ratio",hline=log2(2/ploidy2))
+                main = sampleName, xlab="Allelic ratio",ylab="Log ratio",hline=log2(2/ploidy2))
           dev.off()          
           
       }
