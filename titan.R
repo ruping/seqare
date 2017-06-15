@@ -25,7 +25,6 @@ exons <- inputpar[14]
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
-source(paste(src, "smkey.R", sep="/"))
 
 setwd(path)
 
@@ -150,10 +149,12 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
               segments$LogRatio[k] <- mean(lr)
           }
           ylim1 <- quantile(rep(segments$LogRatio,segments$NumMarker),c(0.0001,0.9999))
-          smkey(rep(segments$AllelicRatio,segments$NumMarker),
+          smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),colramp=colorRampPalette(terrain.colors(32)),
                 rep(segments$LogRatio,segments$NumMarker),
                 xlim=c(0.5,1),ylim=ylim1,
-                main = sampleName, xlab="Allelic ratio",ylab="Log ratio", hline=log2(2/ploidy2))
+                main = sampleName, xlab="Allelic ratio",ylab="Log ratio")
+          abline(h=log2(2/ploidy2, lty=3)
+          
           dev.off()
           
       }
