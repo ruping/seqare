@@ -149,7 +149,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
               segments$LogRatio[k] <- mean(lr)
           }
           ylim1 <- quantile(rep(segments$LogRatio,segments$NumMarker),c(0.0001,0.9999))
-          #par(pty="m")
+          par(pty="s")
           smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),colramp=colorRampPalette(terrain.colors(32)),
                 rep(segments$LogRatio,segments$NumMarker),
                 xlim=c(0.5,1),ylim=ylim1,
