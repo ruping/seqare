@@ -33,9 +33,11 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
     #prepare data
     snpData <- loadAlleleCounts(snpFile, symmetric=symmetric)
-    cnData <- correctReadDepth(tumWig, normWig, gc, map)
+    
     if (exons != "SRP") {
       cnData <- correctReadDepth(tumWig, normWig, gc, map, targetedSequence = exons)
+    } else {
+      cnData <- correctReadDepth(tumWig, normWig, gc, map)
     }
     logR <- getPositionOverlap(snpData$chr, snpData$posn, cnData)
     snpData$logR <- log(2^logR) #transform the log ratio to natural logs
@@ -57,8 +59,8 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                                         nParams = params$normalParams,
                                         pParams = params$ploidyParams,
                                         sParams = params$cellPrevParams,
-                                        maxiter = 10, maxiterUpdate = 500,
-                                        useOutlierState = FALSE, txnExpLen = 1e9,
+                                        maxiter = 20, maxiterUpdate = 1000,
+                                        useOutlierState = FALSE, txnExpLen = 1e12,
                                         txnZstrength = 1e9,
                                         normalEstimateMethod = normalcm,
                                         estimateS = TRUE, estimatePloidy = plpe)
