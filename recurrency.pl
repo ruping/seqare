@@ -13,6 +13,7 @@ my $type;
 my $somaticInfo;        # if for somatic judgement
 my $bloodCall;          # whether the blood is also single called
 my $rna;                # if for rna found
+my $noStrandBias = "no";
 
 my $Th_tumorLOD = 4.0;
 my $Th_normalLOD = 2.3;
@@ -38,6 +39,7 @@ GetOptions (
            "bloodCall|b=s"     => \$bloodCall,        #bloodCall
            "Th_cmeme=f"        => \$Th_cmeancmedian,  #cmeancmedian
            "rna|r=s"           => \$rna,              #rna info
+           "noStrandBias=s"    => \$noStrandBias,     #treatment of strandbias
            "help|h"         => sub {
                                print "usage: $0 final preparation of somatic/germline variant calls \n\nOptions:\n\t--file\t\tthe filename of the res file\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
@@ -188,8 +190,8 @@ while ( <IN> ) {
         }
         my $vard = sprintf("%.1f", $maf*$depth);
         my $refd = $depth-$vard;
-        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
-           $maf = 0;
+        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+          $maf = 0;
         }
         if ($maf >= 0.1 and $vard >= 2) {
             $smaf += $maf;
@@ -226,7 +228,7 @@ while ( <IN> ) {
         my $vard = sprintf("%.1f", $maf*$depth);
         my $refd = $depth-$vard;
         if (exists($somatic{$sample})) { #do this only for tumorsample
-          unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+          unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
             $maf = 0;
           }
         }
@@ -298,7 +300,7 @@ while ( <IN> ) {
           my $vard = sprintf("%.1f", $maf*$depth);
           my $refd = $depth-$vard;
 
-          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
+          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
             if ($task =~ /rna/) {
               if ($maf >= ($Th_maf - 0.02) and $vard >= $Th_vard) {
                 $founds++;
@@ -492,7 +494,7 @@ while ( <IN> ) {
           my $refd = $depth-$vard;
 
           if (exists $somatic{$samp}) {     #for tumor samples require some additional thing
-            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
+            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
               if ( $maf >= 0.1 ) {  #clonal ones
                 $maf = $maf;
               } else {              #subclonal ones, subject to additional constrains
