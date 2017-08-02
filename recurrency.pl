@@ -14,6 +14,7 @@ my $somaticInfo;        # if for somatic judgement
 my $bloodCall;          # whether the blood is also single called
 my $rna;                # if for rna found
 my $noStrandBias = "no";
+my $loosefound = "no";
 
 my $Th_tumorLOD = 4.0;
 my $Th_normalLOD = 2.3;
@@ -40,6 +41,7 @@ GetOptions (
            "Th_cmeme=f"        => \$Th_cmeancmedian,  #cmeancmedian
            "rna|r=s"           => \$rna,              #rna info
            "noStrandBias=s"    => \$noStrandBias,     #treatment of strandbias
+           "loosefound=s"      => \$loosefound,       #loose found samples
            "help|h"         => sub {
                                print "usage: $0 final preparation of somatic/germline variant calls \n\nOptions:\n\t--file\t\tthe filename of the res file\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
@@ -300,7 +302,13 @@ while ( <IN> ) {
           my $vard = sprintf("%.1f", $maf*$depth);
           my $refd = $depth-$vard;
 
-          if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {  #it looks good
+          my $SatisfyCondition = 0;
+          if ($loosefound eq 'no') {
+            $SatisfyCondition = (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian))? 1 : 0;
+          } else {    #loosen criteria
+            $SatisfyCondition = ($vard >= 3 and $maf > 0.015)? 1 : 0;
+          }
+          if ($SatisfyCondition == 1) {  #it looks good
             if ($task =~ /rna/) {
               if ($maf >= ($Th_maf - 0.02) and $vard >= $Th_vard) {
                 $founds++;
