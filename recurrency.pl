@@ -306,7 +306,7 @@ while ( <IN> ) {
           if ($loosefound eq 'no') {
             $SatisfyCondition = (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian))? 1 : 0;
           } else {    #loosen criteria
-            $SatisfyCondition = ($vard >= 3 and $maf > 0.015)? 1 : 0;
+            $SatisfyCondition = ($vard >= 4 and $maf > 0.015 and ($cmean+$cmedian) < 7 and $cmedian < 3)? 1 : 0;
           }
           if ($SatisfyCondition == 1) {  #it looks good
             if ($task =~ /rna/) {
