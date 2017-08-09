@@ -1,0 +1,97 @@
+##########################
+#                        #
+#genearl annotation paths#
+#                        #
+##########################
+#this is the dir that I put almost all the annotation files, so I can reuse this to refer to the dir
+anno	/srv/gsfs0/projects/curtis/ruping/annotation/
+#species, e.g., hg19, mm10, which is the prefix of many annotation files
+species	hg38
+#chromosomes to be analyzed
+chrs	chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY
+#genome fasta file
+GFASTA	$anno/$species/WholeGenomeFasta/genome.fa
+#Rscript bin
+RscriptBin	/srv/gsfs0/projects/curtis/ruping/tools/R/bin/Rscript
+#size of chromosomes
+chromosomeSize	$anno/$species/WholeGenomeFasta/hg38_chromosome_size.txt
+####################
+#                  #
+#For read alignment#
+#                  #
+####################
+#BWA bin
+bwaBin	bwa
+#BWA mapping index
+BWAINDEX	$anno/$species/BWAIndex/genome.fa
+#bowtieBin
+bowtieBin	bowtie2
+#bowtie2 mapping index
+BowtieINDEX	$anno/$species/Bowtie2Index/genome
+#blat database
+blatDatabase	$anno/$species/BlatDatabase/hg38_genome_UCSC.2bit
+####################
+#                  #
+#for bam processing#
+#                  #
+####################
+#java bin for gatk
+gatkBin	/srv/gsfs0/projects/curtis/ruping/tools/gatk/GenomeAnalysisTK.jar
+#java bin for markduplicates
+MarkDuplicatesBin	/srv/gs1/software/picard-tools/1.111/MarkDuplicates.jar
+#samtools bin
+samtoolsBin	samtools
+#bcftools bin
+bcftoolsBin	bcftools
+#known indels for indel Realignment
+KNOWNINDEL1	$anno/$species/knownVar/Homo_sapiens_assembly38.known_indels.vcf
+#known indels for indel Realignment
+KNOWNINDEL2	$anno/$species/knownVar/Mills_and_1000G_gold_standard.indels.hg38.vcf
+####################
+#                  #
+#mutect snv calling#
+#                  #
+####################
+#muTect bin
+muTectBin	/srv/gsfs0/projects/curtis/pipeline/scripts/muTect-1.1.4.jar
+#vcfSortBin
+vcfSortBin	vcf-sort
+#mutect dbSNP annotation vcf
+muTectDBSNP	$anno/$species/knownVar/Homo_sapiens_assembly38.dbsnp138.vcf
+####################
+#                  #
+#strelka indel call#
+#                  #
+####################
+#strelka Bin
+strelkaBin	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1.0.14/bin/configureStrelkaWorkflow.pl
+#strelka config file
+strelkaConfig	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1.0.14/etc/strelka_config_bwa_default_wes.ini
+####################
+#                  #
+#variant annotation#
+#                  #
+####################
+#annovar bin dir
+ANNOVARDIR	/srv/gsfs0/projects/curtis/ruping/tools/annovar.new/annovar/
+#annovar annotation dir
+ANNOVARDB	$anno/annovardb/humandb.new/
+#UCSC repeat masker file
+repeatMasker	$anno/trupanno/$species/$species.repeats_UCSC.gff
+#UCSC self chain file
+selfChain	$anno/trupanno/$species/$species.SelfChain_UCSC.txt
+############################
+#                          #
+#sequencing stats, TitanCNA#
+#                          #
+############################
+#target region
+targetRegion	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed.w5
+#genome bed 1kb
+w1kBed	$anno/$species/WholeGenomeFasta/hg38.w1k.bed
+#targeted region for TitanCNA
+targetRegionTitan	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed
+#gc wig for TitanCNA
+gcWigTitan	$anno/$species/WholeGenomeFasta/UCSC_hg38.gc.wig
+#map wig for TitanCNA
+mapWigTitan	$anno/$species/WholeGenomeFasta/UCSC_hg38.map.wig
