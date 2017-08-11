@@ -83,6 +83,7 @@ $mapping{'ExonicFunc.refGene'} = 'functionalClass';
 $mapping{'AAChange.refGene'} = 'AAChange';
 $mapping{'genomicSuperDups'} = 'segdup.score';
 $mapping{'phastConsElements46way'} = 'phastCons'; #score and lod
+$mapping{'phastConsElements100way'} = 'phastCons'; #score and lod
 $mapping{'esp6500siv2_all'} = 'ESP6500';
 $mapping{'1000g2015aug_all'} = '1KG';
 $mapping{'1000g2015aug_all'} = '1KG';
@@ -95,6 +96,8 @@ $mapping{'1000g2015aug_eur'} = '1KG.EUR';
 $mapping{'1000g2014oct_eur'} = '1KG.SAS';
 $mapping{'1000g2015aug_eur'} = '1KG.SAS';
 $mapping{'snp138'} = 'dbSNP';
+$mapping{'avsnp147'} = 'dbSNP';
+
 
 my $headerbuffer;
 my $headerColumns;

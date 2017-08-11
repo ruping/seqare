@@ -75,7 +75,7 @@ strelkaConfig	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1
 #annovar bin dir
 ANNOVARDIR	/srv/gsfs0/projects/curtis/ruping/tools/annovar.new/annovar/
 #annovar annotation dir
-ANNOVARDB	$anno/annovardb/humandb.new/
+ANNOVARDB	$anno/annovardb/humandb.hg38/
 #UCSC repeat masker file
 repeatMasker	$anno/trupanno/$species/$species.repeats_UCSC.gff
 #UCSC self chain file

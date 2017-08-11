@@ -113,6 +113,9 @@ sub runAnnovar {
 
   my $cmd = "perl $annovarBin $inVCF $ANNOVARDB -buildver $species -remove -protocol refGene,cytoBand,genomicSuperDups,phastConsElements46way,tfbsConsSites,gwasCatalog,esp6500siv2_all,1000g2014oct_all,1000g2014oct_afr,1000g2014oct_eas,1000g2014oct_eur,snp138,exac03,popfreq_max_20150413,ljb26_all,clinvar_20150629 -operation g,r,r,r,r,r,f,f,f,f,f,f,f,f,f,f -nastring . -vcfinput --outfile $inVCF";
 
+  if ($species eq 'hg38') {  #hg38, tfbsConsSites and popfreq_max not used
+    $cmd = "perl $annovarBin $inVCF $ANNOVARDB -buildver $species -remove -protocol refGene,cytoBand,genomicSuperDups,phastConsElements100way,gwasCatalog,esp6500siv2_all,1000g2015aug_all,1000g2015aug_afr,1000g2015aug_eas,1000g2015aug_eur,avsnp147,exac03,dbnsfp30a,clinvar_20150629 -operation g,r,r,r,r,f,f,f,f,f,f,f,f,f -nastring . -vcfinput --outfile $inVCF";
+  }
   return $cmd;
 }
 
