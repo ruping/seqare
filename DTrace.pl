@@ -1119,7 +1119,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   if (exists($runTask{'mergeMutectChr'})) {
     my @mutectChrOuts = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect");
     my $mutectChrOuts = join(',', @mutectChrOuts);
-    my @mutectChrVcfs = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect.genome.sorted.vcf.hg19_multianno.mod.vcf");
+    my @mutectChrVcfs = bsd_glob("$options{'lanepath'}/04_SNV/*.mutect.genome.sorted.vcf.*_multianno.mod.vcf");
     my $mutectChrVcfs = join(',', @mutectChrVcfs);
     unless (-s "$muTectOut") {
       my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $mutectChrOuts 2 >$muTectOut";
