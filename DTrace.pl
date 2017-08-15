@@ -1137,6 +1137,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       }
     }
+    if (-s "$vcfMultiAnnoMod" and -s "$muTectOut" and !-s "$muTectOut\.gz") {
+      my $cmd = "gzip $muTectOut";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
   }
 
   printtime();
