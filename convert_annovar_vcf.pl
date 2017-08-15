@@ -143,7 +143,7 @@ while ( <ANNOVARTABLE> ) {
       push(@subItem, $item[$j]);
     }
     $buffer.= "$subItem[0]\t$subItem[1]\t";                                                                                                                        #Chr,Pos
-    $buffer.= (exists($colindex{'snp138'}))? "$item[$colindex{'snp138'}]\t" : ((exists($colindex{'avsnp144'}))? "$item[$colindex{'avsnp144'}]\t": "\.\t");         #ID
+    $buffer.= (exists($colindex{'snp138'}))? "$item[$colindex{'snp138'}]\t" : ((exists($colindex{'avsnp147'}))? "$item[$colindex{'avsnp147'}]\t": "\.\t");         #ID
     $buffer.="$item[$colindex{'Ref'}]\t$item[$colindex{'Alt'}]\t$subItem[5]\t$subItem[6]\t";                                                                       #Ref,Alt,Qual,Filter
 
     ## Update INFO with annotations
