@@ -86,7 +86,7 @@ selfChain	$anno/trupanno/$species/$species.SelfChain_UCSC.txt
 #                          #
 ############################
 #target region
-targetRegion	$anno/hg19.other/SureSelect_All_Exon_V4_hg19.bed.sorted.bed.w5
+targetRegion	$anno/$species/WholeGenomeFasta/hg38.w100
 #genome bed 1kb
 w1kBed	$anno/$species/WholeGenomeFasta/hg38.w1k.bed
 #targeted region for TitanCNA
