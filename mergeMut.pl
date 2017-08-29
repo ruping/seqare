@@ -253,7 +253,7 @@ foreach my $file (@list) {
 
 
      my $popFreqMax = -1;
-     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /ExAC\_ALL\=/ or  $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
+     if ($id ne '.' or $info =~ /dbSNP/ or $info =~ /1KG\=/ or $info =~ /1000g[0-9a-z\_\-]+\=/ or $info =~ /ESP\d+\=/ or $info =~ /ExAC\_ALL\=/ or $info =~ /PopFreqMax\=/) {  #snp in population, is it a somatic one?
 
        my $freq = -1;
        my $freq_eac = -1;
