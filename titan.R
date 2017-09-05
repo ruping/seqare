@@ -116,6 +116,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                 SD <- round(titancnaresults[[j]]$S_DbwIndex,3)
                 nclones <- nrow(convergeParams$s)
                 ploidy <- round(tail(convergeParams$phi, 1),2)
+                ploidy2 <- ploidy * (1 - norm) + 2 * norm
                 meandepth <- round(mean(as.numeric(results$Depth)),2)
                 npoints <- nrow(results)
                 s <- round(convergeParams$s[1,ncol(convergeParams$s)],2)
