@@ -111,7 +111,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
             ylim1 <- quantile(rep(segments$LogRatio,segments$NumMarker),c(0.0001,0.9999))
             
             for (chro in 1:22) {
-                png(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.png",sep=""),width=1200, height=600)
+                pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=12, height=6)
                 if (is.null(titancnaresults[[j]])) next
                 SD <- round(titancnaresults[[j]]$S_DbwIndex,3)
                 nclones <- nrow(convergeParams$s)
