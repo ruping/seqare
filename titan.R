@@ -122,7 +122,8 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                 s <- round(convergeParams$s[1,ncol(convergeParams$s)],2)
 
                 
-                par(mfrow=c(2,1))
+                layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
+                par(pty="m")
                 par(mar=c(4,4,2,1))
                 plotCNlogRByChr(results, chr = chro, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
                                 main=paste(sampleName, " nc=", numClusters, sep=""),
