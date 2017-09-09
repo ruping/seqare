@@ -693,6 +693,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       my $cmd = "rm $rmDupBam $rmDupBam\.bai -f";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
+    if (-s "$finalBam" and !-s "$finalBam\.bai") {
+      my $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $finalBam); #index it
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
   }
 
   printtime();
