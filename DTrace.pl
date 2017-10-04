@@ -1197,6 +1197,12 @@ if (exists $runlevel{$runlevels}) {
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
+  my $pngFileExample = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1_chr1.TitanCNA.png";
+  unless (-s "$pngFileExample") {
+    my $cmd = "perl $options{'bin'}/convertTitanPDF2PNG.pl $options{'lanepath'}/05_CNA/ nclones1";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
 
