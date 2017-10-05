@@ -1172,7 +1172,7 @@ if (exists $runlevel{$runlevels}) {
   my $tumorTitan = (-s "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan")? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan" : die("$options{'sampleName'}\_titan not found!!!\n");
   my $tumorWig = (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig")? "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig" : die("$options{'sampleName'}\.wig not found!!!\n");
   my $normalWig;
-  if ($options{'somaticInfo'} eq "SRP"){
+  if ($options{'somaticInfo'} eq "SRP") {
     print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
     exit 22;
   } elsif ( !exists( $somatic{$options{'sampleName'}} ) ){
@@ -1200,6 +1200,12 @@ if (exists $runlevel{$runlevels}) {
   my $pngFileExample = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1_chr1.TitanCNA.png";
   unless (-s "$pngFileExample") {
     my $cmd = "perl $options{'bin'}/convertTitanPDF2PNG.pl $options{'lanepath'}/05_CNA/ nclones1";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
+  my $pngFileExample2 = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones2_chr1.TitanCNA.png";
+  unless (-s "$pngFileExample2") {
+    my $cmd = "perl $options{'bin'}/convertTitanPDF2PNG.pl $options{'lanepath'}/05_CNA/ nclones2";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
