@@ -109,7 +109,8 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
             }
             xlim1 <- quantile(rep(segments$AllelicRatio,segments$NumMarker),c(0.0001,0.9999))
             ylim1 <- quantile(rep(segments$LogRatio,segments$NumMarker),c(0.0001,0.9999))
-            
+
+            #plotting for each chromosome
             for (chro in 1:22) {
                 pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=12, height=6)
                 if (is.null(titancnaresults[[j]])) next
@@ -141,6 +142,27 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                 abline(h=log2(2/ploidy2), lty=3)
                 dev.off()
             }
+            
+            #plotting for all chromosome
+            pdf(paste(sampleName,"_nclones",numClusters,".TitanCNA.pdf",sep=""),width=12, height=6)
+            layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
+            par(pty="m")
+            par(mar=c(4,4,2,1))
+            plotCNlogRByChr(results, chr = NULL, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
+                            main=paste(sampleName, " nc=", numClusters, sep=""),
+                            xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
+                                " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
+            par(mar=c(4,4,2,1))
+            plotAllelicRatio(results, chr = chro, ylim = c(0, 1), cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
+
+            #plot bubble like
+            par(mar=c(7,4,6,1))
+            smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),colramp=colorRampPalette(terrain.colors(32)),
+                          rep(segments$LogRatio,segments$NumMarker),
+                          xlim=xlim1,ylim=ylim1,
+                          main = sampleName, xlab="Allelic ratio",ylab="Log ratio")
+            abline(h=log2(2/ploidy2), lty=3)
+            dev.off()
             
       } else if (exons != "SRP") { #WES
           
