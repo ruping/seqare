@@ -153,7 +153,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                             xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
                                 " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
             par(mar=c(4,4,2,1))
-            plotAllelicRatio(results, chr = chro, ylim = c(0, 1), cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
+            plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
 
             #plot bubble like
             par(mar=c(7,4,6,1))
