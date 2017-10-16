@@ -1082,6 +1082,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
     }
 
+    #make a link
+    my $cmd = "ln -s $vcfMultiAnnoMod $options{'lanepath'}/04_SNV/$options{'sampleName'}.strelka.indel.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
     #rm temporary files
     if (-s "$vcfMultiAnnoMod" and -s "$vcfOut") {
       my $cmd = "rm -rf $vcfOut";
@@ -1310,7 +1314,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
   if ((exists($runlevel{$runlevels}) or exists($runTask{'mergeStrelkaOnly'})) and !exists($runTask{'mergeMutectOnly'}) and !exists($runTask{'mergeSamtoolsOnly'})) {
     unless (-s "$vcflist_strelka") {
       for my $eatumor (keys %somatic) {
-        my $eavcfstrelka = "$options{'root'}/$eatumor/04_SNV/$eatumor\.strelka.indel.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf.snv";
+        my $eavcfstrelka = "$options{'root'}/$eatumor/04_SNV/$eatumor\.strelka.indel.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
         if (-s "$eavcfstrelka") {
           my $cmd = "echo $eavcfstrelka >>$vcflist_strelka";
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
