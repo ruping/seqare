@@ -247,25 +247,20 @@ while ( <IN> ) {
       printf("%s\n", join("\t", @cols));
     } elsif ($task eq 'freq') {
       my $freq = 'NA';
-      my $freq1KG;
-      my $freqESP;
+      #my $freq1KG;
+      #my $freqESP;
       my $function = (exists($colnames{'function'}))? $cols[$colnames{'function'}] : die("no function column.\n");
       #my $id = $cols[$colnames{'id'}];
       if ($function =~ /PopFreqMax=(.+?)\;/){
         $freq = $1;
       } elsif ($function =~ /ExAC_ALL=(.+?)\;/){
         $freq = $1;
-      }
-      if ($function =~ /ESP\d+=(.+?)\;/){
-        $freqESP = $1;
-      }
-      if ($function =~ /1000g2014oct_all=(.+?)\;/){
-        $freq1KG = $1;
+      } elsif ($function =~ /ESP\d+=(.+?)\;/){
+        $freq = $1;
+      } elsif ($function =~ /1000g2014oct_all=(.+?)\;/){
+        $freq = $1;
       } elsif ($function =~ /1KG=(.+?)\;/){
-        $freq1KG = $1;
-      }
-      if ( $freq1KG and $freqESP ) {
-        $freq = max($freq, $freq1KG, $freqESP);  #taking the max of three database
+        $freq = $1;
       }
       print "$_\t$freq\n";
     } elsif ($task =~ /founds/ or $task =~ /trace/) {    #trace all samples and check whether it is originally called
