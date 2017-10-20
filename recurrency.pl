@@ -261,9 +261,11 @@ while ( <IN> ) {
       }
       if ($function =~ /1000g2014oct_all=(.+?)\;/){
         $freq1KG = $1;
+      } elsif ($function =~ /1KG=(.+?)\;/){
+        $freq1KG = $1;
       }
       if ( $freq1KG and $freqESP ) {
-        $freq = max($freq, $freq1KG, $freqESP);
+        $freq = max($freq, $freq1KG, $freqESP);  #taking the max of three database
       }
       print "$_\t$freq\n";
     } elsif ($task =~ /founds/ or $task =~ /trace/) {    #trace all samples and check whether it is originally called
