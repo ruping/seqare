@@ -67,7 +67,7 @@ $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
 $options{'symmetric'}   = "TRUE";
 $options{'maxMem'} = '4g';
-$options{'javaTmp'} = '/local/scratch'
+$options{'javaTmp'} = '/local/scratch';
 $options{'nwigString'}  = 'SRP';
 $options{'homoThred'}   = 0.85;
 
