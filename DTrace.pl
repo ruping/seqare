@@ -66,6 +66,8 @@ $options{'plpeTitan'}   = "TRUE";
 $options{'ncTitan'}     = 0.5;
 $options{'ncmTitan'}    = "map";
 $options{'symmetric'}   = "TRUE";
+$options{'transtate'}   = 1e12;
+$options{'tranclone'}   = 1e9;
 $options{'maxMem'} = '4g';
 $options{'javaTmp'} = '/local/scratch';
 $options{'nwigString'}  = 'SRP';
@@ -143,6 +145,8 @@ GetOptions(
            "ncTitan=f"    => \$options{'ncTitan'},
            "ncmTitan=s"    => \$options{'ncmTitan'},
            "symmetric=s"  => \$options{'symmetric'},
+           "transtate=f"  => \$options{'transtate'},
+           "tranclone=f"  => \$options{'tranclone'},
            "nwigString=s" => \$options{'nwigString'},
            "homoThred=f"  => \$options{'homoThred'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
@@ -1175,6 +1179,7 @@ if (exists $runlevel{$runlevels}) {
 
   printtime();
   print STDERR "####### runlevel $runlevels now #######\n\n";
+  print STDERR "transtate: $options{'transtate'} and tranclone: $options{'tranclone'}\n";
 
   my $tumorTitan = (-s "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan")? "$options{'lanepath'}/04_SNV/$options{'sampleName'}\_titan" : die("$options{'sampleName'}\_titan not found!!!\n");
   my $tumorWig = (-s "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig")? "$options{'lanepath'}/03_STATS/$options{'sampleName'}\.wig" : die("$options{'sampleName'}\.wig not found!!!\n");
@@ -1200,7 +1205,7 @@ if (exists $runlevel{$runlevels}) {
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
     my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", "$options{'bin'}", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
-                                   $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $options{'symmetric'}, $confs{'targetRegionTitan'});
+                                   $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $options{'symmetric'}, $options{'transtate'}, $options{'tranclone'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 

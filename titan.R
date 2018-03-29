@@ -3,7 +3,7 @@
 ## this is for WGS or WXS titan run
 
 inputpar <- commandArgs(TRUE)
-if (length(inputpar) < 13) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric exons(if WXS)'")
+if (length(inputpar) < 15) stop("Wrong number of input parameters: 'path sampleName alleleCount tumorWig normalWig gcWig mapWig plp plpe normalc normalcm symmetric transtate tranclone exons(if WXS)'")
 
 
 path <- inputpar[1]
@@ -19,7 +19,9 @@ plpe <- inputpar[10]
 normalc <- inputpar[11]
 normalcm <- inputpar[12]
 symmetric <- inputpar[13]
-exons <- inputpar[14]
+transtate <- inputpar[14]
+tranclone <- inputpar[15]
+exons <- inputpar[16]
 
 
 library(TitanCNA)
@@ -29,7 +31,7 @@ library(doMC)
 setwd(path)
 
 #run titan
-runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, symmetric, exons="SRP") {
+runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, normalc, normalcm, symmetric, transtate, tranclone, exons="SRP") {
 
     #prepare data
     snpData <- loadAlleleCounts(snpFile, symmetric=symmetric)
@@ -59,9 +61,9 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                                         nParams = params$normalParams,
                                         pParams = params$ploidyParams,
                                         sParams = params$cellPrevParams,
-                                        maxiter = 20, maxiterUpdate = 1000,
-                                        useOutlierState = FALSE, txnExpLen = 1e12,
-                                        txnZstrength = 1e9,
+                                        maxiter = 20, maxiterUpdate = 1500,
+                                        useOutlierState = FALSE, txnExpLen = transtate,
+                                        txnZstrength = tranclone,
                                         normalEstimateMethod = normalcm,
                                         estimateS = TRUE, estimatePloidy = plpe)
         
@@ -312,7 +314,7 @@ if (exons != "SRP"){   #WES
     targetRegion = read.delim(exons, header=F)
     targetRegion = data.frame(targetRegion[,1:3])
     #targetRegion[,1] = gsub("chr","",targetRegion[,1])
-    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,targetRegion)
+    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone,targetRegion)
 } else if (exons == "SRP") {  #WGS 
-    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric)
+    runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone)
 }
