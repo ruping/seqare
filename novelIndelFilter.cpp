@@ -14,10 +14,10 @@ g++ novelIndelFilter.cpp
 -L/home/regularhand/tools/bamtools/lib/ -L/home/regularhand/tools/zlib/current/lib/ -L/home/regularhand/tools/boost/current/lib/ 
 -lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o novelIndelFilter
 
-g++ novelIndelFilter_ACGT.cpp                
+g++ novelIndelFilter.cpp                
 -I/N/tools/bamtools/current/include/ -I/N/tools/zlib/current/include/ -I/N/tools/boost/current/include/
 -L/N/tools/bamtools/current/lib/ -L/N/tools/zlib/current/lib/ -L/N/tools/boost/current/lib/
--lbamtools -lz -Wl,-rpath,/N/tools/bamtools/current/lib/:/N/tools/boost/current/lib/ -lboost_regex -o novelIndelFilter_ACGT
+-lbamtools -lz -Wl,-rpath,/N/tools/bamtools/current/lib/:/N/tools/boost/current/lib/ -lboost_regex -o novelIndelFilter
 
 g++ novelIndelFilter.cpp
 -I/ifs/home/c2b2/ac_lab/rs3412/tools/bamtools/include/ -I/ifs/home/c2b2/ac_lab/rs3412/tools/zlib-1.2.8/include/ 
