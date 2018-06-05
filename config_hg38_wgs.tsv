@@ -12,7 +12,10 @@ chrs	chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,
 #genome fasta file
 GFASTA	$anno/$species/WholeGenomeFasta/genome.fa
 #Rscript bin
+R	R
 RscriptBin	/srv/gsfs0/projects/curtis/ruping/tools/R/bin/Rscript
+#java bin
+java	java
 #size of chromosomes
 chromosomeSize	$anno/$species/WholeGenomeFasta/hg38_chromosome_size.txt
 ####################

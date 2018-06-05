@@ -12,7 +12,10 @@ chrs	1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y
 #genome fasta file
 GFASTA	$anno/hg19.other/hg19.fasta
 #Rscript bin
+R	R
 RscriptBin	/srv/gsfs0/projects/curtis/ruping/tools/R/bin/Rscript
+#java bin
+java	java
 #size of chromosomes
 chromosomeSize	$anno/trupanno/$species/$species.chromosome_size.txt
 ####################

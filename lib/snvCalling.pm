@@ -10,12 +10,12 @@ use List::Util qw[min max sum];
 
 sub muTectCalling {
 
-  my ($class, $muTectBin, $BAM, $NORMALBAM, $gfasta, $COSMIC, $DBSNP, $muTectOut, $vcfOut, $chrProcess, $mem, $tmpDir) = @_;
+  my ($class, $muTectBin, $BAM, $NORMALBAM, $gfasta, $COSMIC, $DBSNP, $muTectOut, $vcfOut, $chrProcess, $mem, $tmpDir, $javaBin) = @_;
   my $cosmicOption = ($COSMIC eq '')? '':"--cosmic $COSMIC";
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
   if ($chrProcess ne 'SRP') {
-    $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --intervals $chrProcess $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+    $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --intervals $chrProcess $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
   }
 
   return $cmd;

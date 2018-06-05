@@ -93,11 +93,11 @@ sub recalMD {
 
 sub indelRealignment1 {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $knownindel1, $knownindel2, $CHR, $outList, $threads, $mem, $tmpDir) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $knownindel1, $knownindel2, $CHR, $outList, $threads, $mem, $tmpDir, $javaBin) = @_;
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T RealignerTargetCreator --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -L $CHR -nt $threads -o $outList";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T RealignerTargetCreator --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -L $CHR -nt $threads -o $outList";
   if ($CHR eq 'ALL') {
-    $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T RealignerTargetCreator --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -nt $threads -o $outList";
+    $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T RealignerTargetCreator --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -known $knownindel1 -known $knownindel2 -nt $threads -o $outList";
   }
 
   return $cmd;
@@ -107,11 +107,11 @@ sub indelRealignment1 {
 
 sub indelRealignment2 {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam, $threads, $mem, $tmpDir) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $targetList, $knownindel1, $knownindel2, $CHR, $outBam, $threads, $mem, $tmpDir, $javaBin) = @_;
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T IndelRealigner --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -o $outBam";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T IndelRealigner --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -L $CHR -o $outBam";
   if ($CHR eq 'ALL') {
-    $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T IndelRealigner --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -o $outBam";
+    $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T IndelRealigner --allow_potentially_misencoded_quality_scores -R $gfasta -I $inBam -targetIntervals $targetList -known $knownindel1 -known $knownindel2 -compress 5 -o $outBam";
   }
 
   return $cmd;
@@ -120,9 +120,9 @@ sub indelRealignment2 {
 
 sub MarkDuplicates {
 
-  my ($class, $MarkDuplicatesBin, $inBam, $outBam, $metric, $mem, $tmpDir) = @_;
+  my ($class, $MarkDuplicatesBin, $inBam, $outBam, $metric, $mem, $tmpDir, $javaBin) = @_;
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $MarkDuplicatesBin I=$inBam O=$outBam M=$metric REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $MarkDuplicatesBin I=$inBam O=$outBam M=$metric REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true";
 
   return $cmd;
 
@@ -131,11 +131,11 @@ sub MarkDuplicates {
 
 sub BaseRecalibration {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable, $threads, $mem, $tmpDir) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $DBSNP, $knownindel1, $knownindel2, $outTable, $threads, $mem, $tmpDir, $javaBin) = @_;
 
   #--fix_misencoded_quality_scores
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T BaseRecalibrator -R $gfasta -I $inBam -knownSites $DBSNP -knownSites $knownindel1 -knownSites $knownindel2 -nct $threads -o $outTable";
 
   return $cmd;
 
@@ -143,9 +143,9 @@ sub BaseRecalibration {
 
 sub BaseRecalibrationPrint {
 
-  my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam, $threads, $mem, $tmpDir) = @_;
+  my ($class, $gatkBin, $inBam, $gfasta, $inTable, $outBam, $threads, $mem, $tmpDir, $javaBin) = @_;
 
-  my $cmd = "java -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $gatkBin -T PrintReads -R $gfasta -I $inBam -BQSR $inTable -DIQ --emit_original_quals -nct $threads -o $outBam";
 
   return $cmd;
 
