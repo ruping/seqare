@@ -868,7 +868,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
   }
 
   unless ((-s "$muTectOut" or -s "$muTectOut\.gz") or !exists( $somatic{$options{'sampleName'}} ) ) {
-    my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp, $options{'chrProcessRegion'});
+    my $cmd = snvCalling->muTectCalling($confs{'muTectBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $confs{'muTectCOSMIC'}, $confs{'muTectDBSNP'}, $muTectOut, $vcfOutTmp, $options{'chrProcessRegion'}, $options{'maxMem'}, $options{'javaTmp'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
