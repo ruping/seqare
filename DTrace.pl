@@ -976,7 +976,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
         while ( <IN> ) {
           chomp;
           if (/^#CHROM\t/) {
-            s/[A-Za-z0-9\-\_]+\t[A-Za-z0-9\-\_]+$/$snsreplacement/;
+            s/\S+\t\S+$/$snsreplacement/;
           }
           print OUT "$_\n";
         }
