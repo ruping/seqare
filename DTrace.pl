@@ -81,6 +81,7 @@ $options{'rareVariants'} = undef;
 $options{'germlineLOH'} = '';
 $options{'maxInsLine'} = 0;
 $options{'ignoreRG'} = 0;
+$options{'CfiftyOff'} = 0;
 
 $options{'chrProcess'} = 'SRP';
 $options{'chrProcessRegion'} = 'SRP';
@@ -154,6 +155,7 @@ GetOptions(
            "germlineLOH=s"=> \$options{'germlineLOH'},
            "maxInsLine=i" => \$options{'maxInsLine'},
            "ignoreRG=i"   => \$options{'ignoreRG'},
+           "CfiftyOff=i"  => \$options{'CfiftyOff'},
            "chrProcess=s" => \$options{'chrProcess'},
            "skipPileup=s" => \$options{'skipPileup'},
            "samSens=f"    => \$options{'samSens'},
@@ -937,7 +939,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
 
     unless (-s "$vcfOut" or -s "$vcfOutSorted" or -s "$vcfMultiAnnoMod" or -s "$vcfMultiAnnoModsnv") {
-      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'}, $options{'samSens'});
+      my $cmd = snvCalling->samtoolsCalling($confs{'samtoolsBin'}, $confs{'bcftoolsBin'}, $finalBam, $normalBam, $confs{'GFASTA'}, $vcfOut, $options{'samCallmaxDepth'}, $options{'ignoreRG'}, $options{'chrProcessRegion'}, $options{'samSens'}, $options{'CfiftyOff'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 

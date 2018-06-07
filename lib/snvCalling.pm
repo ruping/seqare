@@ -25,7 +25,7 @@ sub muTectCalling {
 
 sub samtoolsCalling {
 
-  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess, $sensitivity) = @_;
+  my ($class, $samtoolsBin, $bcftoolsBin, $BAM, $NORMALBAM, $gfasta, $vcfOut, $maxDepth, $ignoreRG, $chrProcess, $sensitivity, $CfiftyOff) = @_;
 
   my $ignoreRGopt = '';
   if ($ignoreRG == 1) {
@@ -37,12 +37,17 @@ sub samtoolsCalling {
     $regionOpt = '--region '.$chrProcess;
   }
 
+  my $CfiftyOpt = '-C 50';
+  if ($CfiftyOff == 1) {
+    $CfiftyOpt = '';
+  }
+
   my $sensOpt = '-P '.$sensitivity;
 
-  my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
+  my $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 $CfiftyOpt -f $gfasta $BAM $NORMALBAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
 
   if ( $BAM eq $NORMALBAM ) {  #only one bam single calling
-    $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 -C 50 -f $gfasta $BAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
+    $cmd = "$samtoolsBin mpileup $ignoreRGopt $regionOpt -Eugd $maxDepth -t DP,SP -q 0 $CfiftyOpt -f $gfasta $BAM | $bcftoolsBin call -p 0.9 $sensOpt -vcf GQ - >$vcfOut";
   }
 
   return $cmd;
