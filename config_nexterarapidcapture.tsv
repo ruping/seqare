@@ -41,7 +41,7 @@ blatDatabase	$anno/trupanno/$species/$species.genome_UCSC.2bit
 #java bin for gatk
 gatkBin	/srv/gsfs0/projects/curtis/ruping/tools/gatk/GenomeAnalysisTK.jar
 #java bin for markduplicates
-MarkDuplicatesBin	picard.jar
+MarkDuplicatesBin	/srv/gsfs0/projects/curtis/ruping/tools/picard-tools/current/picard.jar
 #samtools bin
 samtoolsBin	samtools
 #bcftools bin
