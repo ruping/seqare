@@ -122,7 +122,7 @@ sub MarkDuplicates {
 
   my ($class, $MarkDuplicatesBin, $inBam, $outBam, $metric, $mem, $tmpDir, $javaBin) = @_;
 
-  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $MarkDuplicatesBin I=$inBam O=$outBam M=$metric REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $MarkDuplicatesBin MarkDuplicates I=$inBam O=$outBam M=$metric REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true";
 
   return $cmd;
 
