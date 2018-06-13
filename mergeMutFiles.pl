@@ -11,7 +11,7 @@ if ($headern eq ''){
 my @files = split(',', $files);
 
 my $fc = 1;
-foreach my $file (sort @files) {
+foreach my $file (@files) {
   if ($fc == 1) {
     open IN, "$file";
     while ( <IN> ) {
