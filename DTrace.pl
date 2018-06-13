@@ -817,7 +817,7 @@ if (exists $runlevel{$runlevels}) {
 ###
 
 $runlevels = 4;
-if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
+if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'}) or exists($runTask{'annovar'})) {
 
   unless (-e "$options{'lanepath'}/04_SNV") {
     my $cmd = "mkdir -p $options{'lanepath'}/04_SNV";
