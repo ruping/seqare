@@ -26,13 +26,13 @@ foreach my $file (sort @files) {
         if ($hc <= $headern){
           next;
         } else {
-          print "$_";
+          print "$_" if ($_ ne '');
         }
       } elsif ($headern == -1) {
         if ($_ =~ /^#/){
           next;
         } else {
-          print "$_";
+          print "$_" if ($_ ne '');
         }
       }
     }
