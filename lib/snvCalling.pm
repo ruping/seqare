@@ -139,9 +139,12 @@ sub convertVCFannovar {
 
 sub grepSNVvcf {
 
-  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFsnv) = @_;
+  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFsnv, $pattern) = @_;
 
   my $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \!\~ \/\^INDEL\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFsnv";
+  if ($pattern ne 'SRP'){
+    $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \~ \/$pattern\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFsnv";
+  }
 
   return $cmd;
 
@@ -149,9 +152,12 @@ sub grepSNVvcf {
 
 sub grepINDELvcf {
 
-  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFindel) = @_;
+  my ($class, $vcfMultiAnnoVCF, $vcfMultiAnnoVCFindel, $pattern) = @_;
 
   my $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \~ \/\^INDEL\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFindel";
+  if ($pattern ne 'SRP'){
+    $cmd = "awk -F\"\\t\" \'\$1 \~ \/\^\#\/ \|\| \$8 \~ \/$pattern\/\' $vcfMultiAnnoVCF >$vcfMultiAnnoVCFindel";
+  }
 
   return $cmd;
 

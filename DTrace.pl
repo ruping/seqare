@@ -52,6 +52,8 @@ $options{'bin'}         = "$RealBin/";
 $options{'configure'}   = "SRP";
 $options{'skipPileup'}  = "yes";
 $options{'samSens'} = 0.005;
+$options{'snvPattern'} = "SRP";                  #for grepping samtools vcf files (and other)
+$options{'indelPattern'} = "SRP";                #for grepping samtools vcf files (and other)
 $options{'lorenzScaleFactor'} = 1.0;
 
 $options{'chrPrefInBam'} = "SRP";
@@ -87,7 +89,7 @@ $options{'chrProcess'} = 'SRP';
 $options{'chrProcessRegion'} = 'SRP';
 
 $options{'noStrandBias'} = 'no';
-
+$options{'customCalling'} = 'SRP';
 
 if (@ARGV == 0) {
   helpm();
@@ -159,7 +161,10 @@ GetOptions(
            "chrProcess=s" => \$options{'chrProcess'},
            "skipPileup=s" => \$options{'skipPileup'},
            "samSens=f"    => \$options{'samSens'},
-           "noStrandBias=s" => \$options{'noStrandBias'}     #treatment of strandbias
+           "snvPattern=s" => \$options{'snvPattern'},
+           "indelPattern=s" => \$options{'indelPattern'},
+           "noStrandBias=s" => \$options{'noStrandBias'},     #treatment of strandbias
+           "customCalling=s" => \$options{'customCalling'}    #customized calling file
           );
 
 #print help
@@ -831,6 +836,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     goto RECHECK;
   }
 
+  if (!exists($runlevel{$runlevels}) and exists($runTask{'annovar'})) {
+    goto ANNOVAR;
+  }
+
   if ($options{'somaticInfo'} eq "SRP"){
     print STDERR "ERROR: somaticInfo is not provided! Must set for somatic calling!\n";
     exit 22;
@@ -959,10 +968,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
 
       }
 
-      my $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv);
+      my $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv, $options{'snvPattern'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
-      $cmd = snvCalling->grepINDELvcf($vcfMultiAnnoMod, $vcfMultiAnnoModindel);
+      $cmd = snvCalling->grepINDELvcf($vcfMultiAnnoMod, $vcfMultiAnnoModindel, $options{'indelPattern'});
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
 
     }
@@ -1118,6 +1127,78 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'})) {
     }
 
   }
+
+ ANNOVAR:
+
+  if (exists($runTask{'annovar'}) and $options{'customCalling'} ne 'SRP' and -s "$options{'customCalling'}") { #do the annovar
+
+    my $vcfOut = $options{'customCalling'};
+    (my $vcfOutSorted = $vcfOut) =~ s/\.vcf$/.sorted.vcf/;
+    my $vcfMultiAnno = $vcfOutSorted."\.$confs{'species'}_multianno.txt";
+    my $vcfMultiAnnoVCF = $vcfOutSorted."\.$confs{'species'}_multianno.vcf";
+    my $vcfMultiAnnoMod = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf";
+    my $vcfMultiAnnoModsnv = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.snv";
+    my $vcfMultiAnnoModindel = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.indel";
+
+    if (exists($runTask{'mergeCustomCallingChr'})) {
+      goto ;
+    }
+
+    unless (-s "$vcfOut") {
+      die "custome calling file $vcfOut does not exist!\n";
+    }
+
+    #annoVar annotate---------------------------------------------------------------------
+    if ((-s "$vcfOut" or -s "$vcfMultiAnnoMod") and !-s "$vcfMultiAnnoModsnv") {
+
+      unless (-s "$vcfMultiAnnoMod") {
+
+        my $cmd = snvCalling->vcfSort($confs{'vcfSortBin'}, $vcfOut, $vcfOutSorted); #sort vcf
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+        $cmd = snvCalling->runAnnovar("$confs{'ANNOVARDIR'}/table_annovar.pl", $vcfOutSorted, $confs{'ANNOVARDB'}, $confs{'species'}); #table annovar
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+        $cmd = snvCalling->convertVCFannovar("$options{'bin'}/convert_annovar_vcf.pl", $vcfMultiAnno, $vcfMultiAnnoVCF);
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      }
+
+      my $cmd = snvCalling->grepSNVvcf($vcfMultiAnnoMod, $vcfMultiAnnoModsnv, $options{'snvPattern'});
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+      $cmd = snvCalling->grepINDELvcf($vcfMultiAnnoMod, $vcfMultiAnnoModindel, $options{'indelPattern'});
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+
+    }
+
+    #rm temporary files
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOut") {
+      my $cmd = "rm -rf $vcfOut";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.avinput") {
+      my $cmd = "rm -rf $vcfOutSorted\.avinput";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfOutSorted\.refGene.invalid_input") {
+      my $cmd = "rm -rf $vcfOutSorted\.refGene.invalid_input";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfMultiAnno") {
+      my $cmd = "rm -rf $vcfMultiAnno $vcfMultiAnnoVCF";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+    if (-s "$vcfMultiAnnoModsnv" and -s "$vcfMultiAnnoMod") {
+      my $cmd = "rm -rf $vcfMultiAnnoMod";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+    }
+
+  } #annovar
 
  RECHECK:
 
