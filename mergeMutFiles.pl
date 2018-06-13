@@ -4,6 +4,7 @@ my $files = shift;
 my $headern = shift;
 
 if ($headern eq ''){
+  print STDERR "no header number provided, now assume \^\# as default header lines.\n";
   $headern = -1;
 }
 
