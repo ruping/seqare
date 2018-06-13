@@ -8,7 +8,17 @@ if ($headern eq ''){
   $headern = -1;
 }
 
-my @files = split(',', $files);
+my @files;
+if ($files =~ /,/){
+  @files = split(',', $files);
+} else {  # an file of filenames
+  open FF, "$files";
+  while ( <FF> ) {
+    chomp;
+    push (@files, $_);
+  }
+  close FF;
+}
 
 my $fc = 1;
 foreach my $file (@files) {
