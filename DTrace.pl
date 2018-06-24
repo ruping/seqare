@@ -1141,7 +1141,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'}) or exists($runT
     my $vcfMultiAnnoModindel = $vcfOutSorted."\.$confs{'species'}_multianno.mod.vcf.indel";
 
     if (exists($runTask{'mergeCustomCallingChr'})) {
-      goto ;
+      goto MERGECUSTOM;
     }
 
     unless (-s "$vcfOut") {
@@ -1198,7 +1198,38 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
 
+    #------------------------------------------------------------------------------------
+
   } #annovar
+
+ MERGECUSTOM:
+
+  if (exists($runTask{'mergeCustomCallingChr'})) {
+    my $callingString = $options{'customCalling'};
+    my @customChrSnvs = bsd_glob("$options{'lanepath'}/04_SNV/*$callingString*.mod.vcf.snv");
+    my $customChrSnvs = join(',', @customChrSnvs);
+    my @customChrIndels = bsd_glob("$options{'lanepath'}/04_SNV/*$callingString*.mod.vcf.indel");
+    my $customChrIndels = join(',', @customChrIndels);
+    (my $vcfMultiAnnoModsnv = $customChrSnvs[0]) =~ s/\.chr[0-9A-Z]+//;
+    (my $vcfMultiAnnoModindel =  $customChrIndels[0]) =~ s/\.chr[0-9A-Z]+//;
+    unless (-s "$vcfMultiAnnoModsnv") {
+      my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $customChrSnvs >$vcfMultiAnnoModsnv";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$vcfMultiAnnoModsnv" and -s "$customChrSnvs[0]") {
+        my $cmd = "rm ".join(" ", @customChrSnvs).' -rf';
+        #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
+    unless (-s "$vcfMultiAnnoModindel") {
+      my $cmd = "perl $options{'bin'}/mergeMutFiles.pl $customChrIndels >$vcfMultiAnnoModindel";
+      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      if (-s "$vcfMultiAnnoModindel" and -s "$customChrIndels[0]") {
+        my $cmd = "rm ".join(" ", @customChrIndels).' -rf';
+        #RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+    }
+  }
+
 
  RECHECK:
 
