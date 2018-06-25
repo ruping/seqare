@@ -192,6 +192,9 @@ foreach my $file (@list) {
        next if ($qual ne '.' and $qual < $qualTitan);
      }
 
+     if ( $task =~ /vardict/ ) {
+       next if ( $pass ne 'PASS' );
+     }
 
      if ($revertornot eq 'yes') {   #revert sample and blood
         my $tmp = $sample;
@@ -239,7 +242,7 @@ foreach my $file (@list) {
          }
        }
      }
-     #############################################################################decide somatic
+     ############################################################################# Decide Somatic, Only for SNV
 
      if ( $type eq 'indel' and $task =~ /strelka/ ) {                    #if clinvar, skip normal filter
        goto PRODUCE;
@@ -388,7 +391,7 @@ foreach my $file (@list) {
 
        $maf = ($tdp > 0)? sprintf("%.3f", $altd/$tdp) : 0.;
 
-     } else {  #non strelka indel
+     } else {  #SNV
 
        if ($info =~ /DP4\=(\d+)\,(\d+)\,(\d+)\,(\d+)\;/) { #DP4 information
          $maf = sprintf("%.3f", ($3+$4)/($1+$2+$3+$4));
@@ -436,6 +439,9 @@ foreach my $file (@list) {
 
      if ( $task =~ /errorEst/ ) {
        next if ( $maf < 0.2 or $maf > 0.8 );
+     }
+     if ( $task =~ /vardict/) {
+       next if ( $altd < 3 );
      }
 
      # generate reference panel for her2 brca
