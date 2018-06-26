@@ -343,13 +343,12 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
       foreach my $consecutive (@consecutive) {
         next if $consecutive eq '';
         my @tmp = split (',', $consecutive);
-        next if $tmp[0] == 0;
-        next if $tmp[1] == 0;
-        if ( $tmp[2] >= 3 ) { #vard is the third value of the array, at least three vard to give weights
-          $sumCmean += $tmp[0];
-          $sumCmedian += $tmp[1];
-          $n++;
-        }
+        next if $tmp[0] == 0;   #cmean
+        next if $tmp[1] == 0;   #cmedian
+        next if $tmp[2] == 0;   #vard
+        $sumCmean += $tmp[2]*$tmp[0];    #vard tmp[2] used as a weight
+        $sumCmedian += $tmp[2]*$tmp[1];  #vard tmp[2] used as a weight
+        $n += $tmp[2];                   #total vdepth
       }
 
       if ($n > 0) {         #if you have cmean and cmedian information
