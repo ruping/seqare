@@ -272,12 +272,14 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################
                   $somatic{$coor}{$djindex}{$name} .= '|'.$endratio.'|'.$cmean.','.$cmedian.'|'.$strandRatio.','.$strandRatioRef.','.$stranFisherP.'|'.$badqual.'|'.$tlod.'|'.$ToxoG;
-                  $cmean = 0; #reset for artifact like stuff
-                  $cmedian = 0; #reset
+                  #$cmean = 0;   #reset for artifact like stuff
+                  #$cmedian = 0; #reset
                 }
               }
-            } else {
+            } else {   #vard !=0 but it is other variant bases
               $somatic{$coor}{$djindex}{$name} = 0;
+              $cmean = 0;   #reset for artifact like stuff
+              $cmedian = 0; #reset
             }
 
             ####### here for errorEst #############################
@@ -308,9 +310,10 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
             print STDERR "error: coor is not found in the original file, must be found!\n";
             exit 22;
           }
-        } else {
+        } else {   #either vard or depth == 0
           $somatic{$coor}{$djindex}{$name} = 0;
         }
+
         $somatic{$coor}{$djindex}{$name} .= "\t$depth";
         if ($junction != 0) {    #there are some junction reads
           $somatic{$coor}{$djindex}{$name} .= ",$junction";
