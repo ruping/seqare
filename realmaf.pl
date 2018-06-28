@@ -343,7 +343,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
       my $sumCmean = 0;
       my $sumCmedian = 0;
 
-      my $teststring = "";
+      #my $teststring = "";
       foreach my $consecutive (@consecutive) {
         next if $consecutive eq '';
         my @tmp = split (',', $consecutive);
@@ -353,7 +353,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
         $sumCmean += $tmp[2]*$tmp[0];    #vard tmp[2] used as a weight
         $sumCmedian += $tmp[2]*$tmp[1];  #vard tmp[2] used as a weight
         $n += $tmp[2];                   #total vdepth
-        $teststring .= "$tmp[2]"."\*"."$tmp[0]"." +";
+        #$teststring .= "$tmp[2]"."\*"."$tmp[0]"." +";
       }
 
       if ($n > 0) {         #if you have cmean and cmedian information
@@ -376,7 +376,7 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
           print "\t0\t0";
         }
       }
-      print "\t$sumCmean\t$sumCmedian\t$teststring";
+      print "\t$sumCmean\t$sumCmedian";
       print "\n";
     } #each identical coordinates
   } #each coor
