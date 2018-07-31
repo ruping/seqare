@@ -351,6 +351,10 @@ if ($options{'bams'} ne 'SRP') {                              #bam -> halfway en
     my $cmd = "ln -s $options{'bams'}\.bai $linkBam\.bai";
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
+  if (-s "$linkBam" and !-s "$linkBam\.bai") {                         # not indexed before, fix
+    my $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $linkBam);  # index it
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
   goto REALSTEPS;
 }
 
