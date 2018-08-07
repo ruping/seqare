@@ -39,6 +39,7 @@ GetOptions (
            "somaticInfo|s=s"   => \$somaticInfo,      #info for somatic sample pairs
            "bloodCall|b=s"     => \$bloodCall,        #bloodCall
            "Th_cmeme=f"        => \$Th_cmeancmedian,  #cmeancmedian
+           "Th_cmedian=f"      => \$Th_cmedian,       #cmedian
            "rna|r=s"           => \$rna,              #rna info
            "noStrandBias=s"    => \$noStrandBias,     #treatment of strandbias
            "loosefound=s"      => \$loosefound,       #loose found samples
