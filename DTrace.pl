@@ -91,6 +91,10 @@ $options{'chrProcessRegion'} = 'SRP';
 $options{'noStrandBias'} = 'no';
 $options{'customCalling'} = 'SRP';
 
+$options{'cmeme'} = 5.5;
+$options{'cmedian'} = 2;
+
+
 if (@ARGV == 0) {
   helpm();
 } else {
@@ -164,7 +168,9 @@ GetOptions(
            "snvPattern=s" => \$options{'snvPattern'},
            "indelPattern=s" => \$options{'indelPattern'},
            "noStrandBias=s" => \$options{'noStrandBias'},     #treatment of strandbias
-           "customCalling=s" => \$options{'customCalling'}    #customized calling file
+           "customCalling=s" => \$options{'customCalling'},   #customized calling file
+           "cmeme=f"      => \$options{'cmeme'},              #cmeancmedian
+           "cmedian=f"    => \$options{'cmedian'}             #cmedian
           );
 
 #print help
@@ -1544,15 +1550,15 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered") {
-      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect --type snv --task filter --noStrandBias $options{'noStrandBias'} >$varout_mutect\.filtered";
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect --type snv --task filter --noStrandBias $options{'noStrandBias'} --cmeme $options{'cmeme'} --cmedian $options{'cmedian'} >$varout_mutect\.filtered";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered\.classified") {
-      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered --type snv --task somatic --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} >$varout_mutect\.filtered\.classified";
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered --type snv --task somatic --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} --cmeme $options{'cmeme'} --cmedian $options{'cmedian'} >$varout_mutect\.filtered\.classified";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered\.classified\.founds") {
-      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified --type snv --task samfounds --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} >$varout_mutect\.filtered\.classified\.founds";
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified --type snv --task samfounds --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} --cmeme $options{'cmeme'} --cmedian $options{'cmedian'} >$varout_mutect\.filtered\.classified\.founds";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara") {
@@ -1588,7 +1594,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified") {
-      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table --type snv --task split --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified";
+      my $cmd = "perl $options{'bin'}/recurrency.pl --file $varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table --type snv --task split --somaticInfo $options{'somaticInfo'} --noStrandBias $options{'noStrandBias'} --cmeme $options{'cmeme'} --cmedian $options{'cmedian'} >$varout_mutect\.filtered\.classified\.founds\.nopara\.somatic.table.simplified";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
   }

@@ -38,8 +38,8 @@ GetOptions (
            "task|k=s"          => \$task,             #task type
            "somaticInfo|s=s"   => \$somaticInfo,      #info for somatic sample pairs
            "bloodCall|b=s"     => \$bloodCall,        #bloodCall
-           "Th_cmeme=f"        => \$Th_cmeancmedian,  #cmeancmedian
-           "Th_cmedian=f"      => \$Th_cmedian,       #cmedian
+           "cmeme=f"           => \$Th_cmeancmedian,  #cmeancmedian
+           "cmedian=f"         => \$Th_cmedian,       #cmedian
            "rna|r=s"           => \$rna,              #rna info
            "noStrandBias=s"    => \$noStrandBias,     #treatment of strandbias
            "loosefound=s"      => \$loosefound,       #loose found samples
@@ -48,6 +48,8 @@ GetOptions (
                                print "\t--type\t\tthe type of variants, snv or indel\n";
                                print "\t--task\t\tthe aim of the analysis, maf, somatic, filter, (sam)founds, (rna)trace, depth, freq, etc\n";
                                print "\t--somaticInfo\tthe paired sample information\n";
+                               print "\t--cmeme\tthe sum of concensus mismatch count (median and mean), default 5.5\n";
+                               print "\t--cmedian\tthe concensus mismatch count (median only), default 2\n";
                                print "\t--bloodCall\twhether the blood has called for variants (yes or no), for a sanity check\n";
                                print "\t--rna\t\tthe dna-rna matching table, when task is rnatrace\n";
                                print "\t--help\t\tprint this help message\n";
@@ -193,7 +195,7 @@ while ( <IN> ) {
         }
         my $vard = sprintf("%.1f", $maf*$depth);
         my $refd = $depth-$vard;
-        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+        unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {
           $maf = 0;
         }
         if ($maf >= 0.1 and $vard >= 2) {
@@ -231,7 +233,7 @@ while ( <IN> ) {
         my $vard = sprintf("%.1f", $maf*$depth);
         my $refd = $depth-$vard;
         if (exists($somatic{$sample})) { #do this only for tumorsample
-          unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < 6 or $cmedian <= 2.5)) {
+          unless (($endsratio < 0.9 or ((1-$endsratio)*$vard >= 2)) and $badQualFrac <= 0.7 and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < $Th_cmeancmedian or $cmedian <= $Th_cmedian)) {
             $maf = 0;
           }
         }
