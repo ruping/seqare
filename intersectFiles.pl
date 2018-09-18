@@ -224,9 +224,10 @@ while ( $variants[$it]->{'chr'} ne $old_chr ) {
         } else {                                                       # the last element
             $line = <ORI>;                                             # get a line of region file
             if (!defined $line){
-               &var_processing($variants[$iter-1]);
-               print STDERR "finished: end of region file, zone 4\n";
-               exit 0;
+              #&var_processing($variants[$iter-1]);
+              #print STDERR "finished: end of region file, zone 4\n";
+              #exit 0;
+              last;
             }
             eatline($line, \@variants);                                # eat a line and put it into the duque
             $iter = $#variants;
