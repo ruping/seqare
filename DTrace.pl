@@ -565,6 +565,10 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
     }
   }
 
+  if ($options{'seqType'} =~ /WGS/ and $options{'seqType'} !~ /ignore/) {
+    print STDERR "stop for disk space checking\n";
+    exit 0;
+  }
 
   unless (-s "$finalBam" and !(exists($runTask{'indelRealignment'}) or exists($runTask{'MarkDuplicates'}) or exists($runTask{'recalMD'}) or exists($runTask{'BaseRecalibration'})) ) {    #processing bam
     if (-s "$rawBam" and !(-s "$sortedBam")) {     #must sort
@@ -572,11 +576,6 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mapping'}) or exists($runT
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = bwaMapping->bamIndex($confs{'samtoolsBin'}, $sortedBam);     #index it
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-    }
-
-    if ($options{'seqType'} =~ /WGS/ and $options{'seqType'} !~ /ignore/) {
-      print STDERR "stop for disk space checking\n";
-      exit 0;
     }
 
     if (-s "$rawBam" and -s "$sortedBam") {
