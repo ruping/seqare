@@ -503,6 +503,9 @@ foreach my $file (@list) {
 
      #now start to store data
      $somatic{$coor}{$name} = ($task =~ /muTect/)? $maf.'|'.$tdp.'|'.$muTectLod : $maf.'|'.$qual;
+     if ($task =~ /strelka/) {
+       $somatic{$coor}{$name} .= '|'.$somatic;
+     }
      if ($task =~ /titan/) {
        $somatic{$coor}{$name} .= '|'.$GTblood;
      }
