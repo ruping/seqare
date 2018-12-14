@@ -7,11 +7,16 @@ my $data = shift;
 my $somaticInfo = shift;
 my $pairedCall = shift;
 my $homoThred = shift;
+my $ndepthThred = shift;
 my $lohRegion = shift;
+my $split = 1;
+
 if ($homoThred eq ''){
   $homoThred = 0.85;
 }
-my $split = 1;
+if ($ndepthThred eq ''){
+  $ndepthThred = 8;
+}
 
 my %somatic;
 my %germline;  #may have multiple tumors
@@ -105,15 +110,17 @@ if ($split == 1) {
           if (exists($germline{$sample})) {                                             #it is a blood
             my $calledBlood = $cols[$i-1];
             if ( $pairedCall == 1 ) {
-              $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];
+              $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];                #paired-T-original-column
             }
             if ($calledBlood =~ /\|/) {                                                 #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
-              my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the blood but rechecked
+              my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the N column rechecked
+              my $calledBloodDepth = $cols[$i+1];                                       #it is the N depth column rechecked
               unless ($lohRegion ne '' or exists($somatic{$sample})) {                  #either loh region or it is both a normal and tumor (so ignore the subsequent filter)
-                next if ($calledBloodRecheck[0] > $homoThred);                                #if blood has greater than 0.85 VAF, indicating wrong genotyping
+                next if ($calledBloodRecheck[0] > $homoThred);                          #if blood has greater than 0.85 VAF, indicating wrong genotyping
               }
+              next if $calledBloodDepth < $ndepthThred;                                 #if blood has too low depth
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
                 my @infos = split(/\|/, $cols[$i]);

@@ -74,6 +74,7 @@ $options{'maxMem'} = '4g';
 $options{'javaTmp'} = '/local/scratch';
 $options{'nwigString'}  = 'SRP';
 $options{'homoThred'}   = 0.85;
+$options{'ndepthThred'} = 8;
 
 $options{'mergeNonsegdup'} = 1;
 $options{'mergeRare'}      = 1;
@@ -156,6 +157,7 @@ GetOptions(
            "tranclone=f"  => \$options{'tranclone'},
            "nwigString=s" => \$options{'nwigString'},
            "homoThred=f"  => \$options{'homoThred'},
+           "ndepthThred=i" => \$options{'ndepthThred'},
            "mergeNonsegdup=i" => \$options{'mergeNonsegdup'},
            "mergeRare=i"  => \$options{'mergeRare'},
            "germlineLOH=s"=> \$options{'germlineLOH'},
@@ -1661,7 +1663,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
     }
     unless (-e "$options{'root'}/titan") {
-      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered\.nopara $options{'somaticInfo'} 1 $options{'homoThred'} $options{'germlineLOH'}";
+      my $cmd = "perl $options{'bin'}/titanCNAprepare.pl $varout_samtools\.filtered\.nopara $options{'somaticInfo'} 1 $options{'homoThred'} $options{'ndepthThred'} $options{'germlineLOH'}";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/redistributeTitan.pl $options{'root'}/titan/ $options{'root'}";                #distribute allele counts for titan
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
@@ -1740,6 +1742,8 @@ sub helpm {
 
   print STDERR "\nrunlevel 8: merge calls\n";
   print STDERR "\nrunlevel 9: variant classification\n";
+  print STDERR "\t--homoThred\tThreshold for excluding homozygous sites in the normal, default \'0.85\'\n";
+  print STDERR "\t--ndepthThred\tAt least this depth in the normal for being considered for titan, default \'8\'\n";
 
   print STDERR "\nOTHER OPTIONS\n";
   print STDERR "\t--noexecute\tdo not execute the command, for testing purpose\n";
