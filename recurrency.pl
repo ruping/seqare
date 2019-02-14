@@ -164,6 +164,8 @@ while ( <IN> ) {
       print "$_\tdepthav\n";
     } elsif ($task eq 'samfounds'){
       print "$_\tfounds\trsam\n";
+    } elsif ($task eq 'mut2maf'){
+      printf("%s\n", join("\t", "Hugo_Symbol","Chromosome","Start_Position","End_position","Variant_Classification","Variant_Type","Reference_Allele","Tumor_Seq_Allele2","Tumor_Sample_Barcode"));
     } else {
       print STDERR "task if wierd\n";
       exit 22;
@@ -204,7 +206,18 @@ while ( <IN> ) {
       }
       $smaf = sprintf("%.6f",$smaf/$sampleCounts);
       print "$_\t$smaf\n";
-    } elsif ($task eq 'split') {
+    } elsif ($task eq 'split' or $task eq 'mut2maf') {
+
+      (my $Hugo_Symbol = $cols[$colnames{'geneName'}]) =~ s/\(dist=\d+\)//g;
+      my $Chromosome = $cols[$colnames{'chr'}];
+      my $Start_Position = $cols[$colnames{'pos'}];
+      my $End_Position = $cols[$colnames{'pos'}];
+      my $Variant_Classification = $cols[$colnames{'functionalClass'}];
+      my $Variant_Type = "SNP";
+      my $Reference_Allele = $cols[$colnames{'ref'}];
+      my $Tumor_Seq_Allele2 = $cols[$colnames{'alt'}];
+      my $Tumor_Sample_Barcode = "";
+
       my @spliceIndexes;
       foreach my $sample (@all) {
         push(@spliceIndexes,$colnames{$sample}) if ( exists($colnames{$sample}) );
@@ -238,16 +251,21 @@ while ( <IN> ) {
           }
         }
         $cols[$colnames{$sampmaf}] = $maf;
+        if ($task eq 'mut2maf') {  #turning mut to maf format
+          $Tumor_Sample_Barcode = $sample;
+          print("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
+        }
       }
-      #print STDERR Dumper(\@spliceIndexes);
-      @cols = &splice_entry(\@cols, \@spliceIndexes) if ($#spliceIndexes > 0);
-      if ($header ne '') {    #print header cut
-        my @headercols = split("\t", $header);
-        @headercols = &splice_entry(\@headercols, \@spliceIndexes) if ($#spliceIndexes > 0);
-        printf("%s\n", join("\t", @headercols));
-        $header = '';
+      if ($task eq 'split') {
+        @cols = &splice_entry(\@cols, \@spliceIndexes) if ($#spliceIndexes > 0);
+        if ($header ne '') {    #print header cut
+          my @headercols = split("\t", $header);
+          @headercols = &splice_entry(\@headercols, \@spliceIndexes) if ($#spliceIndexes > 0);
+          printf("%s\n", join("\t", @headercols));
+          $header = '';
+        }
+        printf("%s\n", join("\t", @cols));
       }
-      printf("%s\n", join("\t", @cols));
     } elsif ($task eq 'freq') {
       my $freq = 'NA';
       #my $freq1KG;
