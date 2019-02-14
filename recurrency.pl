@@ -212,7 +212,8 @@ while ( <IN> ) {
       my $Chromosome = $cols[$colnames{'chr'}];
       my $Start_Position = $cols[$colnames{'pos'}];
       my $End_Position = $cols[$colnames{'pos'}];
-      my $Variant_Classification = $cols[$colnames{'functionalClass'}];
+      my $geneLoc = $cols[$colnames{'geneLoc'}];
+      my $Variant_Classification = ($cols[$colnames{'functionalClass'}] eq 'NA')? $cols[$colnames{'geneLoc'}]:$cols[$colnames{'functionalClass'}];
       my $Variant_Type = "SNP";
       my $Reference_Allele = $cols[$colnames{'ref'}];
       my $Tumor_Seq_Allele2 = $cols[$colnames{'alt'}];
@@ -253,7 +254,7 @@ while ( <IN> ) {
         $cols[$colnames{$sampmaf}] = $maf;
         if ($task eq 'mut2maf') {  #turning mut to maf format
           $Tumor_Sample_Barcode = $sample;
-          print("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
+          printf("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
         }
       }
       if ($task eq 'split') {
