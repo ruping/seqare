@@ -167,7 +167,7 @@ while ( <IN> ) {
     } elsif ($task eq 'mut2maf'){
       printf("%s\n", join("\t", "Hugo_Symbol","Chromosome","Start_Position","End_position","Variant_Classification","Variant_Type","Reference_Allele","Tumor_Seq_Allele2","Tumor_Sample_Barcode"));
     } else {
-      print STDERR "task if wierd\n";
+      print STDERR "task is wierd\n";
       exit 22;
     }
   } else {
