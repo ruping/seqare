@@ -254,7 +254,9 @@ while ( <IN> ) {
         $cols[$colnames{$sampmaf}] = $maf;
         if ($task eq 'mut2maf') {  #turning mut to maf format
           $Tumor_Sample_Barcode = $sample;
-          printf("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
+          if ($maf > 0) {
+            printf("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
+          }
         }
       }
       if ($task eq 'split') {
