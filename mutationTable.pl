@@ -63,6 +63,8 @@ while ( <IN> ) {
         print "\tgeneName\tgeneLoc\tfunctionalClass\tAAChange\tCADD_phred\tGERP_RS\tSIFT_score\tPolyphen2_HVAR_pred\totherFunction";
       } elsif ($colnames[$c] eq 'clinical'){
         print "\tpopFreq\tClinChanel\tClinAllele\tClinVariantDisease";
+      } elsif ($colnames[$c] eq 'trace' and $type eq 'indel'){
+        print "\traceSomatic\ttraceGermline";
       } else {
         print "\t$colnames[$c]";
       }
@@ -117,6 +119,14 @@ while ( <IN> ) {
 
       } elsif ( $colnames[$i] =~ /^(($prefixReg)[A-Za-z0-9\-\_]+)maf$/ ) {
         $print = $cols[$i];
+        push (@printcols, $print);
+      } elsif ( $colnames[$i] eq 'trace' and $type eq 'indel' ) {
+        my @traces = split(';', $colnames[$i]);
+        $traces[0] =~ /^somatic=(.+?)$/;
+        (my $somaticSamples = $1) =~ s/,$//;
+        $traces[1] =~ /^germline=(.+?)$/;
+        (my $germlineSamples = $1) =~ s/,$//;
+        $print = "$somaticSamples\t$germlineSamples";
         push (@printcols, $print);
       } else {
         $print = $cols[$i];
