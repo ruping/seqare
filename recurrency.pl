@@ -252,9 +252,11 @@ while ( <IN> ) {
           }
         }
         $cols[$colnames{$sampmaf}] = $maf;
+
         if ($task eq 'mut2maf') {  #turning mut to maf format
           $Tumor_Sample_Barcode = $sample;
-          if ($maf > 0) {
+          next if exists($germline{$sample});
+          if ($maf > 0 and $cols[$colnames{'germline'}] eq 'NA' and (($cols[$colnames{'rep'}] == 0 and $cols[$colnames{'rep'}] == 0) or $cols[$colnames{'cmedianav'}] < 2) ) {
             printf("%s\n",join("\t",$Hugo_Symbol,$Chromosome,$Start_Position,$End_Position,$Variant_Classification,$Variant_Type,$Reference_Allele,$Tumor_Seq_Allele2,$Tumor_Sample_Barcode));
           }
         }
