@@ -1,5 +1,6 @@
 use strict;
 use Getopt::Long;
+use Data::Dumper;
 use List::Util qw(min max);
 
 my $mutation;
@@ -18,7 +19,7 @@ GetOptions (
            "prefix|p=s"     => \$prefix,
            "tmpdir|y=s"     => \$tmpdir,
            "clinical=i"     => \$clinical,
-           "help|h"         => sub{
+           "help|h"         => sub {
                                print "usage: $0 produce andrea wanted mutation table\n\nOptions:\n\t--mutation\tthe filename of mutation table\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
                                print "\t--normal\tcomma seperated id of normal samples\n";
@@ -64,7 +65,7 @@ while ( <IN> ) {
       } elsif ($colnames[$c] eq 'clinical'){
         print "\tpopFreq\tClinChanel\tClinAllele\tClinVariantDisease";
       } elsif ($colnames[$c] eq 'trace' and $type eq 'indel'){
-        print "\traceSomatic\ttraceGermline";
+        print "\ttraceSomatic\ttraceGermline";
       } else {
         print "\t$colnames[$c]";
       }
@@ -120,11 +121,12 @@ while ( <IN> ) {
       } elsif ( $colnames[$i] =~ /^(($prefixReg)[A-Za-z0-9\-\_]+)maf$/ ) {
         $print = $cols[$i];
         push (@printcols, $print);
+
       } elsif ( $colnames[$i] eq 'trace' and $type eq 'indel' ) {
-        my @traces = split(';', $colnames[$i]);
-        $traces[0] =~ /^somatic=(.+?)$/;
+        my @traces = split(';', $cols[$i]);
+        $traces[0] =~ /^somatic=([0-9A-Za-z\-\_\,]+)$/;
         (my $somaticSamples = $1) =~ s/,$//;
-        $traces[1] =~ /^germline=(.+?)$/;
+        $traces[1] =~ /^germline=([0-9A-Za-z\-\_\,]+)$/;
         (my $germlineSamples = $1) =~ s/,$//;
         $print = "$somaticSamples\t$germlineSamples";
         push (@printcols, $print);
