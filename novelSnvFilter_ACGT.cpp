@@ -76,7 +76,9 @@ struct var {  // a bed file containing gene annotations
   unsigned int F2R1_alt;
   unsigned int F2R1_all;
   unsigned int readlen;
+  vector <unsigned int> lenVarReads;
   vector <unsigned int> surrounding;
+  vector <unsigned int> surroundingIndels;
   map <unsigned int, unsigned int> conMis;
   string qualities;
 };
@@ -346,7 +348,8 @@ int main ( int argc, char *argv[] ) {
             iter->readlen = bam.Length;
           }
           
-          unsigned int mismatches = 0;                      // how many mismatches does this read have? 
+          unsigned int mismatches = 0;                      // how many mismatches (including indels) does this read have?
+          unsigned int indels = 0;                          // how many indels does this read have?
           bool varInRead = false;                           // is the var in the read?
           bool posInRead = false;
           vector <int>::iterator bliter = blockLengths.begin();
@@ -395,7 +398,8 @@ int main ( int argc, char *argv[] ) {
 
           map<unsigned int, unsigned int>::iterator inserit_index = insertions.begin();
           while ( inserit_index != insertions.end() ) {    // check insertions
-            mismatches += 1;                               //should count as mismatches
+            mismatches += 1;                               // count as mismatches
+            indels += 1;                                   // count for indels
             inserit_index++;
           }
           inserit_index = insertions.begin();              //reset it for the begin of insertions
@@ -440,6 +444,7 @@ int main ( int argc, char *argv[] ) {
               incre = (*rit).length() - 1;                    //variant 2
               cuPos += incre;                                 //variant 2
               mismatches += 1;
+              indels += 1;
             } else if ((*rit).length() == 1) {                // single base nucleotide change
 
               //check whether it is "N" or not
@@ -457,7 +462,7 @@ int main ( int argc, char *argv[] ) {
               if ( cuPos == iter->start ) { // it is right here with some variant base!!!
 
                 varInRead = true;
-             
+                
                 if ((alignmentEnd - cuPos) <= 10 || (cuPos - alignmentStart) <= 10) {        // inends
                   iter->inends += 1;
                 }
@@ -515,6 +520,8 @@ int main ( int argc, char *argv[] ) {
 
           if (varInRead == true) {
             (iter->surrounding).push_back(mismatches);
+            (iter->surroundingIndels).push_back(indels);
+            (iter->lenVarReads).push_back(bam.Length);
           }
 
         }  // overlapping take action!
@@ -739,6 +746,7 @@ inline void var_processing(struct var &variant) {
   for(; sit != (variant.surrounding).end(); sit++) {
     ssum += *sit;
   }
+
   float meanMis;
   float medianMis;
   unsigned int surrSize = variant.surrounding.size();
@@ -749,6 +757,41 @@ inline void var_processing(struct var &variant) {
     meanMis = ((float)ssum)/((float)surrSize);
     medianMis = CalcMedian(variant.surrounding);
   }
+
+  unsigned int indelsum;
+  vector <unsigned int>::iterator indelit = (variant.surroundingIndels).begin();
+  for(; indelit != (variant.surroundingIndels).end(); indelit++) {
+    indelsum += *indelit;
+  }
+
+  float meanIndel;
+  float medianIndel;
+  unsigned int surrIndelSize = variant.surroundingIndels.size();
+  if (surrIndelSize == 0) {
+    meanIndel = 0.0;
+    medianIndel = 0.0;
+  } else {
+    meanIndel = ((float)indelsum)/((float)surrIndelSize);
+    medianIndel = CalcMedian(variant.surroundingIndels);
+  }
+
+  unsigned int lenSum;
+  vector <unsigned int>::iterator lenit = (variant.lenVarReads).begin();
+  for(; lenit != (variant.lenVarReads).end(); lenit++) {
+    lenSum += *lenit;
+  }
+  
+  float meanVRLength;        // get Length of reads with variants
+  float medianVRLength;      // get Length of reads with variants
+  unsigned int lenVRSize = variant.lenVarReads.size();
+  if (surrIndelSize == 0) {
+    meanVRLength = 0.0;
+    medianVRLength = 0.0;
+  } else {
+    meanVRLength = ((float)lenSum)/((float)lenVRSize);
+    medianVRLength = CalcMedian(variant.lenVarReads);
+  }
+  
 
   float fracBadMappingQual = 0;
   if ((variant.countMappingGood + variant.countMappingBad) > 0) {
@@ -770,8 +813,8 @@ inline void var_processing(struct var &variant) {
   } else {
     localEr = ((float)numncMis)/totalBases;
   }
-
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
+  
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(2) << meanIndel << "\t" << setprecision(2) << medianIndel << "\t" << setprecision(2) << meanVRLength << "\t" << setprecision(2) << medianVRLength << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
 }
 

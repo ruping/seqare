@@ -3,7 +3,6 @@
   (c) 2015 - Sun Ruping
   ruping@stanford.edu
 
-
 g++ novelIndelFilter.cpp
 -I/srv/gsfs0/projects/curtis/ruping/tools/bamtools/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/boost/current/include/ 
 -L/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ 
@@ -314,7 +313,7 @@ int main ( int argc, char *argv[] ) {
           while (bliter != blockLengths.end() && bSiter != blockStarts.end()) {
             unsigned int blockstart = *bSiter + alignmentStart;
             unsigned int blockend = *bliter + blockstart;
-            if (iter->start >= blockstart && iter->end <= blockend){
+            if (iter->start >= blockstart && iter->end <= blockend) {
               posInRead = true;
               break;
             } //overlap                                                                                                                                                                                                                               
