@@ -760,9 +760,8 @@ inline void var_processing(struct var &variant) {
   unsigned int indelsum;
   vector <unsigned int>::iterator indelit = (variant.surroundingIndels).begin();
   for(; indelit != (variant.surroundingIndels).end(); indelit++) {
-    if (*indelit > 0) {
+    cerr << *indelit;
       indelsum += *indelit;
-    }
   }
 
   float meanIndel;
