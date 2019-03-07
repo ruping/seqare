@@ -771,24 +771,26 @@ inline void var_processing(struct var &variant) {
     meanIndel = 0.0;
     medianIndel = 0.0;
   } else {
-    meanIndel = ((float)indelsum)/((float)surrIndelSize);
-    medianIndel = CalcMedian(variant.surroundingIndels);
+    //meanIndel = ((float)indelsum)/((float)surrIndelSize);
+    meanIndel = (float)indelsum
+    medianIndel = (float)surrIndelSize
+    //medianIndel = CalcMedian(variant.surroundingIndels);
   }
 
-  unsigned int lenSum;
-  vector <unsigned int>::iterator lenit = (variant.lenVarReads).begin();
-  for(; lenit != (variant.lenVarReads).end(); lenit++) {
-    lenSum += *lenit;
-  }
+  //unsigned int lenSum;
+  //vector <unsigned int>::iterator lenit = (variant.lenVarReads).begin();
+  //for(; lenit != (variant.lenVarReads).end(); lenit++) {
+  //  lenSum += *lenit;
+  //}
   
-  float meanVRLength;        // get Length of reads with variants
+  //float meanVRLength;        // get Length of reads with variants
   float medianVRLength;      // get Length of reads with variants
   unsigned int lenVRSize = variant.lenVarReads.size();
   if (surrIndelSize == 0) {
-    meanVRLength = 0.0;
+    //meanVRLength = 0.0;
     medianVRLength = 0.0;
   } else {
-    meanVRLength = ((float)lenSum)/((float)lenVRSize);
+    //meanVRLength = ((float)lenSum)/((float)lenVRSize);
     medianVRLength = CalcMedian(variant.lenVarReads);
   }
   
@@ -814,7 +816,7 @@ inline void var_processing(struct var &variant) {
     localEr = ((float)numncMis)/totalBases;
   }
   
-  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(3) << meanIndel << "\t" << setprecision(3) << medianIndel << "\t" << setprecision(3) << meanVRLength << "\t" << setprecision(3) << medianVRLength << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
+  cout << variant.chro << "\t" << variant.start << "\t" << variant.countAll << "\t" << variant.countPositive << "\t" << variant.countNegative << "\t" << variant.F1R2_all << "\t" << variant.F2R1_all << "\t" << variant.F1R2_alt << "\t" << variant.F2R1_alt << "\t" << variant.countAlt << "\t" << variant.countA << "\t" << variant.countAn << "\t" << variant.countC << "\t" << variant.countCn << "\t" << variant.countG << "\t" << variant.countGn << "\t" << variant.countT << "\t" << variant.countTn << "\t" << variant.inends << "\t" << variant.countJump << "\t" << setprecision(4) << fracBadMappingQual << "\t" << setprecision(2) << meanMis << "\t" << setprecision(2) << medianMis << "\t" << setprecision(3) << meanIndel << "\t" << setprecision(3) << medianIndel << "\t" << setprecision(3) << medianVRLength << "\t" << setprecision(2) << localEr << "\t" << variant.qualities << endl;
 
 }
 
