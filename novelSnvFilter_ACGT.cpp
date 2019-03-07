@@ -3,7 +3,6 @@
   (c) 2016 - Sun Ruping
   ruping@stanford.edu
 
-
 g++ novelSnvFilter_ACGT.cpp 
 -I/srv/gsfs0/projects/curtis/ruping/tools/bamtools/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/boost/current/include/ 
 -L/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ 
@@ -772,7 +771,7 @@ inline void var_processing(struct var &variant) {
     medianIndel = 0.0;
   } else {
     //meanIndel = ((float)indelsum)/((float)surrIndelSize);
-    meanIndel = (float)indelsum;
+    meanIndel = indelsum;
     medianIndel = (float)surrIndelSize;
     //medianIndel = CalcMedian(variant.surroundingIndels);
   }
