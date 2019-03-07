@@ -772,8 +772,8 @@ inline void var_processing(struct var &variant) {
     medianIndel = 0.0;
   } else {
     //meanIndel = ((float)indelsum)/((float)surrIndelSize);
-    meanIndel = (float)indelsum
-    medianIndel = (float)surrIndelSize
+    meanIndel = (float)indelsum;
+    medianIndel = (float)surrIndelSize;
     //medianIndel = CalcMedian(variant.surroundingIndels);
   }
 
