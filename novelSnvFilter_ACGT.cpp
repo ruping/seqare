@@ -760,6 +760,7 @@ inline void var_processing(struct var &variant) {
   unsigned int indelsum;
   vector <unsigned int>::iterator indit = (variant.surroundingIndels).begin();
   for(; indit != (variant.surroundingIndels).end(); indit++) {
+    cerr << indelsum << endl;
       indelsum += *indit;
   }
 
