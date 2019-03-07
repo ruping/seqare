@@ -757,7 +757,7 @@ inline void var_processing(struct var &variant) {
     medianMis = CalcMedian(variant.surrounding);
   }
 
-  unsigned int indelsum;
+  unsigned int indelsum = 0;
   vector <unsigned int>::iterator indit = (variant.surroundingIndels).begin();
   for(; indit != (variant.surroundingIndels).end(); indit++) {
     cerr << indelsum << endl;
