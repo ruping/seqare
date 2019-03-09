@@ -14,9 +14,9 @@ g++ novelSnvFilter_ACGT.cpp
 -lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o novelSnvFilter_ACGT
 
 g++ novelSnvFilter_ACGT.cpp 
--I/N/users/ruping/ngs_tools/bamtools/current/include/ -I/N/tools/zlib/current/include/ -I/N/tools/boost/current/include/ 
--L/N/users/ruping/ngs_tools/bamtools/current/lib/ -L/N/tools/zlib/current/lib/ -L/N/tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/N/users/ruping/ngs_tools/bamtools/current/lib/:/N/tools/boost/current/lib/ -lboost_regex -o novelSnvFilter_ACGT
+-I/N/users/ruping/ngs_tools/bamtools/current/include/ -I/N/users/ruping/ngs_tools/zlib/current/include/ -I/N/users/ruping/ngs_tools/boost/current/include/ 
+-L/N/users/ruping/ngs_tools/bamtools/current/lib/ -L/N/users/ruping/ngs_tools/zlib/current/lib/ -L/N/users/ruping/ngs_tools/boost/current/lib/ 
+-lbamtools -lz -Wl,-rpath,/N/users/ruping/ngs_tools/bamtools/current/lib/:/N/users/ruping/ngs_tools/boost/current/lib/ -lboost_regex -o novelSnvFilter_ACGT
 
 g++ novelSnvFilter_ACGT.cpp
 -I/ifs/home/c2b2/ac_lab/rs3412/tools/bamtools/include/ -I/ifs/home/c2b2/ac_lab/rs3412/tools/zlib-1.2.8/include/ 
