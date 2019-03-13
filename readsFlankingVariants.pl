@@ -32,7 +32,7 @@ while ( <IN> ) {
 
   my $lengthRef = length($ref);
   my $add = ($lengthRef == 0)? 0:1;
-  print STDERR "$chr\t$pos\t$ref\t$alt\tadd:$add\tlref:$lengthRef\n";
+  #print STDERR "$chr\t$pos\t$ref\t$alt\tadd:$add\tlref:$lengthRef\n";
 
   my $seq = substr($genome{$chr}, ($pos-(50+$add)), (100+$lengthRef));
   $seq =~ tr/a-z/A-Z/;
