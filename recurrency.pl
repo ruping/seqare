@@ -546,7 +546,7 @@ while ( <IN> ) {
               if ($vard >= 50) {              #must be sig anyway
                 $tumor{$samp} = join(',', $maf, $vard, $depth);               #maf - > maf, vard, depth
               } else {                        #cal for less vard
-                print STDERR "$samp\t$maf\t$vard\t$depth\t$tumorLOD\n";
+                #print STDERR "$samp\t$maf\t$vard\t$depth\t$tumorLOD\n";
                 if ($tumorLOD >= $Th_tumorLOD) {
                   $tumor{$samp} = join(',', $maf, $vard, $depth);             #maf - > maf, vard, depth
                 }
@@ -588,7 +588,7 @@ while ( <IN> ) {
 
           my ($bloodMaf, $bloodVard, $bloodDepth, $bloodLOD) = split(',',$blood{$tumorSamp});
           my $pFisher = calculateStatistic(n11=>$tumorVard, n1p=>$tumorDepth, np1=>($tumorVard+$bloodVard), npp=>($tumorDepth+$bloodDepth));    #fisher exact test to see whether tumor enrich for variants
-          print STDERR "$tumorVard\t$tumorDepth\t$bloodVard\t$bloodDepth\t$pFisher\n";
+          #print STDERR "$tumorVard\t$tumorDepth\t$bloodVard\t$bloodDepth\t$pFisher\n";
 
           if ( $bloodMaf < $Th_bloodZero and $tumorMaf/$bloodMaf >= 4 and $bloodLOD > $Th_normalLOD and $pFisher < 0.05 ) {
             $stype = 'doubt';
