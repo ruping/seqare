@@ -33,9 +33,9 @@ g++ Rseq_bam_stats.cpp
 -lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o Rseq_bam_stats
 
 g++ Rseq_bam_stats.cpp
--I/N/tools/bamtools/current/include/ -I/N/tools/zlib/current/include/ -I/N/tools/boost/current/include/ 
--L/N/tools/bamtools/current/lib/ -L/N/tools/zlib/current/lib/ -L/N/tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/N/tools/bamtools/current/lib/:/N/tools/boost/current/lib/ -lboost_regex -o Rseq_bam_stats
+-I/N/users/ruping/ngs_tools/bamtools/current/include/ -I/N/users/ruping/ngs_tools/zlib/current/include/ -I/N/users/ruping/ngs_tools/boost/current/include/ 
+-L/N/users/ruping/ngs_tools/bamtools/current/lib/ -L/N/users/ruping/ngs_tools/zlib/current/lib/ -L/N/users/ruping/ngs_tools/boost/current/lib/ 
+-lbamtools -lz -Wl,-rpath,/N/users/ruping/ngs_tools/bamtools/current/lib/:/N/users/ruping/ngs_tools/boost/current/lib/ -lboost_regex -o Rseq_bam_stats
 ******************************************************************************/
 
 #include <api/BamReader.h>
