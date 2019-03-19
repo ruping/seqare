@@ -401,7 +401,7 @@ int main ( int argc, char *argv[] ) {
               mismatches += 1;
               int dis = cuPos - iter->start;
               if ( abs(dis) <= iter->dist ) {           // for deletion
-                if (strand == "+"){
+                if (strand == "+") {
                   iter->countAltp += 1;
                 } else {
                   iter->countAltn += 1;
@@ -545,7 +545,7 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
   tmp.ref = "SRP";
   tmp.alt = "SRP";
   tmp.type = "undef";
-  tmp.dist = 10; 
+  tmp.dist = 3; 
 
   for(i = 1; iter != line_content.end(); iter++, i++){
     switch (i) {
@@ -585,9 +585,9 @@ inline bool eatline(const string &str, deque <struct var> &var_ref, string &with
         int distance = tmp.alt.size() - tmp.ref.size();
         tmp.length = abs(distance);
       }
-      if (tmp.length > tmp.dist){
-        tmp.dist = tmp.length;
-      }
+      //if (tmp.length > tmp.dist){
+      //   tmp.dist = tmp.length;
+      //}
       continue;
     default:
       break;
