@@ -66,6 +66,27 @@ print STDERR "Th_badQualFrac: $Th_badQualFrac\n";
 print STDERR "Th_cemancmedian: $Th_cmeancmedian\n";
 print STDERR "Th_cmedian: $Th_cmedian\n";
 
+my %VarClassMap;
+$VarClassMap{'downstream'} = 'downstream';
+$VarClassMap{'frameshift deletion'} = 'Frame_Shift_Del';
+$VarClassMap{'frameshift insertion'} = 'Frame_Shift_Ins';
+$VarClassMap{'intergenic'} = 'IGR';
+$VarClassMap{'intronic'} = 'Intron';
+$VarClassMap{'ncRNA_exonic'} = 'Non-coding_Transcript';
+$VarClassMap{'ncRNA_intronic'} = 'Non-coding_Transcript';
+$VarClassMap{'ncRNA_splicing'} = 'Non-coding_Transcript';
+$VarClassMap{'nonframeshift deletion'} = 'In_frame_Del';
+$VarClassMap{'nonframeshift insertion'} = 'In_frame_Ins';
+$VarClassMap{'nonsynonymous SNV'} = 'Missense';
+$VarClassMap{'splicing'} = 'Splice_site';
+$VarClassMap{'stopgain'} = 'Nonsense';
+$VarClassMap{'stoploss'} = 'Nonstop_Mutation';
+$VarClassMap{'synonymous SNV'} = 'Synonymous';
+$VarClassMap{'unknown'} = 'Silent';
+$VarClassMap{'upstream'} = 'upstream';
+$VarClassMap{'UTR3'} = "3\'UTR";
+$VarClassMap{'UTR5'} = "5\'UTR";
+
 
 my @all;
 my %all;
@@ -214,6 +235,7 @@ while ( <IN> ) {
       my $End_Position = $cols[$colnames{'pos'}];
       my $geneLoc = $cols[$colnames{'geneLoc'}];
       my $Variant_Classification = ($cols[$colnames{'functionalClass'}] eq 'NA')? $cols[$colnames{'geneLoc'}]:$cols[$colnames{'functionalClass'}];
+      $Variant_Classification = $VarClassMap{$Variant_Classification};
       my $Variant_Type = "SNP";
       my $Reference_Allele = $cols[$colnames{'ref'}];
       my $Tumor_Seq_Allele2 = $cols[$colnames{'alt'}];
