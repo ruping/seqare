@@ -4,11 +4,7 @@
   ruping@stanford.edu
   grep starts for sequencing reads
 
-
-g++ grep_starts.cpp
--I/srv/gsfs0/projects/curtis/ruping/tools/bamtools/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/include/ -I/srv/gsfs0/projects/curtis/ruping/tools/boost/current/include/ 
--L/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/zlib/current/lib/ -L/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/srv/gsfs0/projects/curtis/ruping/tools/bamtools/lib/:/srv/gsfs0/projects/curtis/ruping/tools/boost/current/lib/ -lboost_regex -o grep_starts
+g++ grep_starts.cpp -I/home/ruping/ruping/tools/bamtools/include/bamtools/ -I/home/ruping/ruping/tools/zlib/current/include/ -I/home/ruping/ruping/tools/boost/current/include/ -L/home/ruping/ruping/tools/bamtools/lib64/ -L/home/ruping/ruping/tools/zlib/current/lib/ -L/home/ruping/ruping/tools/boost/current/lib/ -lbamtools -lz -Wl,-rpath,/home/ruping/ruping/tools/bamtools/lib64/:/home/ruping/ruping/tools/boost/current/lib/ -lboost_regex -o grep_starts
 
 g++ grep_starts.cpp 
 -I/home/regularhand/tools/bamtools/include/ -I/home/regularhand/tools/zlib/current/include/ -I/home/regularhand/tools/boost/current/include/ 
