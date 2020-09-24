@@ -4,7 +4,7 @@
 #                        #
 ##########################
 #this is the dir that I put almost all the annotation files, so I can reuse this to refer to the dir
-anno	/srv/gsfs0/projects/curtis/ruping/annotation/
+anno	/home/ruping/shared/annotation/
 #species, e.g., hg19, mm10, which is the prefix of many annotation files
 species	hg38
 #chromosomes to be analyzed
@@ -13,7 +13,7 @@ chrs	chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,
 GFASTA	$anno/$species/WholeGenomeFasta/genome.fa
 #Rscript bin
 R	R
-RscriptBin	/srv/gsfs0/projects/curtis/ruping/tools/R/bin/Rscript
+RscriptBin	Rscript
 #java bin
 java	java
 #size of chromosomes
@@ -41,7 +41,7 @@ blatDatabase	$anno/$species/BlatDatabase/hg38_genome_UCSC.2bit
 #java bin for gatk
 gatkBin	/srv/gsfs0/projects/curtis/ruping/tools/gatk/GenomeAnalysisTK.jar
 #java bin for markduplicates
-MarkDuplicatesBin	/srv/gsfs0/projects/curtis/ruping/tools/picard-tools/current/picard.jar
+MarkDuplicatesBin	/home/ruping/shared/tools/picard-tools/picard.jar
 #samtools bin
 samtoolsBin	samtools
 #bcftools bin
@@ -56,7 +56,7 @@ KNOWNINDEL2	$anno/$species/knownVar/Mills_and_1000G_gold_standard.indels.hg38.vc
 #                  #
 ####################
 #muTect bin
-muTectBin	/srv/gsfs0/projects/curtis/pipeline/scripts/muTect-1.1.4.jar
+muTectBin	/home/ruping/shared/tools/muTect/muTect-1.1.4.jar
 #vcfSortBin
 vcfSortBin	vcf-sort
 #mutect dbSNP annotation vcf
@@ -76,7 +76,7 @@ strelkaConfig	/srv/gsfs0/projects/curtis/ruping/tools/strelka/strelka_workflow-1
 #                  #
 ####################
 #annovar bin dir
-ANNOVARDIR	/srv/gsfs0/projects/curtis/ruping/tools/annovar.new/annovar/
+ANNOVARDIR	/home/ruping/shared/tools/annovar.new/annovar/
 #annovar annotation dir
 ANNOVARDB	$anno/annovardb/humandb.hg38/
 #UCSC repeat masker file
