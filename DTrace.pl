@@ -1401,6 +1401,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
         if (-s "$eavcfmutect") {
           my $cmd = "echo $eavcfmutect >>$vcflist_mutect";
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } elsif (-s "$eavcfmutect".".gz") {
+	  my $cmd = "echo ".$eavcfmutect.".gz"." >>$vcflist_mutect";
+	  RunCommand($cmd,$options{'noexecute'},$options{'quiet'});    
         } else {
           print STDERR "warning: $eavcfmutect is not found!\n";
         }
@@ -1429,6 +1432,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
         if (-s "$eavcfsamtools") {
           my $cmd = "echo $eavcfsamtools >>$vcflist_samtools";
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } elsif (-s "$eavcfsamtools".".gz") {
+          my $cmd = "echo ".$eavcfsamtools.".gz"." >>$vcflist_samtools";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         } else {
           print STDERR "warning: $eavcfsamtools is not found!\n";
         }
@@ -1454,6 +1460,9 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'mergeMutect'}) or exists($
         my $eavcfstrelka = "$options{'root'}/$eatumor/04_SNV/$eatumor\.strelka.indel.genome.sorted.vcf.$confs{'species'}_multianno.mod.vcf";
         if (-s "$eavcfstrelka") {
           my $cmd = "echo $eavcfstrelka >>$vcflist_strelka";
+          RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+        } elsif (-s "$eavcfstrelka".".gz") {
+          my $cmd = "echo ".$eavcfstrelka.".gz"." >>$vcflist_strelka";
           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
         } else {
           print STDERR "warning: $eavcfstrelka is not found!\n";
