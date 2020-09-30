@@ -23,7 +23,7 @@ transtate <- inputpar[14]
 tranclone <- inputpar[15]
 exons <- inputpar[16]
 
-
+library(GenomicRanges)
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
