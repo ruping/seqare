@@ -56,22 +56,30 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
         params$genotypeParams$alphaKHyper <- rep(1000, K)
         params$normalParams$n_0 <- normalc
         params$ploidyParams$phi_0 <- plp
-        
-        convergeParams <- runEMclonalCN(snpData, gParams = params$genotypeParams,
-                                        nParams = params$normalParams,
-                                        pParams = params$ploidyParams,
-                                        sParams = params$cellPrevParams,
+
+        convergeParams <- runEMclonalCN(snpData, params = params,
                                         maxiter = 20, maxiterUpdate = 1500,
                                         useOutlierState = FALSE, txnExpLen = transtate,
                                         txnZstrength = tranclone,
                                         normalEstimateMethod = normalcm,
                                         estimateS = TRUE, estimatePloidy = plpe)
+
+        #the following commented block is for the older version of TitanCNA <= 1.8
+        #convergeParams <- runEMclonalCN(snpData, gParams = params$genotypeParams,
+        #                                nParams = params$normalParams,
+        #                                pParams = params$ploidyParams,
+        #                                sParams = params$cellPrevParams,
+        #                                maxiter = 20, maxiterUpdate = 1500,
+        #                                useOutlierState = FALSE, txnExpLen = transtate,
+        #                                txnZstrength = tranclone,
+        #                                normalEstimateMethod = normalcm,
+        #                                estimateS = TRUE, estimatePloidy = plpe)
         
         optimalPath <- viterbiClonalCN(snpData, convergeParams)
         if (length(unique(optimalPath)) == 1) next
         results <- outputTitanResults(snpData, convergeParams, optimalPath,
                                       filename = NULL, posteriorProbs = FALSE,
-                                      subcloneProfiles = TRUE)
+                                      subcloneProfiles = TRUE)$results
         results$AllelicRatio = 1-as.numeric(results$AllelicRatio)    # reverse the allelic ratio
         ploidy <- tail(convergeParams$phi, 1)
         norm <- tail(convergeParams$n, 1)
@@ -114,7 +122,8 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
 
             #plotting for each chromosome
             for (chro in 1:22) {
-                pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),width=12, height=6)
+                pdf(paste(sampleName,"_nclones",numClusters,"_chr", chro, ".TitanCNA.pdf",sep=""),
+                    width=12, height=6)
                 if (is.null(titancnaresults[[j]])) next
                 SD <- round(titancnaresults[[j]]$S_DbwIndex,3)
                 nclones <- nrow(convergeParams$s)
@@ -130,14 +139,20 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                 par(mar=c(4,4,2,1))
                 plotCNlogRByChr(results, chr = chro, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
                                 main=paste(sampleName, " nc=", numClusters, sep=""),
-                                xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
-                                    " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
+                                xlab=paste("normC=", round(norm,3), " pl=", ploidy,
+                                           " cellularity=", round(cellularity,3),
+                                           " SD=",SD," s=",s," nc=",nclones," np=",npoints,
+                                           " md=",meandepth,sep=""),
+                                cex.lab=0.8)
                 par(mar=c(4,4,2,1))
-                plotAllelicRatio(results, chr = chro, ylim = c(0, 1), cex = 0.25, xlab = paste("Chromosomes", chro, sep=" "), main = "", cex.lab=0.8)
+                plotAllelicRatio(results, chr = chro, ylim = c(0, 1),
+                                 cex = 0.25, xlab = paste("Chromosomes", chro, sep=" "),
+                                 main = "", cex.lab=0.8)
 
                 #plot bubble like
                 par(mar=c(7,4,6,1))
-                smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),colramp=colorRampPalette(terrain.colors(32)),
+                smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),
+                              colramp=colorRampPalette(terrain.colors(32)),
                               rep(segments$LogRatio,segments$NumMarker),
                               xlim=xlim1,ylim=ylim1,
                               main = sampleName, xlab="Allelic ratio",ylab="Log ratio")
@@ -150,16 +165,19 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
             layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
             par(pty="m")
             par(mar=c(4,4,2,1))
-            plotCNlogRByChr(results, chr = NULL, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
+            plotCNlogRByChr(results, ploidy = ploidy, ylim = c(-2, 2), cex=0.25, #chr=NULL,
                             main=paste(sampleName, " nc=", numClusters, sep=""),
-                            xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
-                                " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
+                            xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=",
+                                       round(cellularity,3), " SD=",SD," s=",s," nc=",nclones,
+                                       " np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
             par(mar=c(4,4,2,1))
-            plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
+            plotAllelicRatio(results, ylim = c(0, 1), #chr=NULL,
+                             cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
 
             #plot bubble like
             par(mar=c(7,4,6,1))
-            smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),colramp=colorRampPalette(terrain.colors(32)),
+            smoothScatter(rep(segments$AllelicRatio,segments$NumMarker),
+                          colramp=colorRampPalette(terrain.colors(32)),
                           rep(segments$LogRatio,segments$NumMarker),
                           xlim=xlim1,ylim=ylim1,
                           main = sampleName, xlab="Allelic ratio",ylab="Log ratio")
@@ -181,11 +199,15 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
           layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
           par(pty="m")
           par(mar=c(4,4,2,1))
-          plotCNlogRByChr(results, chr = NULL, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
+          plotCNlogRByChr(results, ploidy = ploidy, normal=norm, ylim = c(-2, 2), cex=0.25, #chr=NULL,
                           main=paste(sampleName, " nc=", numClusters, sep=""),
-                          xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=", round(cellularity,3),
-                              " SD=",SD," s=",s," nc=",nclones," np=",npoints," md=",meandepth,sep=""), cex.lab=0.8)
-          plotAllelicRatio(results, chr = NULL, ylim = c(0, 1), cex = 0.25,xlab = "Chromosomes", main = "", cex.lab=0.8)
+                          xlab=paste("normC=", round(norm,3), " pl=", ploidy,
+                                     " cellularity=", round(cellularity,3),
+                                     " SD=",SD," s=",s," nc=",nclones," np=",npoints,"
+                                     md=",meandepth,sep=""),
+                          cex.lab=0.8)
+          plotAllelicRatio(results, ylim = c(0, 1),
+                           cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
 
           #plot bubble like
           allstate <- paste(results$Chr,results$TITANstate,results$ClonalCluster)
@@ -279,7 +301,8 @@ titancna2seg <- function(titanresult,titanparams,raw=FALSE) {
   if (raw == FALSE){
       return(cnv)
   } else {
-      rawRes = data.frame(Chr=titanresult$Chr, Position=titanresult$Position, LogRatio=titanresult$LogRatio,
+      rawRes = data.frame(Chr=titanresult$Chr,
+                          Position=titanresult$Position, LogRatio=titanresult$LogRatio,
           AllelicRatio=titanresult$AllelicRatio)
       return(rawRes)
   }
@@ -310,9 +333,10 @@ normalc = as.numeric(normalc)
 message(normalc)
 message(normalcm)
 
-if (exons != "SRP"){   #WES
-    targetRegion = read.delim(exons, header=F)
+if (exons != "SRP") {   #WES
+    targetRegion = read.delim(exons, header=F, as.is=T)
     targetRegion = data.frame(targetRegion[,1:3])
+    colnames(targetRegion) = c("chr", "start", "end")
     #targetRegion[,1] = gsub("chr","",targetRegion[,1])
     runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone,targetRegion)
 } else if (exons == "SRP") {  #WGS 
