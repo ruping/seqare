@@ -27,6 +27,7 @@ exons <- inputpar[16]
 library(TitanCNA)
 library(HMMcopy)
 library(doMC)
+library(GenomicRanges)
 
 setwd(path)
 
