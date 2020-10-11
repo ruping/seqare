@@ -81,7 +81,7 @@ $options{'mergeRare'}      = 1;
 $options{'qualTitan'}   = 50;
 $options{'vafTitan'}  = 0.15;
 $options{'rareVariants'} = undef;
-$options{'germlineLOH'} = '';
+$options{'germlineLOH'} = '';                  #this file contains ID for both tumors and normals
 $options{'maxInsLine'} = 0;
 $options{'ignoreRG'} = 0;
 $options{'CfiftyOff'} = 0;
@@ -1350,6 +1350,12 @@ if (exists $runlevel{$runlevels}) {
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 
+  my $pngFileExample3 = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones3_chr1.TitanCNA.png";
+  unless (-s "$pngFileExample3") {
+    my $cmd = "perl $options{'bin'}/convertTitanPDF2PNG.pl $options{'lanepath'}/05_CNA/ nclones3";
+    RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+  }
+
   printtime();
   print STDERR "####### runlevel $runlevels done #######\n\n";
 
@@ -1574,10 +1580,12 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
     unless (-s "$varout_mutect\.filtered\.classified\.founds\.nopara") {
       my $cmd = "perl $options{'bin'}/readsFlankingVariants.pl $confs{'GFASTA'} $varout_mutect\.filtered\.classified\.founds snv >$varout_mutect\.filtered\.classified\.founds.flanking.fa";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_mutect\.filtered\.classified\.founds.flanking.fa", "$varout_mutect\.filtered\.classified\.founds.flanking.sam", $options{'threads'});
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      unless (-s "$varout_mutect\.filtered\.classified\.founds.flanking.bam") {
+         $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_mutect\.filtered\.classified\.founds.flanking.fa", "$varout_mutect\.filtered\.classified\.founds.flanking.sam", $options{'threads'});
+         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+         $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_mutect\.filtered\.classified\.founds.flanking.sam", "$varout_mutect\.filtered\.classified\.founds.flanking.bam");
+         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
       $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_mutect\.filtered\.classified\.founds.flanking.bam --readlength $options{'readlen'} --type s >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/badvariantmapping.pl $varout_mutect\.filtered\.classified\.founds.flanking.bam.out >$varout_mutect\.filtered\.classified\.founds.flanking.bam.out.bad";

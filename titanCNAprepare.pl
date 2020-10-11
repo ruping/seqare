@@ -107,20 +107,25 @@ if ($split == 1) {
             print STDERR "GLOH: $sample\t$chr\t$pos\n";
           }
 
-          if (exists($germline{$sample})) {                                             #it is a blood
+          if (exists($germline{$sample})) {                                             #it is a blood, then process each tumor sample
             my $calledBlood = $cols[$i-1];
             if ( $pairedCall == 1 ) {
               $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];                #paired-T-original-column
             }
             if ($calledBlood =~ /\|/) {                                                 #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
+
+              #if ($chr eq 'X' and $pos == 154507173) {print STDERR "yesyesyes found 1\t$calledBloodInfo[2]\t$lohSamplePos!!!!!\n";}
+
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
+
               my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the N column rechecked
               my $calledBloodDepth = $cols[$i+1];                                       #it is the N depth column rechecked
               unless ($lohRegion ne '' or exists($somatic{$sample})) {                  #either loh region or it is both a normal and tumor (so ignore the subsequent filter)
                 next if ($calledBloodRecheck[0] > $homoThred);                          #if blood has greater than 0.85 VAF, indicating wrong genotyping
               }
-              next if $calledBloodDepth < $ndepthThred;                                 #if blood has too low depth
+              next if $calledBloodDepth < $ndepthThred;                                 #if blood has too low dept
+
 
               if ($cols[$i] =~ /\|/) { #split the var surrounding information
                 my @infos = split(/\|/, $cols[$i]);
@@ -140,7 +145,12 @@ if ($split == 1) {
                       my $tsendsratio = $tsinfo[1];
                       my ($tscmean, $tscmedian) = split(',', $tsinfo[2]);
                       my $tsd = $cols[$indexts+1];
-                      if (($cols[$indexts] =~ /\|/ and $tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or ($cols[$indexts] == 0 and $homoThred >= 0.85)) {  #likely true event, start printing
+                      if (($cols[$indexts] =~ /\|/ and $tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or ($cols[$indexts] == 0 and $homoThred >= 0.85)) {  #print
+
+                        if ($chr eq 'X' and $pos == 154507173) {
+                          print STDERR "yesyesyes found 2!!!!!";
+                        }
+
                         my $fh = $tumorSamp;
                         unless (-e "$outdir/$tumorSamp\_titan") {
                           open ( my $fh, ">>", "$outdir/$tumorSamp\_titan" )  || die $!;
