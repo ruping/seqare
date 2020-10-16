@@ -1,20 +1,15 @@
 /*****************************************************************************
 
-  (c) 2015 - Sun Ruping
-  ruping@stanford.edu
+  (c) 2020 - Sun Ruping
+  ruping@umn.edu
   grep starts for sequencing reads
 
-g++ grep_starts.cpp -I/home/ruping/ruping/tools/bamtools/include/bamtools/ -I/home/ruping/ruping/tools/zlib/current/include/ -I/home/ruping/ruping/tools/boost/current/include/ -L/home/ruping/ruping/tools/bamtools/lib64/ -L/home/ruping/ruping/tools/zlib/current/lib/ -L/home/ruping/ruping/tools/boost/current/lib/ -lbamtools -lz -Wl,-rpath,/home/ruping/ruping/tools/bamtools/lib64/:/home/ruping/ruping/tools/boost/current/lib/ -lboost_regex -o grep_starts
+g++ grep_starts.cpp -I/home/ruping/ruping/tools/bamtools/include/bamtools/ -I/home/ruping/ruping/tools/zlib/current/include/ -I/home/ruping/ruping/tools/boost/current/include/ -L/home/ruping/ruping/tools/bamtools/lib64/ -L/home/ruping/ruping/tools/zlib/current/lib/ -L/home/ruping/ruping/tools/boost/current/lib/ -lbamtools -lz -Wl,-rpath,/home/ruping/ruping/tools/bamtools/lib64/:/home/ruping/ruping/tools/boost/current/lib/ -lboost_regex -pthread -static -o grep_starts
 
 g++ grep_starts.cpp 
 -I/home/regularhand/tools/bamtools/include/ -I/home/regularhand/tools/zlib/current/include/ -I/home/regularhand/tools/boost/current/include/ 
 -L/home/regularhand/tools/bamtools/lib/ -L/home/regularhand/tools/zlib/current/lib/ -L/home/regularhand/tools/boost/current/lib/ 
 -lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o grep_starts
-
-g++ grep_starts.cpp
--I/N/users/ruping/ngs_tools/bamtools/current/include/ -I/N/users/ruping/ngs_tools/zlib/current/include/ -I/N/users/ruping/ngs_tools/boost/current/include/ 
--L/N/users/ruping/ngs_tools/bamtools/current/lib/ -L/N/users/ruping/ngs_tools/zlib/current/lib/ -L/N/users/ruping/ngs_tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/N/users/ruping/ngs_tools/bamtools/current/lib/:/N/users/ruping/ngs_tools/boost/current/lib/ -lboost_regex -o grep_starts
 
 ******************************************************************************/
 

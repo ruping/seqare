@@ -11,26 +11,14 @@
   
   supports both paired-end (fragment level) and single-end sequencing
 
-  (c) 2016 - Sun Ruping
-  Dept. Vingron ( Computational Mol. Bio. )
+  (c) 2020 - Sun Ruping
+  ( Computational Mol. Bio. )
   Max-Planck-Institute for Molecular Genetics
-  Ihnestr. 73, D-14195, Berlin, Germany   
+  Ihnestr. 73, D-14195, Berlin, Germany
+  ruping@umn.edu
 
-  (c) 2015 - Sun Ruping
-  Curtis Lab, Medicine & Geneitcs,
-  Stanford University
+g++ Rseq_bam_stats.cpp -I/home/ruping/ruping/tools/bamtools/include/bamtools/ -I/home/ruping/ruping/tools/zlib/current/include/ -I/home/ruping/ruping/tools/boost/current/include/ -L/home/ruping/ruping/tools/bamtools/lib64/ -L/home/ruping/ruping/tools/zlib/current/lib/ -L/home/ruping/ruping/tools/boost/current/lib/ -lbamtools -lz -Wl,-rpath,/home/ruping/ruping/tools/bamtools/lib64/:/home/ruping/ruping/tools/boost/current/lib/ -lboost_regex -pthread -static -o Rseq_bam_stats
 
-  ruping@stanford.edu
-
-g++ Rseq_bam_stats.cpp
--I/home/ruping/ruping/tools/bamtools/include/bamtools/ -I/home/ruping/ruping/tools/zlib/current/include/ -I/home/ruping/ruping/tools/boost/current/include/ 
--L/home/ruping/ruping/tools/bamtools/lib64/ -L/home/ruping/ruping/tools/zlib/current/lib/ -L/home/ruping/ruping/tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/home/ruping/ruping/tools/bamtools/lib64/:/home/ruping/ruping/tools/boost/current/lib/ -lboost_regex -o Rseq_bam_stats
-
-g++ Rseq_bam_stats.cpp 
--I/home/regularhand/tools/bamtools/include/ -I/home/regularhand/tools/zlib/current/include/ -I/home/regularhand/tools/boost/current/include/ 
--L/home/regularhand/tools/bamtools/lib/ -L/home/regularhand/tools/zlib/current/lib/ -L/home/regularhand/tools/boost/current/lib/ 
--lbamtools -lz -Wl,-rpath,/home/regularhand/tools/bamtools/lib/:/home/regularhand/tools/boost/current/lib/ -lboost_regex -o Rseq_bam_stats
 ******************************************************************************/
 
 #include <api/BamReader.h>
