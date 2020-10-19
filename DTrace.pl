@@ -1660,11 +1660,17 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'MutectCallOnly'}) or exist
     }
     unless (-s "$varout_samtools\.filtered\.nopara") {
       my $cmd = "perl $options{'bin'}/readsFlankingVariants.pl $confs{'GFASTA'} $varout_samtools\.filtered snv >$varout_samtools\.filtered.flanking.fa";
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_samtools\.filtered.flanking.fa", "$varout_samtools\.filtered.flanking.sam", $options{'threads'});
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
-      $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_samtools\.filtered.flanking.sam", "$varout_samtools\.filtered.flanking.bam");
-      RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      unless (-s "$varout_samtools\.filtered.flanking.fa") {
+        RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
+      unless (-s "$varout_samtools\.filtered.flanking.bam") {
+	 unless (-s "$varout_samtools\.filtered.flanking.sam") {
+           $cmd = bwaMapping->bowtieMappingSnv($confs{'bowtieBin'}, $confs{'BowtieINDEX'}, "$varout_samtools\.filtered.flanking.fa", "$varout_samtools\.filtered.flanking.sam", $options{'threads'});
+           RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+	 }
+         $cmd = bwaMapping->samToBam($confs{'samtoolsBin'}, "$varout_samtools\.filtered.flanking.sam", "$varout_samtools\.filtered.flanking.bam");
+         RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
+      }
       $cmd = "$options{'bin'}/mappingFlankingVariants --mapping $varout_samtools\.filtered.flanking.bam --readlength $options{'readlen'} --type s >$varout_samtools\.filtered.flanking.bam.out";
       RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
       $cmd = "perl $options{'bin'}/badvariantmapping.pl $varout_samtools\.filtered.flanking.bam.out >$varout_samtools\.filtered.flanking.bam.out.bad";
