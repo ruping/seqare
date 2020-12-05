@@ -126,7 +126,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
                 layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
                 par(pty="m")
                 par(mar=c(4,4,2,1))
-                plotCNlogRByChr(results, chr = chro, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
+                plotCNlogRByChr(results, chr = chro, normal=norm, ploidy = ploidy, ylim = c(-2, 2), cex=0.25,
                                 main=paste(sampleName, " nc=", numClusters, sep=""),
                                 xlab=paste("normC=", round(norm,3), " pl=", ploidy,
                                            " cellularity=", round(cellularity,3),
@@ -154,7 +154,7 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
             layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
             par(pty="m")
             par(mar=c(4,4,2,1))
-            plotCNlogRByChr(results, ploidy = ploidy, ylim = c(-2, 2), cex=0.25, chr=c(1:22,"X"),
+            plotCNlogRByChr(results, normal=norm, ploidy = ploidy, ylim = c(-2, 2), cex=0.25, chr=c(1:22,"X"),
                             main=paste(sampleName, " nc=", numClusters, sep=""),
                             xlab=paste("normC=", round(norm,3), " pl=", ploidy, " cellularity=",
                                        round(cellularity,3), " SD=",SD," s=",s," nc=",nclones,
@@ -339,7 +339,7 @@ if (exons != "SRP") {   #WES
     colnames(targetRegion) = c("chr", "start", "end")
     message(paste(colnames(targetRegion), collapse="\t"))
     message(paste(dim(targetRegion), collapse="\t"))
-    #targetRegion[,1] = gsub("chr","",targetRegion[,1])
+    targetRegion[,1] = gsub("chr","",targetRegion[,1])     # replace the chr prefix in the target bed file
     runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone,targetRegion)
 } else if (exons == "SRP") {  #WGS 
     runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone)
