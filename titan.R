@@ -339,7 +339,7 @@ if (exons != "SRP") {   #WES
     colnames(targetRegion) = c("chr", "start", "end")
     message(paste(colnames(targetRegion), collapse="\t"))
     message(paste(dim(targetRegion), collapse="\t"))
-    targetRegion[,1] = gsub("chr","",targetRegion[,1])     # replace the chr prefix in the target bed file
+    #targetRegion[,1] = gsub("chr","",targetRegion[,1])     # replace the chr prefix in the target bed file
     runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone,targetRegion)
 } else if (exons == "SRP") {  #WGS 
     runTitan(sampleName,alleleCount,tumorWig,normalWig,gcWig,mapWig,plp,plpe,normalc,normalcm,symmetric,transtate,tranclone)
