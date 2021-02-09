@@ -53,7 +53,7 @@ if ($lohRegion ne '') {
     chomp;
     next if /^ID/;
     my ($sample, $chr, $start, $end, $nm, $segmean) = split /\t/;
-    $lohr{$sample}{$chr}{$start} = $end;
+    push(@{$lohr{$chr}}, $start.','.$end.','.$sample);
   }
   close LR;
 }
@@ -82,32 +82,38 @@ if ($split == 1) {
       my $pos = $cols[$colindex{'pos'}];
       my $ref = $cols[$colindex{'ref'}];
       my $alt = $cols[$colindex{'alt'}];
+
+      #  start loh Region sample list #
+      my %lohSample;    #contain sample names of lohr for this coordinate
+      if ( exists( $lohr{$chr} ) ) {
+        foreach my $lregion ( @{$lohr{$chr}} ) {
+          my ($lstart, $lend, $lsample) = split(',', $lregion);
+          if ($pos >= $lstart and $pos <= $lend) {   #overlaps
+            $lohSample{$lsample} = 1;
+          }
+        } #each lregion
+      } #if chr is in the loh region list
+      #  end loh Region sample list   #
+
       for (my $i = 0; $i <= $#cols; $i++) {
         if ($colnames{$i} =~ /^(.+?)maf$/) {  #now it is sample maf
 
           my $sample = $1;
-          my $lohSamplePos = 'no';
-          if ($lohRegion ne '') {
-            foreach my $lsamp (keys %lohr) {
-              if ($sample =~ /$lsamp/) {   #now the sample is found with germline LOH, take action
-                if ($lohr{$lsamp}{$chr} ne '') {  #now the chr is found
-                  foreach my $lstart (keys %{$lohr{$lsamp}{$chr}}) {
-                    my $lend = $lohr{$lsamp}{$chr}{$lstart};
-                    if ($pos >= $lstart and $pos <= $lend) { #overlaps
-                      $lohSamplePos = 'yes';
-                      last;
-                    }
-                  } #each l start and end
-                } #l chr
-                last;
-              } #sample found
-            } #loop all loh samples
-          } #check germline loh
-          if ($lohSamplePos eq 'yes') {
-            print STDERR "GLOH: $sample\t$chr\t$pos\n";
-          }
 
-          if (exists($germline{$sample})) {                                             #it is a blood, then process each tumor sample
+          if (exists($germline{$sample})) {                                             #it is a blood/normal control, then process each tumor sample
+
+            #  start determine if is loh Region #
+            my $lohSamplePos = 'no';
+            if ($lohRegion ne '') {
+              if (exists($lohSample{$sample})) {   #overlaps
+                $lohSamplePos = 'yes';
+              }
+            } #check germline loh
+            if ($lohSamplePos eq 'yes') {
+              print STDERR "GLOH: $sample\t$chr\t$pos\n";
+            }
+            #  end determine if is loh Region #
+
             my $calledBlood = $cols[$i-1];
             if ( $pairedCall == 1 ) {
               $calledBlood = $cols[$colindex{${$germline{$sample}}[0]}];                #paired-T-original-column
@@ -180,8 +186,6 @@ if ($split == 1) {
   close IN;
 
 } #split samples
-
-
 
 
 

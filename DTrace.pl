@@ -752,7 +752,8 @@ if (exists $runlevel{$runlevels}) {
   }
 
   unless (-s "$mappingStats") {
-    my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $statBam, $options{'readlen'}, $mappingStats);
+    #my $cmd = seqStats->mappingStats("$options{'bin'}/Rseq_bam_stats", $statBam, $options{'readlen'}, $mappingStats);
+    my $cmd = seqStats->mappingStats($confs{'samtoolsBin'}, $statBam, $options{'readlen'}, $mappingStats);
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
 

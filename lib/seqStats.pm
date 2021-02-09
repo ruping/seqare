@@ -10,7 +10,8 @@ sub mappingStats {
 
   my ($class, $bamStatsBin, $BAM, $readlen, $mappingStatsOut) = @_;
 
-  my $cmd = "$bamStatsBin --mapping $BAM --readlength $readlen --maxIntron 23000 --type multiMis >$mappingStatsOut";
+  #my $cmd = "$bamStatsBin --mapping $BAM --readlength $readlen --maxIntron 23000 --type multiMis >$mappingStatsOut";
+  my $cmd = "$bamStatsBin stats $BAM >$mappingStatsOut";
 
   return $cmd;
 
