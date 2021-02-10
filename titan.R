@@ -47,9 +47,9 @@ runTitan <- function(sampleName, snpFile, tumWig, normWig, gc, map, plp, plpe, n
     #prepare data
 
     registerDoMC(cores = 2)
-    titancnaresults <- vector("list",3)
+    titancnaresults <- vector("list",2)
     
-    for (j in 1:3) {
+    for (j in 1:2) {
         numClusters <- j
         params <- loadDefaultParameters(copyNumber = 8, numberClonalClusters = numClusters)
         K <- length(params$genotypeParams$alphaKHyper)
