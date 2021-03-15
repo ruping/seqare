@@ -84,7 +84,8 @@ print STDERR Dumper(\%chrJumper);
 
 
 print "#chr\tpos\tid\tref\talt";
-foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+#foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+foreach my $name (sort {$a cmp $b} keys %samples) {     #avoid problem when names overlap, strict rule for names
    print "\t$name\t$name".'d';
 }
 print "\tcmeanav\tcmedianav\n";
@@ -369,7 +370,8 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
       next if ($id eq '');
 
       print "$chrom\t$pos\t$id\t$info";
-      foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+      #foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([A-Za-z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+      foreach my $name (sort {$a cmp $b} keys %samples) {        #strict name rule, avoid problems when names overlap
         if ($somatic{$coor}{$djindex}{$name} ne '') {
           print "\t$somatic{$coor}{$djindex}{$name}";
         } elsif ($blood eq 'yes') {

@@ -28,6 +28,17 @@ sub bwaSmartMapping {   #smart paring, for interleaved fastqs
 }
 
 
+sub bwaRemapping {
+
+  my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $premBam) = @_;
+
+  my $cmd = "$samtoolsBin collate -@ $threads -uOn128 $premBam $premBam\_tmp | $samtoolsBin fastq -@ $threads - | $bwaBin mem -r 1.2 -R \'$ReadGroup\' -p -t $threads $bwaindex - | $samtoolsBin view -bS -@ $threads - >$outBam";
+
+  return $cmd;
+
+}
+
+
 sub bwaSingleMapping {
 
   my ($class, $bwaBin, $samtoolsBin, $ReadGroup, $threads, $bwaindex, $outBam, $readfiles1) = @_;
@@ -62,9 +73,9 @@ sub bamSort {
 
 sub bamIndex {
 
-  my ($class, $samtoolsBin, $inBam) = @_;
+  my ($class, $samtoolsBin, $threads, $inBam) = @_;
 
-  my $cmd = "$samtoolsBin index $inBam";
+  my $cmd = "$samtoolsBin index -@ $threads $inBam";
 
   return $cmd;
 }
@@ -72,9 +83,9 @@ sub bamIndex {
 
 sub samToBam {
 
-  my ($class, $samtoolsBin, $inSam, $outBam) = @_;
+  my ($class, $samtoolsBin, $inSam, $outBam, $threads) = @_;
 
-  my $cmd = "$samtoolsBin view -Sb $inSam -o $outBam";
+  my $cmd = "$samtoolsBin view -@ $threads -Sb $inSam -o $outBam";
 
   return $cmd;
 }
@@ -82,9 +93,9 @@ sub samToBam {
 
 sub recalMD {
 
-  my ($class, $samtoolsBin, $inBam, $GFASTA, $outBam) = @_;
+  my ($class, $samtoolsBin, $inBam, $GFASTA, $outBam, $threads) = @_;
 
-  my $cmd = "$samtoolsBin calmd -brE $inBam $GFASTA >$outBam";
+  my $cmd = "$samtoolsBin calmd -@ $threads -brE $inBam $GFASTA >$outBam";
 
   return $cmd;
 
