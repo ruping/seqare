@@ -10,6 +10,7 @@ my $homoThred = shift;
 my $ndepthThred = shift;
 my $lohRegion = shift;
 my $split = 1;
+my $noNormal = 0;
 
 if ($homoThred eq ''){
   $homoThred = 0.85;
@@ -83,6 +84,8 @@ if ($split == 1) {
       my $ref = $cols[$colindex{'ref'}];
       my $alt = $cols[$colindex{'alt'}];
 
+      next if ($chr =~ /M(T)?$/);    #skip mitochon
+
       #  start loh Region sample list #
       my %lohSample;    #contain sample names of lohr for this coordinate
       if ( exists( $lohr{$chr} ) ) {
@@ -99,6 +102,34 @@ if ($split == 1) {
         if ($colnames{$i} =~ /^(.+?)maf$/) {  #now it is sample maf
 
           my $sample = $1;
+          if ($noNormal == 1) {  #if no normal, for testing purpose only
+            if ( $cols[$i] =~ /\|/ ) { #split the var surrounding information
+                      my @tsinfo = split(/\|/, $cols[$i]);
+                      my $tsmaf = $tsinfo[0];
+                      my $tsendsratio = $tsinfo[1];
+                      my ($tscmean, $tscmedian) = split(',', $tsinfo[2]);
+                      my $tsd = $cols[$i+1];
+                      if (($cols[$i] =~ /\|/ and $tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or ($cols[$i] == 0 and $homoThred >= 0.85)) {  #print
+                        my $fh = $sample;
+                        unless (-e "$outdir/$sample\_titan") {
+                          open ( my $fh, ">>", "$outdir/$sample\_titan" )  || die $!;
+                          $fhs{$sample} = $fh;
+                          print {$fhs{$sample}} "chr\tpos\tref\trefCount\talt\taltCount\n";
+                        }
+                        my $NrefCount = 0;
+                        my $refCount = 0;
+                        $NrefCount = round($tsmaf*$tsd);
+                        $refCount = $tsd - $NrefCount;
+                        if (($refCount + $NrefCount) >= 5) {
+                          print {$fhs{$sample}} "$chr\t$pos\t$ref\t$refCount\t$alt\t$NrefCount\n";
+                        }
+                      } #true event print
+print STDERR "$chr\t$pos\t$ref\t$alt\t$sample\n";
+            } #split tumor info
+next;
+          }
+
+
 
           if (exists($germline{$sample})) {                                             #it is a blood/normal control, then process each tumor sample
 
@@ -121,8 +152,6 @@ if ($split == 1) {
             if ($calledBlood =~ /\|/) {                                                 #originally called
               my @calledBloodInfo = split(/\|/, $calledBlood);
 
-              #if ($chr eq 'X' and $pos == 154507173) {print STDERR "yesyesyes found 1\t$calledBloodInfo[2]\t$lohSamplePos!!!!!\n";}
-
               next if ($calledBloodInfo[2] ne '0/1' and $lohSamplePos eq 'no');         #only focus on originally hetero ones unless germline loh
 
               my @calledBloodRecheck = split(/\|/, $cols[$i]);                          #it is the N column rechecked
@@ -140,7 +169,7 @@ if ($split == 1) {
                 my ($bcmean, $bcmedian) = split(',', $infos[2]);
                 my ($strandRatio, $strandRatioRef, $strandFisherP) = split(',', $infos[3]);
                 my $badQualFrac = $infos[4];
-                if ($bendsratio <= 0.9 and ($strandRatio != 0 and $strandRatio != 1) and $badQualFrac < 0.6 and (($bcmean+$bcmedian) < 5.5 or $bcmedian <= 2)) { #likely true event
+                if ($bendsratio <= 0.9 and ($strandRatio != 0 and $strandRatio != 1) and $badQualFrac < 0.6 and (($bcmean+$bcmedian) < 5.5 or $bcmedian <= 2)) { #make sure it looks real in normal
 
                   foreach my $tumorSamp (@{$germline{$sample}}) {   ##now should start checking for each tumor samples
 
@@ -152,10 +181,6 @@ if ($split == 1) {
                       my ($tscmean, $tscmedian) = split(',', $tsinfo[2]);
                       my $tsd = $cols[$indexts+1];
                       if (($cols[$indexts] =~ /\|/ and $tsendsratio <= 0.9 and (($tscmean+$tscmedian) < 5.5 or $tscmedian <= 2)) or ($cols[$indexts] == 0 and $homoThred >= 0.85)) {  #print
-
-                        if ($chr eq 'X' and $pos == 154507173) {
-                          print STDERR "yesyesyes found 2!!!!!";
-                        }
 
                         my $fh = $tumorSamp;
                         unless (-e "$outdir/$tumorSamp\_titan") {

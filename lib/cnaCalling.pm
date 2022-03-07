@@ -8,9 +8,9 @@ use strict;
 
 sub runTitan {
 
-  my ($class, $RscriptBin, $titanRBin, $PATH, $pbin, $sampleName, $alleleCount, $tumorWig, $normalWig, $gcWig, $mapWig, $plp, $plpe, $nc, $ncm, $sym, $transtate, $tranclone, $exons) = @_;
+  my ($class, $RscriptBin, $titanRBin, $PATH, $pbin, $sampleName, $gender, $alleleCount, $tumorWig, $normalWig, $gcWig, $mapWig, $plp, $plpe, $nc, $ncm, $sym, $transtate, $tranclone, $exons) = @_;
 
-  my $cmd = "$RscriptBin $titanRBin $PATH $pbin $sampleName $alleleCount $tumorWig $normalWig $gcWig $mapWig $plp $plpe $nc $ncm $sym $transtate $tranclone $exons";
+  my $cmd = "$RscriptBin $titanRBin $PATH $pbin $sampleName $gender $alleleCount $tumorWig $normalWig $gcWig $mapWig $plp $plpe $nc $ncm $sym $transtate $tranclone $exons";
 
   return $cmd;
 

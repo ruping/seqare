@@ -42,8 +42,10 @@ GetOptions (
 
 
 my %blood;
-foreach my $bl (split(/\,/, $blood)) {
-  $blood{$bl} = '';
+if ($blood ne ''){
+  foreach my $bl (split(/\,/, $blood)) {
+    $blood{$bl} = '';
+  }
 }
 
 my @prefix = split(',', $prefix);
@@ -252,6 +254,13 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                 $localEr = 0.001;
               }
 
+              #for some wierd bug when doing RNA-seq ###need to check latter!!!!
+              if ($altd > $depth){
+                $altd = $depth;
+              }
+              #for some wierd bug when doing RNA-seq ###need to check latter!!!!
+
+
               if (exists($blood{$name}) or $blood eq 'yes') { #it is blood
                 my $endratio = sprintf("%.4f", $vends/$vard);
                 $somatic{$coor}{$djindex}{$name} = sprintf("%.4f", $altd/$depth);
@@ -263,6 +272,9 @@ foreach my $chrc (sort keys %{$chrJumper{'original'}}) {
                 my $endratio = sprintf("%.4f", $vends/$vard);
                 if (($endratio <= 0.8 or ($altd - $vends) >= 2) and (($cmean+$cmedian) < 6 or $cmedian <= 2)) {  #limiting endsratio and mismatch stuff
                   $somatic{$coor}{$djindex}{$name} = sprintf("%.4f", $altd/$depth);
+
+                  #print STDERR "$coor\t$phred\t$localEr\t0.001\t$somatic{$coor}{$djindex}{$name}\t$altd\t$depth\n";    #for debugging
+
                   ########################### TLOD ###########################
                   my $tlod = snvCalling->calTumorLOD($phred, $localEr, 0.001, $somatic{$coor}{$djindex}{$name}, $altd, $depth);
                   ############################################################

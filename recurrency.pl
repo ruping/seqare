@@ -15,6 +15,7 @@ my $bloodCall;          # whether the blood is also single called
 my $rna;                # if for rna found
 my $noStrandBias = "no";
 my $loosefound = "no";
+my $skipArFilter = "no";
 
 my $Th_tumorLOD = 4.0;
 my $Th_normalLOD = 2.3;
@@ -43,6 +44,7 @@ GetOptions (
            "rna|r=s"           => \$rna,              #rna info
            "noStrandBias=s"    => \$noStrandBias,     #treatment of strandbias
            "loosefound=s"      => \$loosefound,       #loose found samples
+           "skipArFilter=s"      => \$skipArFilter,   #skip arbitrary filter
            "help|h"         => sub {
                                print "usage: $0 final preparation of somatic/germline variant calls \n\nOptions:\n\t--file\t\tthe filename of the res file\n";
                                print "\t--type\t\tthe type of variants, snv or indel\n";
@@ -546,8 +548,9 @@ while ( <IN> ) {
           my $vard = round($maf*$depth);
           my $refd = $depth-$vard;
 
-          if (exists $somatic{$samp}) {     #for tumor samples require some additional thing
-            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) { #true event
+          #DECIDE MAF
+          if (exists $somatic{$samp} and $skipArFilter eq 'no') {     #for tumor samples require some additional thing, if the arbitrary filter is turned off, the original MAF will be retained.
+            if (($endsratio <= $Th_endsratio or ((1-$endsratio)*$vard >= $Th_vard)) and $badQualFrac <= $Th_badQualFrac and (($strandRatio > 0 and $strandRatio < 1) or ($noStrandBias eq 'no' and $strandFisherP > 0.7 and $refd >= 10 and $vard >= 5 and $maf >= 0.1)) and (($cmean+$cmedian) < ($Th_cmeancmedian-0.3) or $cmedian <= $Th_cmedian)) {    #simple filter to decide true event
               if ( $maf >= 0.1 ) {  #clonal ones
                 $maf = $maf;
               } else {              #subclonal ones, subject to additional constrains
@@ -562,6 +565,7 @@ while ( <IN> ) {
             }
           }
 
+          #save info
           if (exists $somatic{$samp}) {       #it is tumor sample name
             my $tumorLOD = $lod;
             if ($vard >= ($Th_vard+1) and $maf >= ($Th_maf+0.01) and $depth >= 8) {

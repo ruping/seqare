@@ -22,7 +22,7 @@ my $strandBiasTh = 0.005;
 my $tailDisBiasTh = 0.005;
 my $nonsegdup;
 my $exonic;
-my $qualTitan = 50;
+my $qualTitan = 40;
 my $vafTitan = 0.15;
 
 GetOptions (
@@ -112,7 +112,6 @@ foreach my $file (@list) {
     $name = $1;
   }
   elsif ($task =~ /tcga/i) {
-    #$file =~ /\/((TCGA\-[^\-]+\-[^\-]+)\-[^\-]+\-[^\-]+\-[^\-]+\-\d+)\./;
     $filebase =~ /(TCGA\-[A-Z0-9]+\-[A-Z0-9]+)/;
     $name = $1;
   }
@@ -470,11 +469,15 @@ foreach my $file (@list) {
          my @sampleInfo = split(":", $sample);
          $GTblood = $sampleInfo[$formindex{'GT'}];
          $DPblood = $sampleInfo[$formindex{'DP'}];
-         if ($task =~ /guessNormal/) {
-           if ($popFreqMax != -1 and $popFreqMax > 0.005 and $popFreqMax < 0.5) {
+         if ($task =~ /guessNormal/) {                     # I made some changes for no normal data from allesio AFX/UPS
+           if ($popFreqMax != -1 and $popFreqMax < 0.5) {
              $GTblood = '0/1';
            } else {
-             next;
+             if ($maf > 0.05){
+               $GTblood = '0/1';
+             } else {
+               next;
+             }
            }
          } else {
            next if ( $maf < $vafTitan or $DPblood == 0 );           #retain only with high frequency
@@ -535,7 +538,8 @@ if ($task =~ /refpanel/){
 
 print "#chr\tpos\tid\tref\talt";
 if ($prefixReg ne ''){
-  foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+#  foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+  foreach my $name ( sort {$a cmp $b} keys %samples) {      #update rank
     print "\t$name";
   }
 } elsif ($task =~ /tcga/i) {
@@ -559,7 +563,8 @@ foreach my $coor (sort {$a =~ /^([A-Za-z0-9\-\_\.]+)\:(\d+)$/; my $ca = $1; my $
   foreach my $info (keys (%{$somatic{$coor}{'info'}})) {
     print "$chrom\t$position\t$info";
     if ($prefixReg ne '') {
-      foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+    #  foreach my $name (sort {$a =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pa = $1; my $ia = $2; my $ias = $3; $b =~ /($prefixReg)(\d+)?([a-zA-Z0-9\-\_]+)?/; my $pb = $1; my $ib = $2; my $ibs = $3; $pa cmp $pb or $ia <=> $ib or $ias cmp $ibs} keys %samples) {
+      foreach my $name ( sort {$a cmp $b} keys %samples) {
         if ($somatic{$coor}{$name} ne '') {
           print "\t$somatic{$coor}{$name}";
         } else {

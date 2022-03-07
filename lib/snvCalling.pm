@@ -13,9 +13,9 @@ sub muTectCalling {
   my ($class, $muTectBin, $BAM, $NORMALBAM, $gfasta, $COSMIC, $DBSNP, $muTectOut, $vcfOut, $chrProcess, $mem, $tmpDir, $javaBin) = @_;
   my $cosmicOption = ($COSMIC eq '')? '':"--cosmic $COSMIC";
 
-  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+  my $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta $cosmicOption --dbsnp $DBSNP --validation_strictness LENIENT --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
   if ($chrProcess ne 'SRP') {
-    $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --intervals $chrProcess $cosmicOption --dbsnp $DBSNP --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
+    $cmd = "$javaBin -Xmx$mem -Djava.io.tmpdir=$tmpDir -jar $muTectBin -rf BadCigar --analysis_type MuTect --reference_sequence $gfasta --intervals $chrProcess $cosmicOption --dbsnp $DBSNP --validation_strictness SILENT --input_file:normal $NORMALBAM --input_file:tumor $BAM --enable_extended_output --out $muTectOut -vcf $vcfOut";
   }
 
   return $cmd;

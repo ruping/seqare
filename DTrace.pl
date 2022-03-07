@@ -26,6 +26,7 @@ $options{'readlen'}     = 0;
 $options{'mapper'}      = "bwa";
 $options{'sampleName'}  = 'SRP';
 $options{'samplePairNames'} = "SRP";
+$options{'gender'} = "female";
 $options{'FASTQ1'}      = 'SRP';
 $options{'FASTQ2'}      = 'SRP';
 $options{'fastqFiles1'} = 'SRP';
@@ -106,6 +107,7 @@ if (@ARGV == 0) {
 GetOptions(
            "sampleName=s" => \$options{'sampleName'},
            "samplePairNames=s" => \$options{'samplePairNames'},
+           "gender=s" => \$options{'gender'},
            "FASTQ1=s"     => \$options{'FASTQ1'},
            "FASTQ2=s"     => \$options{'FASTQ2'},
            "fastqFiles1=s"=> \$options{'fastqFiles1'},
@@ -875,7 +877,7 @@ if (exists($runlevel{$runlevels}) or exists($runTask{'recheck'}) or exists($runT
     }
     $normalBam = "$options{'root'}/$normalSampleName/02_MAPPING/$normalSampleName\.sorted\.ir\.br\.rmDup\.md\.bam";
     unless (-s "$normalBam") {
-      print STDERR "ERROR: $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
+      print STDERR "ERROR (warning): $normalBam is not found, please run mapping and processing for $normalSampleName!!\n";
       exit 22;
     }
   }
@@ -1340,7 +1342,7 @@ if (exists $runlevel{$runlevels}) {
 
   my $segFile = "$options{'lanepath'}/05_CNA/$options{'sampleName'}\_nclones1.TitanCNA.segments.txt";
   unless (-s "$segFile"){
-    my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", "$options{'bin'}", $options{'sampleName'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
+    my $cmd = cnaCalling->runTitan($confs{'RscriptBin'}, "$options{'bin'}/titan.R", "$options{'lanepath'}/05_CNA/", "$options{'bin'}", $options{'sampleName'}, $options{'gender'}, $tumorTitan, $tumorWig, $normalWig, $confs{'gcWigTitan'}, $confs{'mapWigTitan'},
                                    $options{'plpTitan'}, $options{'plpeTitan'}, $options{'ncTitan'}, $options{'ncmTitan'}, $options{'symmetric'}, $options{'transtate'}, $options{'tranclone'}, $confs{'targetRegionTitan'});
     RunCommand($cmd,$options{'noexecute'},$options{'quiet'});
   }
@@ -1729,6 +1731,7 @@ sub helpm {
   print STDERR "\t--skipTask\tthe task to be skipped, e.g, \'BaseRecalibration\' for reduced bam processing time while not affecting the calling significantly.\n";
   print STDERR "\t--configure\tthe tab delimited file containing conf info for annotations\n";
   print STDERR "\t--sampleName\tthe name of the lane needed to be processed (must set for runlevel 1-5)\n";
+  print STDERR "\t--gender\tthe gender of the subject (default: female), set it to male to correct CNA calls for X chromosome\n";
   print STDERR "\t--seqType\tcomma separated, possible arguments \'paired-end\', \'single-end\', \'WXS\' and \'WGS\' (default).\n";
   print STDERR "\t--root\t\tthe root directory of the pipeline (default is \$bin/../PIPELINE/, MUST set using other dir)\n";
   print STDERR "\t--species\tspecify the reference version of the species, such as hg19 (default), mm10.\n";
