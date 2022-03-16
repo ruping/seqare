@@ -210,14 +210,14 @@ runTitan <- function(sampleName, gender, snpFile, tumWig, normWig, gc, map, plp,
           layout(matrix(c(1,2,3,3),nrow=2),widths=c(2,1))
           par(pty="m")
           par(mar=c(4,4,2,1))
-          plotCNlogRByChr(results, ploidy = ploidy, normal=norm, ylim = c(-2, 2), cex=0.25, chr=c(1:22,"X"),
+          plotCNlogRByChr(results.cn, ploidy = ploidy, normal=norm, ylim = c(-2, 2), cex=0.25, chr=c(1:22,"X"),
                           main=paste(sampleName, " nc=", numClusters, sep=""),
                           xlab=paste("normC=", round(norm,3), " pl=", ploidy,
                                      " cellularity=", round(cellularity,3),
                                      " SD=",SD," s=",s," nc=",nclones," np=",npoints,"
                                      md=",meandepth,sep=""),
                           cex.lab=0.8)
-          plotAllelicRatio(results, ylim = c(0, 1), chr=c(1:22,"X"),
+          plotAllelicRatio(results.cn, ylim = c(0, 1), chr=c(1:22,"X"),
                            cex = 0.25, xlab = "Chromosomes", main = "", cex.lab=0.8)
 
           #plot bubble like
